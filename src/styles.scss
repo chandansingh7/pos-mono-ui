@@ -26,6 +26,26 @@ html, body {
   background: v.$color-background;
 }
 
+// ─── Global HCI sizing for form controls & buttons ──────────────────────────
+// Inputs (including date pickers) use a compact 40px outline height by default.
+// Buttons use a consistent 40px min-height for comfortable touch targets.
+
+// All outlined mat-form-fields (text, number, date, select) — 40px container.
+.mat-mdc-form-field {
+  --mdc-outlined-text-field-container-height: 40px;
+}
+
+// Normalize common button types to a single comfortable height.
+.mat-mdc-raised-button,
+.mat-mdc-outlined-button,
+.mat-mdc-stroked-button,
+.mat-mdc-button-base {
+  min-height: 40px;
+  padding: 0 16px;
+  font-size: v.$font-size-base;
+  font-weight: v.$font-weight-medium;
+}
+
 // ─── Global Layout Helpers ───────────────────────────────────────────────────
 .full-width  { width: 100%; }
 .spacer      { flex: 1; }
