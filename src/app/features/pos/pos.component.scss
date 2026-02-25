@@ -243,25 +243,32 @@
 }
 
 .compact-field {
-  --mdc-outlined-text-field-container-height: 40px;
+  /* HCI: comfortable touch target ~44px height */
+  --mdc-outlined-text-field-container-height: 44px;
   margin: 0;
 
   ::ng-deep .mat-mdc-form-field-subscript-wrapper { display: none; }
-  ::ng-deep .mat-mdc-text-field-wrapper { padding: 0 8px; }
+  ::ng-deep .mat-mdc-text-field-wrapper {
+    padding: 0 10px;
+    height: 44px;
+  }
   ::ng-deep .mat-mdc-form-field-infix {
-    padding-top: 8px;
-    padding-bottom: 4px;
-    min-height: 18px;
+    padding-top: 10px;
+    padding-bottom: 8px;
+    min-height: 24px;
     box-sizing: border-box;
   }
   ::ng-deep .mat-mdc-select-value,
-  ::ng-deep .mat-mdc-input-element { font-size: 12px; line-height: 1.2; }
+  ::ng-deep .mat-mdc-input-element {
+    font-size: 13px;
+    line-height: 1.2;
+  }
   ::ng-deep .mat-mdc-floating-label {
-    font-size: 10px;
-    top: 50%;
+    font-size: 11px;
+    top: 52%;
   }
   ::ng-deep .mat-mdc-form-field.mat-mdc-form-field.mat-form-field-has-label .mat-mdc-floating-label.mdc-floating-label--float-above {
-    top: 2px;
+    top: 4px;
   }
   ::ng-deep .mat-mdc-form-field-icon-prefix { padding-right: 4px; }
   ::ng-deep .mat-mdc-form-field-icon-prefix .mat-icon { font-size: 16px; width: 16px; height: 16px; }
