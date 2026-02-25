@@ -27,10 +27,11 @@ export class ProductService {
 
   constructor(private http: HttpClient) {}
 
-  getAll(search?: string, categoryId?: number, page = 0, size = 20): Observable<ApiResponse<PageResponse<ProductResponse>>> {
+  getAll(search?: string, categoryId?: number, page = 0, size = 20, sort?: string): Observable<ApiResponse<PageResponse<ProductResponse>>> {
     let params = new HttpParams().set('page', page).set('size', size);
     if (search) params = params.set('search', search);
     if (categoryId) params = params.set('categoryId', categoryId);
+    if (sort) params = params.set('sort', sort);
     return this.http.get<ApiResponse<PageResponse<ProductResponse>>>(this.url, { params });
   }
 

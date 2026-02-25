@@ -151,7 +151,7 @@ export class ProductsComponent implements OnInit {
   sortBy(col: string): void {
     this.sortDir = this.sortCol === col && this.sortDir === 'asc' ? 'desc' : 'asc';
     this.sortCol = col;
-    this.applySort();
+    this.loadProducts(0);
   }
 
   sortIcon(col: string): string {
@@ -215,10 +215,11 @@ export class ProductsComponent implements OnInit {
 
   loadProducts(page = 0): void {
     this.loading = true;
+    const sort = this.sortCol ? `${this.sortCol},${this.sortDir}` : undefined;
     this.productService.getAll(
       this.searchControl.value || '',
       this.categoryFilter.value || undefined,
-      page, this.pageSize
+      page, this.pageSize, sort
     ).subscribe({
       next: res => {
         this.brokenImages.clear();
@@ -226,7 +227,6 @@ export class ProductsComponent implements OnInit {
         this.totalElements   = res.data?.totalElements || 0;
         this.loading = false;
         this.applyColumnFilters();
-        this.applySort();
         this.cdr.detectChanges();
       },
       error: () => { this.loading = false; this.cdr.detectChanges(); }
