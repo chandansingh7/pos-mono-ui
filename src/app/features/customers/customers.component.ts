@@ -47,6 +47,9 @@ export class CustomersComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    // Default: newest customers first
+    this.sortCol = 'updatedAt';
+    this.sortDir = 'desc';
     this.setupFilterPredicate();
     this.load();
     this.loadStats();

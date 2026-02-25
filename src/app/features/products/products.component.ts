@@ -63,6 +63,9 @@ export class ProductsComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    // Default: show most recently updated products first
+    this.sortCol = 'updatedAt';
+    this.sortDir = 'desc';
     this.setupFilterPredicate();
     this.loadCategories();
     this.loadProducts();

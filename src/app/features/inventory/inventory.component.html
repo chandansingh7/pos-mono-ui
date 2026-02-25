@@ -1,8 +1,13 @@
 <div class="page-header">
   <h2>Inventory</h2>
-  <button mat-stroked-button *ngIf="hasActiveFilters" (click)="clearFilters()">
-    <mat-icon>filter_alt_off</mat-icon> Clear Filters
-  </button>
+  <div class="header-actions">
+    <button mat-stroked-button *ngIf="hasActiveFilters" (click)="clearFilters()">
+      <mat-icon>filter_alt_off</mat-icon> Clear Filters
+    </button>
+    <button mat-stroked-button (click)="refresh()" matTooltip="Reload inventory">
+      <mat-icon>refresh</mat-icon> Refresh
+    </button>
+  </div>
 </div>
 
 <!-- ── Mini Stats ──────────────────────────────────────────────────────────── -->

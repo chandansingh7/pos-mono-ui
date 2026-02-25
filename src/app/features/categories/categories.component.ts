@@ -38,6 +38,9 @@ export class CategoriesComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    // Default: newest categories first
+    this.sortCol = 'updatedAt';
+    this.sortDir = 'desc';
     this.setupFilterPredicate();
     this.load();
     this.loadStats();

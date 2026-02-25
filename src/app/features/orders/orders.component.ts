@@ -49,6 +49,9 @@ export class OrdersComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    // Default: newest orders first (by date)
+    this.sortCol = 'date';
+    this.sortDir = 'desc';
     this.setupFilterPredicate();
     this.load();
     this.loadStats();

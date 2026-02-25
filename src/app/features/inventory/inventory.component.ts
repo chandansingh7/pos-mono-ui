@@ -43,10 +43,18 @@ export class InventoryComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    // Default: newest inventory changes first
+    this.sortCol = 'updatedAt';
+    this.sortDir = 'desc';
     this.setupFilterPredicate();
     this.load();
     this.loadStats();
     this.filters.valueChanges.pipe(debounceTime(200)).subscribe(() => this.applyColumnFilters());
+  }
+
+  refresh(): void {
+    this.load();
+    this.loadStats();
   }
 
   loadStats(): void {
