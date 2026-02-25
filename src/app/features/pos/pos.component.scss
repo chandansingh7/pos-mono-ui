@@ -236,7 +236,8 @@
   grid-template-columns: 1.1fr 1.1fr minmax(150px, 190px);
   gap: 8px;
   margin-bottom: 10px;
-  @media (max-width: 420px) {
+  /* On smaller screens, stack fields vertically for readability */
+  @media (max-width: 768px) {
     grid-template-columns: 1fr;
   }
 }
