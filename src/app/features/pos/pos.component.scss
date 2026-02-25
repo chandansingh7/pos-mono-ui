@@ -2,7 +2,8 @@
 
 .pos-layout {
   display: grid;
-  grid-template-columns: 1fr 380px;
+  /* Give the checkout column a bit more room so Customer/Payment/Discount labels are not truncated. */
+  grid-template-columns: 1fr 420px;
   gap: t.$space-lg;
   height: calc(100vh - 140px);
   min-height: 0;

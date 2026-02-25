@@ -62,8 +62,12 @@ export class ProductService {
   }
 
   getStats(): Observable<ApiResponse<ProductStats>> {
-    return this.http.get<ApiResponse<ProductStats>>(`${this.url}/stats`,
-      { headers: new HttpHeaders({ [SILENT_ERROR_HEADER]: '1' }) });
+    // Add a cache-busting param so stats always reflect the latest data.
+    const params = new HttpParams().set('_ts', Date.now().toString());
+    return this.http.get<ApiResponse<ProductStats>>(`${this.url}/stats`, {
+      headers: new HttpHeaders({ [SILENT_ERROR_HEADER]: '1' }),
+      params
+    });
   }
 
   /** Check which SKUs already exist; returns list of existing SKUs. */
