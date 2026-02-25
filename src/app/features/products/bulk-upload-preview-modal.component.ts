@@ -39,6 +39,7 @@ export class BulkUploadPreviewModalComponent implements OnInit {
   /** Upload progress 0–100 (file upload to server). */
   uploadProgress = 0;
   checkingSkus = false;
+  private progressTimer: any = null;
 
   get isValid(): boolean {
     return this.data.rows.length > 0 && this.data.rows.every(r => r.errors.length === 0);
@@ -135,6 +136,24 @@ export class BulkUploadPreviewModalComponent implements OnInit {
     this.data.rows.forEach((r, i) => { r.rowIndex = i + 1; });
   }
 
+  private startFakeProgress(): void {
+    this.clearFakeProgress();
+    this.uploadProgress = 1;
+    this.progressTimer = setInterval(() => {
+      // Simulate smooth progress but never reach 100% before the server responds.
+      if (this.uploadProgress < 90) {
+        this.uploadProgress += 1;
+      }
+    }, 200);
+  }
+
+  private clearFakeProgress(): void {
+    if (this.progressTimer) {
+      clearInterval(this.progressTimer);
+      this.progressTimer = null;
+    }
+  }
+
   upload(): void {
     if (!this.isValid) return;
     const file = buildCsvFileFromRows(this.data.rows, this.data.fileName || 'bulk-upload.csv');
@@ -146,11 +165,16 @@ export class BulkUploadPreviewModalComponent implements OnInit {
       willCreate: this.data.rows.filter(r => !r.skuExists).length
     });
     this.uploading = true;
-    this.uploadProgress = 0;
+    this.startFakeProgress();
     this.productService.bulkUpload(file, percent => {
-      this.uploadProgress = percent;
+      // If the backend reports real upload progress, keep the UI in sync but
+      // never move backwards relative to the fake timer.
+      if (percent != null) {
+        this.uploadProgress = Math.max(this.uploadProgress, percent);
+      }
     }).subscribe({
       next: res => {
+        this.clearFakeProgress();
         this.uploadProgress = 100;
         this.uploading = false;
         const d = res.data;
@@ -178,6 +202,7 @@ export class BulkUploadPreviewModalComponent implements OnInit {
       error: err => {
         this.uploadProgress = 0;
         this.uploading = false;
+        this.clearFakeProgress();
         console.warn('[BulkUpload] Upload failed:', err?.message || err);
         this.snackBar.open('Bulk upload failed', 'Close', { duration: 4000 });
       }
