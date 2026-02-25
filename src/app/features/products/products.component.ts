@@ -125,9 +125,11 @@ export class ProductsComponent implements OnInit {
       this.snackBar.open('Please select a CSV or Excel file', 'Close', { duration: 3000 });
       return;
     }
+    console.log('[BulkUpload] File selected:', { fileName: file.name, sizeBytes: file.size, type: file.type });
     this.bulkPreviewLoading = true;
     parseBulkFile(file).then(rows => {
       this.bulkPreviewLoading = false;
+      console.log('[BulkUpload] Parsed preview:', { rowCount: rows.length, sample: rows.slice(0, 2).map(r => ({ rowIndex: r.rowIndex, name: r.name, sku: r.sku, initialStock: r.initialStock })) });
       const data: BulkUploadPreviewData = { file, rows, fileName: file.name };
       this.dialog.open(BulkUploadPreviewModalComponent, {
         width: '960px',

@@ -62,6 +62,7 @@ export class BulkUploadPreviewModalComponent implements OnInit {
     private dialog: MatDialog
   ) {
     this.dataSource.data = this.data.rows;
+    console.log('[BulkUpload] Preview modal opened:', { fileName: this.data.fileName, rowCount: this.data.rows.length });
   }
 
   ngOnInit(): void {
@@ -76,17 +77,23 @@ export class BulkUploadPreviewModalComponent implements OnInit {
     const skus = this.data.rows
       .map(r => (r.sku || '').trim())
       .filter(s => s.length > 0);
-    if (skus.length === 0) return;
+    if (skus.length === 0) {
+      console.log('[BulkUpload] No SKUs to check (skipping bulk-check)');
+      return;
+    }
+    console.log('[BulkUpload] Bulk-check SKUs:', { count: skus.length, sample: skus.slice(0, 5) });
     this.checkingSkus = true;
     this.productService.bulkCheckSkus(skus).subscribe({
       next: res => {
         this.checkingSkus = false;
-        const existingSet = new Set((res.data || []) as string[]);
+        const existing = (res.data || []) as string[];
+        const existingSet = new Set(existing);
         this.data.rows.forEach(r => {
           (r as BulkPreviewRow).skuExists = existingSet.has((r.sku || '').trim());
           // Re-validate now that we know whether this SKU already exists.
           r.errors = validatePreviewRow(r);
         });
+        console.log('[BulkUpload] Bulk-check result:', { existingCount: existing.length, willUpdate: this.data.rows.filter(r => r.skuExists).length, willCreate: this.data.rows.filter(r => !r.skuExists).length });
         this.refreshTable();
       },
       error: () => { this.checkingSkus = false; }
@@ -128,13 +135,27 @@ export class BulkUploadPreviewModalComponent implements OnInit {
 
   upload(): void {
     if (!this.isValid) return;
-    this.uploading = true;
     const file = buildCsvFileFromRows(this.data.rows, this.data.fileName || 'bulk-upload.csv');
+    console.log('[BulkUpload] Upload starting:', {
+      fileName: file.name,
+      sizeBytes: file.size,
+      rowCount: this.data.rows.length,
+      willUpdate: this.data.rows.filter(r => r.skuExists).length,
+      willCreate: this.data.rows.filter(r => !r.skuExists).length
+    });
+    this.uploading = true;
     this.productService.bulkUpload(file).subscribe({
       next: res => {
         this.uploading = false;
         const d = res.data;
         if (d) {
+          console.log('[BulkUpload] Upload response:', {
+            totalRows: d.totalRows,
+            successCount: d.successCount,
+            updatedCount: d.updatedCount,
+            failCount: d.failCount,
+            errors: d.errors?.length ? d.errors.slice(0, 5) : []
+          });
           const updated = d.updatedCount ?? 0;
           const parts = [`${d.successCount} created`];
           if (updated > 0) parts.push(`${updated} updated`);
@@ -148,8 +169,9 @@ export class BulkUploadPreviewModalComponent implements OnInit {
         }
         this.dialogRef.close(true);
       },
-      error: () => {
+      error: err => {
         this.uploading = false;
+        console.warn('[BulkUpload] Upload failed:', err?.message || err);
         this.snackBar.open('Bulk upload failed', 'Close', { duration: 4000 });
       }
     });
