@@ -11,20 +11,27 @@ import { CompanyService } from '../../core/services/company.service';
 import { OrderResponse } from '../../core/models/order.models';
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
 
+/** Row model: either an order or a detail placeholder (shown below the expanded order). */
+export type OrderTableRow = OrderResponse | { isDetailRow: true; order: OrderResponse };
+
 @Component({
   selector: 'app-orders',
   templateUrl: './orders.component.html',
   styleUrls: ['./orders.component.scss']
 })
 export class OrdersComponent implements OnInit {
-  dataSource = new MatTableDataSource<OrderResponse>();
+  dataSource = new MatTableDataSource<OrderTableRow>([]);
   displayedColumns = ['id', 'customer', 'cashier', 'items', 'total', 'payment', 'status', 'date', 'actions'];
+  expandedDetailColumn = 'expandedDetail';
   stats: OrderStats | null = null;
 
   totalElements = 0;
   pageSize = 10;
   loading = false;
   expandedOrder: OrderResponse | null = null;
+
+  /** Orders for current page (from server); detail rows are inserted in buildTableRows(). */
+  private allOrders: OrderResponse[] = [];
 
   filters = new FormGroup({
     id:       new FormControl(''),
@@ -76,7 +83,7 @@ export class OrdersComponent implements OnInit {
   private applySort(): void {
     if (!this.sortCol) return;
     const dir = this.sortDir === 'asc' ? 1 : -1;
-    this.dataSource.data = [...this.dataSource.data].sort((a, b) => {
+    this.allOrders = [...this.allOrders].sort((a, b) => {
       let va: any, vb: any;
       switch (this.sortCol) {
         case 'customer': va = a.customerName ?? 'Walk-in'; vb = b.customerName ?? 'Walk-in'; break;
@@ -90,23 +97,48 @@ export class OrdersComponent implements OnInit {
       vb = (vb ?? '').toString().toLowerCase();
       return (va < vb ? -1 : va > vb ? 1 : 0) * dir;
     });
+    this.dataSource.data = this.buildTableRows();
   }
 
   private setupFilterPredicate(): void {
-    this.dataSource.filterPredicate = (row: OrderResponse, filter: string) => {
+    this.dataSource.filterPredicate = (row: OrderTableRow, filter: string) => {
+      if (row && (row as any).isDetailRow) return true;
+      const o = row as OrderResponse;
       const f = JSON.parse(filter);
       return [
-        this.contains(row.id?.toString(), f.id),
-        this.contains(row.customerName || 'Walk-in', f.customer),
-        this.contains(row.cashierUsername, f.cashier),
-        this.contains(row.items?.length?.toString(), f.items),
-        this.contains(row.total?.toString(), f.total),
-        this.contains(row.paymentMethod, f.payment),
-        this.contains(row.status, f.status),
-        this.contains(row.createdAt, f.date),
+        this.contains(o.id?.toString(), f.id),
+        this.contains(o.customerName || 'Walk-in', f.customer),
+        this.contains(o.cashierUsername, f.cashier),
+        this.contains(o.items?.length?.toString(), f.items),
+        this.contains(o.total?.toString(), f.total),
+        this.contains(o.paymentMethod, f.payment),
+        this.contains(o.status, f.status),
+        this.contains(o.createdAt, f.date),
       ].every(Boolean);
     };
   }
+
+  /** Build table rows: orders with optional detail row inserted after expanded order. */
+  private buildTableRows(): OrderTableRow[] {
+    const rows: OrderTableRow[] = [];
+    for (const o of this.allOrders) {
+      rows.push(o);
+      if (this.expandedOrder?.id === o.id) rows.push({ isDetailRow: true, order: o });
+    }
+    return rows;
+  }
+
+  isOrderRow(row: OrderTableRow): row is OrderResponse {
+    return row != null && !(row as any).isDetailRow;
+  }
+
+  isDetailRow(row: OrderTableRow): row is { isDetailRow: true; order: OrderResponse } {
+    return row != null && !!(row as any).isDetailRow;
+  }
+
+  /** For matRowDef when: predicate (index, row) => boolean */
+  whenOrderRow = (_index: number, row: OrderTableRow): boolean => this.isOrderRow(row);
+  whenDetailRow = (_index: number, row: OrderTableRow): boolean => this.isDetailRow(row);
 
   private contains(value: string | null | undefined, filter: string): boolean {
     if (!filter) return true;
@@ -131,9 +163,11 @@ export class OrdersComponent implements OnInit {
     this.loading = true;
     this.orderService.getAll(page, this.pageSize).subscribe({
       next: res => {
-        this.dataSource.data = res.data?.content || [];
-        this.totalElements   = res.data?.totalElements || 0;
+        this.allOrders = res.data?.content || [];
+        this.totalElements = res.data?.totalElements || 0;
+        this.expandedOrder = null;
         this.loading = false;
+        this.dataSource.data = this.buildTableRows();
         this.applyColumnFilters();
         this.applySort();
       },
@@ -142,7 +176,15 @@ export class OrdersComponent implements OnInit {
   }
 
   onPage(e: PageEvent): void { this.pageSize = e.pageSize; this.load(e.pageIndex); }
-  toggleExpand(order: OrderResponse): void { this.expandedOrder = this.expandedOrder?.id === order.id ? null : order; }
+
+  onOrderRowClick(row: OrderTableRow): void {
+    if (this.isOrderRow(row)) this.toggleExpand(row);
+  }
+
+  toggleExpand(order: OrderResponse): void {
+    this.expandedOrder = this.expandedOrder?.id === order.id ? null : order;
+    this.dataSource.data = this.buildTableRows();
+  }
 
   cancelOrder(order: OrderResponse): void {
     this.dialog.open(ConfirmDialogComponent, {

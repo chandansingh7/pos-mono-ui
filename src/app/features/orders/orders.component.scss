@@ -39,7 +39,31 @@
 
 .order-row { cursor: pointer; &:hover { background: t.$color-background; } }
 
-.order-detail { padding: t.$space-md t.$space-lg; background: #fafafa; }
+.row-selected { background: #e3f2fd !important; }
+
+.detail-cell { padding: 0 !important; vertical-align: top !important; border-bottom: 1px solid t.$color-border; }
+.detail-row .mat-mdc-cell { border-bottom: 1px solid t.$color-border; }
+
+.order-detail {
+  padding: t.$space-md t.$space-lg;
+  background: #fafafa;
+}
+
+.expand-collapse-panel {
+  overflow: hidden;
+  animation: expandPanel 0.25s ease-out;
+}
+
+@keyframes expandPanel {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 800px;
+  }
+}
 
 .detail-header {
   display: flex; justify-content: space-between; align-items: center;
