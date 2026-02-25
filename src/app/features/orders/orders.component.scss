@@ -39,7 +39,11 @@
 
 .order-row { cursor: pointer; &:hover { background: t.$color-background; } }
 
-.row-selected { background: #e3f2fd !important; }
+/* Selected row and its cells so highlight is visible (Material styles cells, not only tr) */
+tr.row-selected,
+tr.row-selected .mat-mdc-cell {
+  background: #e3f2fd !important;
+}
 
 .detail-cell { padding: 0 !important; vertical-align: top !important; border-bottom: 1px solid t.$color-border; }
 .detail-row .mat-mdc-cell { border-bottom: 1px solid t.$color-border; }

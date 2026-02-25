@@ -216,7 +216,7 @@
 
       <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns; when: whenOrderRow" [class.row-selected]="expandedOrder?.id === row.id" (click)="onOrderRowClick(row)" class="data-row order-row"></tr>
-      <tr mat-row *matRowDef="let row; columns: [expandedDetailColumn]; when: whenDetailRow" class="detail-row"></tr>
+      <tr mat-row *matRowDef="let row; columns: [expandedDetailColumn]; when: whenDetailRow" class="detail-row" #detailRow></tr>
       <tr class="mat-row" *matNoDataRow>
         <td class="mat-cell text-center" [attr.colspan]="displayedColumns.length" style="padding:32px">No orders found.</td>
       </tr>

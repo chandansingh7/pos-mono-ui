@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
 import { PageEvent } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -19,11 +19,14 @@ export type OrderTableRow = OrderResponse | { isDetailRow: true; order: OrderRes
   templateUrl: './orders.component.html',
   styleUrls: ['./orders.component.scss']
 })
-export class OrdersComponent implements OnInit {
+export class OrdersComponent implements OnInit, AfterViewChecked {
   dataSource = new MatTableDataSource<OrderTableRow>([]);
   displayedColumns = ['id', 'customer', 'cashier', 'items', 'total', 'payment', 'status', 'date', 'actions'];
   expandedDetailColumn = 'expandedDetail';
   stats: OrderStats | null = null;
+
+  @ViewChild('detailRow') detailRowRef?: ElementRef<HTMLTableRowElement>;
+  private scrollToDetailOnce = false;
 
   totalElements = 0;
   pageSize = 10;
@@ -63,6 +66,13 @@ export class OrdersComponent implements OnInit {
     this.load();
     this.loadStats();
     this.filters.valueChanges.pipe(debounceTime(200)).subscribe(() => this.applyColumnFilters());
+  }
+
+  ngAfterViewChecked(): void {
+    if (this.scrollToDetailOnce && this.detailRowRef?.nativeElement) {
+      this.scrollToDetailOnce = false;
+      setTimeout(() => this.detailRowRef?.nativeElement?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
+    }
   }
 
   loadStats(): void {
@@ -182,8 +192,10 @@ export class OrdersComponent implements OnInit {
   }
 
   toggleExpand(order: OrderResponse): void {
+    const opening = this.expandedOrder?.id !== order.id;
     this.expandedOrder = this.expandedOrder?.id === order.id ? null : order;
     this.dataSource.data = this.buildTableRows();
+    if (opening && this.expandedOrder) this.scrollToDetailOnce = true;
   }
 
   cancelOrder(order: OrderResponse): void {
