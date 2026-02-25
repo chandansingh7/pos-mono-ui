@@ -5,6 +5,7 @@ import { tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../models/api.models';
 import { CompanyRequest, CompanyResponse } from '../models/company.models';
+import { resolveProductImageUrl } from '../utils/product-image.util';
 
 @Injectable({ providedIn: 'root' })
 export class CompanyService {
@@ -29,8 +30,22 @@ export class CompanyService {
   private applyCached(data: CompanyResponse | null | undefined): void {
     this.cached = data ?? null;
     if (data?.faviconUrl && typeof document !== 'undefined') {
-      const link = document.querySelector('link[rel="icon"]') as HTMLLinkElement | null;
-      if (link) link.href = data.faviconUrl;
+      const resolved = resolveProductImageUrl(data.faviconUrl);
+      if (!resolved) return;
+
+      const head = document.head || document.getElementsByTagName('head')[0];
+      if (!head) return;
+
+      // Remove any existing favicon links so browsers actually refresh it
+      const oldLinks = head.querySelectorAll('link[rel*="icon"]');
+      oldLinks.forEach(l => head.removeChild(l));
+
+      const link = document.createElement('link');
+      link.rel = 'icon';
+      link.type = 'image/png';
+      // Cache-buster so browsers don't keep the old icon
+      link.href = `${resolved}${resolved.includes('?') ? '&' : '?'}v=${Date.now()}`;
+      head.appendChild(link);
     }
   }
 
