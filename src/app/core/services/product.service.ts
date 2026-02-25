@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams, HttpEventType, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { filter, map, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { ApiResponse, PageResponse } from '../models/api.models';
 import { ProductRequest, ProductResponse } from '../models/product.models';
@@ -28,7 +29,11 @@ export class ProductService {
   constructor(private http: HttpClient) {}
 
   getAll(search?: string, categoryId?: number, page = 0, size = 20, sort?: string): Observable<ApiResponse<PageResponse<ProductResponse>>> {
-    let params = new HttpParams().set('page', page).set('size', size);
+    // Add cache-busting param so refreshed list after bulk upload always shows latest data.
+    let params = new HttpParams()
+      .set('page', page)
+      .set('size', size)
+      .set('_ts', Date.now().toString());
     if (search) params = params.set('search', search);
     if (categoryId) params = params.set('categoryId', categoryId);
     if (sort) params = params.set('sort', sort);
@@ -76,10 +81,25 @@ export class ProductService {
     return this.http.post<ApiResponse<string[]>>(`${this.url}/bulk-check`, list);
   }
 
-  bulkUpload(file: File): Observable<ApiResponse<BulkUploadResult>> {
+  /**
+   * Bulk upload with optional progress callback (0–100 percent).
+   * Progress reflects upload of the file to the server, not server-side processing.
+   */
+  bulkUpload(file: File, onProgress?: (percent: number) => void): Observable<ApiResponse<BulkUploadResult>> {
     const form = new FormData();
     form.append('file', file);
-    return this.http.post<ApiResponse<BulkUploadResult>>(`${this.url}/bulk-upload`, form);
+    return this.http.post<ApiResponse<BulkUploadResult>>(`${this.url}/bulk-upload`, form, {
+      reportProgress: true,
+      observe: 'events'
+    }).pipe(
+      tap(event => {
+        if (event.type === HttpEventType.UploadProgress && event.total && event.total > 0 && onProgress) {
+          onProgress(Math.round((100 * event.loaded) / event.total));
+        }
+      }),
+      filter((event): event is HttpResponse<ApiResponse<BulkUploadResult>> => event.type === HttpEventType.Response),
+      map(event => event.body!)
+    );
   }
 
   downloadBulkTemplate(): Observable<Blob> {

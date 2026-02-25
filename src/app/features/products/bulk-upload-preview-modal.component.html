@@ -60,6 +60,10 @@
   </div>
   <p *ngIf="!data.rows.length" class="no-data">No data rows found.</p>
 </mat-dialog-content>
+<div class="upload-progress-wrap" *ngIf="uploading">
+  <mat-progress-bar mode="determinate" [value]="uploadProgress"></mat-progress-bar>
+  <span class="upload-progress-text">{{ uploadProgress }}%</span>
+</div>
 <mat-dialog-actions align="end">
   <button mat-button (click)="cancel()" [disabled]="uploading">Cancel</button>
   <button mat-raised-button color="primary" (click)="upload()" [disabled]="!isValid || uploading">

@@ -36,6 +36,8 @@ export class BulkUploadPreviewModalComponent implements OnInit {
   displayedColumns = ['rowIndex', 'name', 'sku', 'price', 'category', 'initialStock', 'lowStockThreshold', 'errors', 'actions'];
   dataSource = new MatTableDataSource<BulkPreviewRow>([]);
   uploading = false;
+  /** Upload progress 0–100 (file upload to server). */
+  uploadProgress = 0;
   checkingSkus = false;
 
   get isValid(): boolean {
@@ -144,8 +146,12 @@ export class BulkUploadPreviewModalComponent implements OnInit {
       willCreate: this.data.rows.filter(r => !r.skuExists).length
     });
     this.uploading = true;
-    this.productService.bulkUpload(file).subscribe({
+    this.uploadProgress = 0;
+    this.productService.bulkUpload(file, percent => {
+      this.uploadProgress = percent;
+    }).subscribe({
       next: res => {
+        this.uploadProgress = 100;
         this.uploading = false;
         const d = res.data;
         if (d) {
@@ -170,6 +176,7 @@ export class BulkUploadPreviewModalComponent implements OnInit {
         this.dialogRef.close(true);
       },
       error: err => {
+        this.uploadProgress = 0;
         this.uploading = false;
         console.warn('[BulkUpload] Upload failed:', err?.message || err);
         this.snackBar.open('Bulk upload failed', 'Close', { duration: 4000 });
