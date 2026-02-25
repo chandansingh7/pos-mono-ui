@@ -84,6 +84,8 @@ export class BulkUploadPreviewModalComponent implements OnInit {
         const existingSet = new Set((res.data || []) as string[]);
         this.data.rows.forEach(r => {
           (r as BulkPreviewRow).skuExists = existingSet.has((r.sku || '').trim());
+          // Re-validate now that we know whether this SKU already exists.
+          r.errors = validatePreviewRow(r);
         });
         this.refreshTable();
       },

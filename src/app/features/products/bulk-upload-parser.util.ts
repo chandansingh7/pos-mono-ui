@@ -29,27 +29,58 @@ function parseCsvLine(line: string): string[] {
   return out;
 }
 
-function validateRow(cells: string[], rowIndex: number): string[] {
+function validateRowBase(cells: string[]): string[] {
   const errors: string[] = [];
-  const name = (cells[COL_NAME] ?? '').trim();
-  if (!name) errors.push('Name required');
+
+  // Price: optional, but if present must be a non-negative number.
   const priceStr = (cells[COL_PRICE] ?? '').trim();
   if (priceStr) {
     const num = parseFloat(priceStr);
     if (Number.isNaN(num)) errors.push('Invalid price');
     else if (num < 0) errors.push('Price must be ≥ 0');
-  } else errors.push('Price required');
+  }
+
+  // Initial stock: optional, but if present must be ≥ 0.
   const stockStr = (cells[COL_INITIAL_STOCK] ?? '').trim();
   if (stockStr) {
     const n = parseInt(stockStr, 10);
     if (Number.isNaN(n) || n < 0) errors.push('Initial stock must be ≥ 0');
   }
+
+  // Low stock threshold: optional, but if present must be ≥ 0.
   const lowStr = (cells[COL_LOW_STOCK_THRESHOLD] ?? '').trim();
   if (lowStr) {
     const n = parseInt(lowStr, 10);
     if (Number.isNaN(n) || n < 0) errors.push('Low stock threshold must be ≥ 0');
   }
+
   return errors;
+}
+
+// Validation when treating a row as a NEW product (no existing SKU).
+function validateRowAsNew(cells: string[], rowIndex: number): string[] {
+  const errors = validateRowBase(cells);
+  const name = (cells[COL_NAME] ?? '').trim();
+  if (!name) errors.push('Name required');
+  const priceStr = (cells[COL_PRICE] ?? '').trim();
+  if (!priceStr) errors.push('Price required');
+  return errors;
+}
+
+// Validation when treating a row as an UPDATE to an existing SKU.
+function validateRowAsUpdate(cells: string[], rowIndex: number): string[] {
+  const errors = validateRowBase(cells);
+  const skuStr = (cells[COL_SKU] ?? '').trim();
+  if (!skuStr) {
+    errors.push('SKU required for update');
+  }
+  return errors;
+}
+
+// Initial validation at parse time (before we know which SKUs exist) –
+// treat everything as a potential NEW product.
+function validateRowInitial(cells: string[], rowIndex: number): string[] {
+  return validateRowAsNew(cells, rowIndex);
 }
 
 function cellAt(cells: string[], index: number): string {
@@ -71,11 +102,11 @@ export function parseCsvFile(file: File): Promise<BulkPreviewRow[]> {
       const rows: BulkPreviewRow[] = [];
       for (let i = 1; i < lines.length; i++) {
         const cells = parseCsvLine(lines[i]);
-        if (cells.length <= COL_NAME) continue;
-        const nameVal = cellAt(cells, COL_NAME);
-        if (!nameVal) continue;
+        if (cells.length === 0) continue;
+        const hasAnyValue = cells.some(c => (c ?? '').toString().trim().length > 0);
+        if (!hasAnyValue) continue;
         const rowIndex = i + 1;
-        const errors = validateRow(cells, rowIndex);
+        const errors = validateRowInitial(cells, rowIndex);
         rows.push({
           rowIndex,
           name: cellAt(cells, COL_NAME),
@@ -119,10 +150,10 @@ export async function parseExcelFile(file: File): Promise<BulkPreviewRow[]> {
         for (let i = 1; i < rawRows.length; i++) {
           const raw = rawRows[i] ?? [];
           const cells = Array.isArray(raw) ? raw.map(c => (c != null ? String(c).trim() : '')) : [];
-          const nameVal = (cells[COL_NAME] ?? '').trim();
-          if (!nameVal) continue;
+          const hasAnyValue = cells.some(c => (c ?? '').toString().trim().length > 0);
+          if (!hasAnyValue) continue;
           const rowIndex = i + 1;
-          const errors = validateRow(cells, rowIndex);
+          const errors = validateRowInitial(cells, rowIndex);
           rows.push({
             rowIndex,
             name: cells[COL_NAME] ?? '',
@@ -162,7 +193,7 @@ export function validatePreviewRow(row: BulkPreviewRow): string[] {
     row.initialStock,
     row.lowStockThreshold
   ];
-  return validateRow(cells, row.rowIndex);
+  return row.skuExists ? validateRowAsUpdate(cells, row.rowIndex) : validateRowAsNew(cells, row.rowIndex);
 }
 
 /** Build a CSV file from current rows for upload (handles commas in values). */
