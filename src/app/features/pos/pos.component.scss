@@ -232,7 +232,8 @@
 // ── Cart footer: HCI — compact, efficient, clear hierarchy ───────────────────
 .checkout-fields-row {
   display: grid;
-  grid-template-columns: 1fr 1fr minmax(96px, 100px);
+  /* Give discount field more room so value and spinner are visible */
+  grid-template-columns: 1fr 1fr minmax(130px, 150px);
   gap: 8px;
   margin-bottom: 10px;
   @media (max-width: 420px) {
