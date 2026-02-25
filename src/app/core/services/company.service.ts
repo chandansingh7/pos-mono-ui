@@ -43,8 +43,10 @@ export class CompanyService {
       const link = document.createElement('link');
       link.rel = 'icon';
       link.type = 'image/png';
-      // Cache-buster so browsers don't keep the old icon
-      link.href = `${resolved}${resolved.includes('?') ? '&' : '?'}v=${Date.now()}`;
+      // Versioned cache key so browsers only refetch when company is updated
+      const versionSource = data.updatedAt ?? '';
+      const version = versionSource ? new Date(versionSource).getTime() : 0;
+      link.href = `${resolved}${resolved.includes('?') ? '&' : '?'}v=${version}`;
       head.appendChild(link);
     }
   }

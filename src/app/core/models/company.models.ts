@@ -11,6 +11,7 @@ export interface CompanyResponse {
   receiptFooterText?: string;
   receiptHeaderText?: string;
   receiptPaperSize?: string;
+  updatedAt?: string;
 }
 
 export interface CompanyRequest {
