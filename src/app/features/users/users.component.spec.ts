@@ -3,6 +3,7 @@ import { FormBuilder } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { of } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
 import { UserService, UserResponse, UserStats } from '../../core/services/user.service';
@@ -43,7 +44,7 @@ describe('UsersComponent', () => {
 
     await TestBed.configureTestingModule({
       declarations: [UsersComponent],
-      imports: [SharedModule, MatRadioModule],
+      imports: [SharedModule, MatRadioModule, NoopAnimationsModule],
       providers: [
         FormBuilder,
         { provide: AuthService, useValue: { getUsername: () => 'admin' } },
