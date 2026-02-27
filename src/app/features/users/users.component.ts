@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
+import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableDataSource } from '@angular/material/table';
 import { AuthService } from '../../core/services/auth.service';
@@ -18,8 +19,13 @@ export class UsersComponent implements OnInit {
   // ── User list ─────────────────────────────────────────────────────────────
   dataSource = new MatTableDataSource<UserResponse>();
   displayedColumns = ['username', 'email', 'role', 'status', 'createdAt', 'actions'];
+  totalElements = 0;
+  pageSize = 10;
+  pageIndex = 0;
   loadingUsers = false;
   stats: UserStats | null = null;
+
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   // ── Create form ───────────────────────────────────────────────────────────
   createForm: FormGroup;
@@ -60,18 +66,37 @@ export class UsersComponent implements OnInit {
     });
   }
 
-  ngOnInit(): void { this.loadUsers(); this.loadStats(); }
+  ngOnInit(): void { this.loadUsers(0); this.loadStats(); }
 
   loadStats(): void {
     this.userService.getStats().subscribe({ next: res => { this.stats = res.data ?? null; } });
   }
 
-  loadUsers(): void {
+  loadUsers(page = 0): void {
     this.loadingUsers = true;
-    this.userService.getAll().subscribe({
-      next: res => { this.dataSource.data = res.data || []; this.loadingUsers = false; },
+    this.pageIndex = page;
+    this.userService.getAll(page, this.pageSize).subscribe({
+      next: res => {
+        this.dataSource.data = res.data?.content || [];
+        this.totalElements = res.data?.totalElements ?? 0;
+        this.loadingUsers = false;
+      },
       error: () => { this.loadingUsers = false; }
     });
+  }
+
+  onPage(e: PageEvent): void {
+    this.pageSize = e.pageSize;
+    this.loadUsers(e.pageIndex);
+  }
+
+  /** Reset to first page and reload (e.g. after create/edit/toggle). */
+  refreshUsers(): void {
+    this.pageIndex = 0;
+    if (this.paginator) {
+      this.paginator.pageIndex = 0;
+    }
+    this.loadUsers(0);
   }
 
   openEdit(user: UserResponse): void {
@@ -80,7 +105,7 @@ export class UsersComponent implements OnInit {
       width: '680px',
       disableClose: true
     }).afterClosed().subscribe(updated => {
-      if (updated) { this.loadUsers(); this.loadStats(); }
+      if (updated) { this.refreshUsers(); this.loadStats(); }
     });
   }
 
@@ -95,7 +120,7 @@ export class UsersComponent implements OnInit {
     }).afterClosed().subscribe(confirmed => {
       if (!confirmed) return;
       this.userService.toggleActive(user.id).subscribe({
-        next: () => { this.snackBar.open(`User ${action.toLowerCase()}d`, 'Close', { duration: 3000 }); this.loadUsers(); this.loadStats(); },
+        next: () => { this.snackBar.open(`User ${action.toLowerCase()}d`, 'Close', { duration: 3000 }); this.refreshUsers(); this.loadStats(); },
         error: err => this.snackBar.open(err.error?.message || 'Error', 'Close', { duration: 4000 })
       });
     });
@@ -114,7 +139,7 @@ export class UsersComponent implements OnInit {
         this.createForm.reset({ role: 'CASHIER' });
         this.createForm.markAsUntouched();
         this.snackBar.open(this.successMessage, 'Close', { duration: 5000 });
-        this.loadUsers();
+        this.refreshUsers();
         this.loadStats();
       },
       error: err => {

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { ApiResponse } from '../models/api.models';
+import { ApiResponse, PageResponse } from '../models/api.models';
 import { Role } from '../models/auth.models';
 import { SILENT_ERROR_HEADER } from '../interceptors/error.interceptor';
 
@@ -55,8 +55,9 @@ export class UserService {
 
   constructor(private http: HttpClient) {}
 
-  getAll(): Observable<ApiResponse<UserResponse[]>> {
-    return this.http.get<ApiResponse<UserResponse[]>>(this.base);
+  getAll(page = 0, size = 10, sort = 'createdAt,desc'): Observable<ApiResponse<PageResponse<UserResponse>>> {
+    const params = { page: String(page), size: String(size), sort };
+    return this.http.get<ApiResponse<PageResponse<UserResponse>>>(this.base, { params: params as any });
   }
 
   getMe(): Observable<ApiResponse<UserResponse>> {
