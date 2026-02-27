@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -18,8 +19,12 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/c
 export class CategoriesComponent implements OnInit {
   dataSource = new MatTableDataSource<CategoryResponse>();
   displayedColumns = ['name', 'description', 'updatedAt', 'actions'];
+  totalElements = 0;
+  pageSize = 20;
   loading = false;
   stats: { total: number } | null = null;
+
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   filters = new FormGroup({
     name:        new FormControl(''),
@@ -54,22 +59,12 @@ export class CategoriesComponent implements OnInit {
   sortBy(col: string): void {
     this.sortDir = this.sortCol === col && this.sortDir === 'asc' ? 'desc' : 'asc';
     this.sortCol = col;
-    this.applySort();
+    this.load(0);
   }
 
   sortIcon(col: string): string {
     if (this.sortCol !== col) return 'swap_vert';
     return this.sortDir === 'asc' ? 'arrow_upward' : 'arrow_downward';
-  }
-
-  private applySort(): void {
-    if (!this.sortCol) return;
-    const dir = this.sortDir === 'asc' ? 1 : -1;
-    this.dataSource.data = [...this.dataSource.data].sort((a, b) => {
-      const va = ((a as any)[this.sortCol] ?? '').toString().toLowerCase();
-      const vb = ((b as any)[this.sortCol] ?? '').toString().toLowerCase();
-      return (va < vb ? -1 : va > vb ? 1 : 0) * dir;
-    });
   }
 
   private setupFilterPredicate(): void {
@@ -97,17 +92,23 @@ export class CategoriesComponent implements OnInit {
     });
   }
 
-  load(): void {
+  load(page = 0): void {
     this.loading = true;
-    this.categoryService.getAll().subscribe({
+    const sort = this.sortCol ? `${this.sortCol},${this.sortDir}` : 'updatedAt,desc';
+    this.categoryService.getAll(page, this.pageSize, sort).subscribe({
       next: res => {
-        this.dataSource.data = res.data || [];
+        this.dataSource.data = res.data?.content || [];
+        this.totalElements = res.data?.totalElements ?? 0;
         this.loading = false;
         this.applyColumnFilters();
-        this.applySort();
       },
       error: () => { this.loading = false; }
     });
+  }
+
+  onPage(e: PageEvent): void {
+    this.pageSize = e.pageSize;
+    this.load(e.pageIndex);
   }
 
   openDialog(category?: CategoryResponse): void {
@@ -118,7 +119,7 @@ export class CategoriesComponent implements OnInit {
         ? this.categoryService.update(category.id, result)
         : this.categoryService.create(result);
       call.subscribe({
-        next: () => { this.snackBar.open('Category saved!', 'Close', { duration: 3000 }); this.load(); this.loadStats(); },
+        next: () => { this.snackBar.open('Category saved!', 'Close', { duration: 3000 }); this.load(0); this.loadStats(); },
         error: err => this.snackBar.open(err.error?.message || 'Error', 'Close', { duration: 4000 })
       });
     });
@@ -130,7 +131,7 @@ export class CategoriesComponent implements OnInit {
     }).afterClosed().subscribe(confirmed => {
       if (!confirmed) return;
       this.categoryService.delete(category.id).subscribe({
-        next: () => { this.snackBar.open('Deleted', 'Close', { duration: 3000 }); this.load(); this.loadStats(); },
+        next: () => { this.snackBar.open('Deleted', 'Close', { duration: 3000 }); this.load(0); this.loadStats(); },
         error: err => this.snackBar.open(err.error?.message || 'Error', 'Close', { duration: 4000 })
       });
     });

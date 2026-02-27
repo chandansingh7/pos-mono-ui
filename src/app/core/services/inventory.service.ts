@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { ApiResponse } from '../models/api.models';
+import { ApiResponse, PageResponse } from '../models/api.models';
 import { InventoryResponse, InventoryUpdateRequest } from '../models/inventory.models';
 import { SILENT_ERROR_HEADER } from '../interceptors/error.interceptor';
 
@@ -19,8 +19,9 @@ export class InventoryService {
 
   constructor(private http: HttpClient) {}
 
-  getAll(): Observable<ApiResponse<InventoryResponse[]>> {
-    return this.http.get<ApiResponse<InventoryResponse[]>>(this.url);
+  getAll(page = 0, size = 20, sort = 'updatedAt,desc'): Observable<ApiResponse<PageResponse<InventoryResponse>>> {
+    const params = { page: String(page), size: String(size), sort };
+    return this.http.get<ApiResponse<PageResponse<InventoryResponse>>>(this.url, { params: params as any });
   }
 
   getLowStock(): Observable<ApiResponse<InventoryResponse[]>> {

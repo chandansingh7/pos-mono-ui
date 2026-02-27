@@ -1,4 +1,5 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
+import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -19,8 +20,12 @@ export class InventoryComponent implements OnInit {
   lowStockItems: InventoryResponse[] = [];
   displayedColumns = ['productName', 'sku', 'quantity', 'threshold', 'status', 'updatedAt', 'actions'];
 
+  totalElements = 0;
+  pageSize = 20;
   loading = false;
   stats: InventoryStats | null = null;
+
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   filters = new FormGroup({
     productName: new FormControl(''),
@@ -47,14 +52,16 @@ export class InventoryComponent implements OnInit {
     this.sortCol = 'updatedAt';
     this.sortDir = 'desc';
     this.setupFilterPredicate();
-    this.load();
+    this.load(0);
     this.loadStats();
+    this.loadLowStock();
     this.filters.valueChanges.pipe(debounceTime(200)).subscribe(() => this.applyColumnFilters());
   }
 
   refresh(): void {
-    this.load();
+    this.load(0);
     this.loadStats();
+    this.loadLowStock();
   }
 
   loadStats(): void {
@@ -69,31 +76,12 @@ export class InventoryComponent implements OnInit {
   sortBy(col: string): void {
     this.sortDir = this.sortCol === col && this.sortDir === 'asc' ? 'desc' : 'asc';
     this.sortCol = col;
-    this.applySort();
+    this.load(0);
   }
 
   sortIcon(col: string): string {
     if (this.sortCol !== col) return 'swap_vert';
     return this.sortDir === 'asc' ? 'arrow_upward' : 'arrow_downward';
-  }
-
-  private applySort(): void {
-    if (!this.sortCol) return;
-    const dir = this.sortDir === 'asc' ? 1 : -1;
-    this.dataSource.data = [...this.dataSource.data].sort((a, b) => {
-      let va: any, vb: any;
-      switch (this.sortCol) {
-        case 'sku':       va = a.productSku; vb = b.productSku; break;
-        case 'threshold': va = a.lowStockThreshold ?? 0; vb = b.lowStockThreshold ?? 0; break;
-        case 'status':    va = a.stockStatus; vb = b.stockStatus; break;
-        case 'quantity':  va = a.quantity ?? 0; vb = b.quantity ?? 0; break;
-        default:          va = (a as any)[this.sortCol]; vb = (b as any)[this.sortCol];
-      }
-      if (typeof va === 'number') return (va - vb) * dir;
-      va = (va ?? '').toString().toLowerCase();
-      vb = (vb ?? '').toString().toLowerCase();
-      return (va < vb ? -1 : va > vb ? 1 : 0) * dir;
-    });
   }
 
   private setupFilterPredicate(): void {
@@ -127,20 +115,40 @@ export class InventoryComponent implements OnInit {
     });
   }
 
-  load(): void {
+  /** Map frontend column names to backend entity sort properties. */
+  private getSortParam(): string {
+    const prop: Record<string, string> = {
+      productName: 'product.name', sku: 'product.sku', quantity: 'quantity',
+      threshold: 'lowStockThreshold', status: 'quantity', updatedAt: 'updatedAt'
+    };
+    const sortProp = prop[this.sortCol] || 'updatedAt';
+    return `${sortProp},${this.sortDir}`;
+  }
+
+  load(page = 0): void {
     this.loading = true;
-    this.inventoryService.getAll().subscribe({
+    const sort = this.getSortParam();
+    this.inventoryService.getAll(page, this.pageSize, sort).subscribe({
       next: res => {
-        const all = res.data || [];
-        this.dataSource.data = all;
-        this.lowStockItems   = all.filter(i => i.stockStatus !== 'IN_STOCK');
+        this.dataSource.data = res.data?.content || [];
+        this.totalElements = res.data?.totalElements ?? 0;
         this.loading = false;
         this.applyColumnFilters();
-        this.applySort();
         this.cdr.detectChanges();
       },
       error: () => { this.loading = false; this.cdr.detectChanges(); }
     });
+  }
+
+  loadLowStock(): void {
+    this.inventoryService.getLowStock().subscribe({
+      next: res => { this.lowStockItems = res.data || []; this.cdr.detectChanges(); }
+    });
+  }
+
+  onPage(e: PageEvent): void {
+    this.pageSize = e.pageSize;
+    this.load(e.pageIndex);
   }
 
   statusClass(status: string): string {
@@ -159,8 +167,9 @@ export class InventoryComponent implements OnInit {
         this.inventoryService.update(item.productId, result).subscribe({
           next: () => {
             this.snackBar.open('Stock updated!', 'Close', { duration: 3000 });
-            this.load();
+            this.load(0);
             this.loadStats();
+            this.loadLowStock();
           },
           error: err => this.snackBar.open(err.error?.message || 'Error', 'Close', { duration: 4000 })
         });

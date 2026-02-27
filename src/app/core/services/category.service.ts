@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { ApiResponse } from '../models/api.models';
+import { ApiResponse, PageResponse } from '../models/api.models';
 import { CategoryRequest, CategoryResponse } from '../models/category.models';
 import { SILENT_ERROR_HEADER } from '../interceptors/error.interceptor';
 
@@ -12,8 +12,15 @@ export class CategoryService {
 
   constructor(private http: HttpClient) {}
 
-  getAll(): Observable<ApiResponse<CategoryResponse[]>> {
-    return this.http.get<ApiResponse<CategoryResponse[]>>(this.url);
+  /** Paginated list for categories table. */
+  getAll(page = 0, size = 20, sort = 'updatedAt,desc'): Observable<ApiResponse<PageResponse<CategoryResponse>>> {
+    const params = { page: String(page), size: String(size), sort };
+    return this.http.get<ApiResponse<PageResponse<CategoryResponse>>>(this.url, { params: params as any });
+  }
+
+  /** Small list for dropdowns (e.g. product form). */
+  getList(): Observable<ApiResponse<CategoryResponse[]>> {
+    return this.http.get<ApiResponse<CategoryResponse[]>>(`${this.url}/list`);
   }
 
   getById(id: number): Observable<ApiResponse<CategoryResponse>> {

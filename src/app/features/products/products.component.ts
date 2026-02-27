@@ -234,7 +234,7 @@ export class ProductsComponent implements OnInit {
   }
 
   loadCategories(): void {
-    this.categoryService.getAll().subscribe({ next: res => { this.categories = res.data || []; } });
+    this.categoryService.getList().subscribe({ next: res => { this.categories = res.data || []; } });
   }
 
   onPage(e: PageEvent): void {

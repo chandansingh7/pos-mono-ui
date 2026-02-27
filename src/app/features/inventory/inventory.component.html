@@ -155,4 +155,6 @@
       </tr>
     </table>
   </div>
+  <mat-paginator [length]="totalElements" [pageSize]="pageSize" [pageSizeOptions]="[10,20,50]"
+    (page)="onPage($event)" showFirstLastButtons></mat-paginator>
 </mat-card>
