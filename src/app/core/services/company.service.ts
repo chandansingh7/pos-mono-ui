@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../models/api.models';
@@ -11,6 +11,9 @@ import { resolveProductImageUrl } from '../utils/product-image.util';
 export class CompanyService {
   private url = `${environment.apiUrl}/api/company`;
   private cached: CompanyResponse | null = null;
+
+  /** Emits whenever company data changes (get, update, uploadLogo, uploadFavicon). */
+  readonly company$ = new BehaviorSubject<CompanyResponse | null>(null);
 
   constructor(private http: HttpClient) {}
 
@@ -29,6 +32,7 @@ export class CompanyService {
 
   private applyCached(data: CompanyResponse | null | undefined): void {
     this.cached = data ?? null;
+    this.company$.next(this.cached);
     if (data?.faviconUrl && typeof document !== 'undefined') {
       const resolved = resolveProductImageUrl(data.faviconUrl);
       if (!resolved) return;

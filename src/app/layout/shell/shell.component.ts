@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { AuthService } from '../../core/services/auth.service';
@@ -6,6 +6,7 @@ import { CompanyService } from '../../core/services/company.service';
 import { ChangePasswordDialogComponent } from '../../shared/components/change-password-dialog/change-password-dialog.component';
 import { EditUserDialogComponent } from '../../shared/components/edit-user-dialog/edit-user-dialog.component';
 import { UserService } from '../../core/services/user.service';
+import { Subscription } from 'rxjs';
 import { CompanyResponse } from '../../core/models/company.models';
 import { resolveProductImageUrl } from '../../core/utils/product-image.util';
 
@@ -22,11 +23,12 @@ interface NavItem {
   templateUrl: './shell.component.html',
   styleUrls: ['./shell.component.scss']
 })
-export class ShellComponent implements OnInit {
+export class ShellComponent implements OnInit, OnDestroy {
   username = '';
   role = '';
   sidenavOpened = true;
   company: CompanyResponse | null = null;
+  private companySub?: Subscription;
 
   navItems: NavItem[] = [
     { label: 'Dashboard', icon: 'dashboard', route: '/app/dashboard' },
@@ -53,11 +55,22 @@ export class ShellComponent implements OnInit {
   ngOnInit(): void {
     this.username = this.authService.getUsername() || '';
     this.role = this.authService.getRole() || '';
-    this.companyService.get().subscribe({ next: res => { this.company = res.data ?? null; } });
+    this.companySub = this.companyService.company$.subscribe(c => { this.company = c; });
+    this.companyService.get().subscribe();
+  }
+
+  ngOnDestroy(): void {
+    this.companySub?.unsubscribe();
   }
 
   get logoImageUrl(): string | null {
-    return resolveProductImageUrl(this.company?.logoUrl);
+    const base = resolveProductImageUrl(this.company?.logoUrl);
+    if (!base) return null;
+    if (this.company?.updatedAt) {
+      const v = new Date(this.company.updatedAt).getTime();
+      return `${base}${base.includes('?') ? '&' : '?'}v=${v}`;
+    }
+    return base;
   }
 
   get visibleNavItems(): NavItem[] {
