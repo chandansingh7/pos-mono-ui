@@ -66,8 +66,11 @@ export interface LabelAttachProductDialogData {
           'Product has no barcode — it will be set to this label’s barcode.' }}
         </mat-hint>
         <mat-error *ngIf="hasBarcodeConflict">
-          Product already has a different barcode ({{ selectedProduct.barcode }}). Choose another product.
+          Product already has a different barcode ({{ selectedProduct.barcode }}).
         </mat-error>
+        <mat-checkbox *ngIf="hasBarcodeConflict" [formControl]="forceOverride">
+          Overwrite product barcode with this label’s barcode
+        </mat-checkbox>
       </div>
     </mat-dialog-content>
 
@@ -77,7 +80,7 @@ export interface LabelAttachProductDialogData {
         mat-raised-button
         color="primary"
         (click)="confirm()"
-        [disabled]="!selectedProduct || hasBarcodeConflict"
+        [disabled]="!selectedProduct || (hasBarcodeConflict && !forceOverride.value)"
       >
         Attach
       </button>
@@ -140,6 +143,7 @@ export interface LabelAttachProductDialogData {
 })
 export class LabelAttachProductDialogComponent implements OnInit, OnDestroy {
   searchControl = new FormControl('');
+  forceOverride = new FormControl(false);
   products: ProductResponse[] = [];
   selectedProduct: ProductResponse | null = null;
   loading = false;
@@ -197,8 +201,10 @@ export class LabelAttachProductDialogComponent implements OnInit, OnDestroy {
   }
 
   confirm(): void {
-    if (!this.selectedProduct || this.hasBarcodeConflict) return;
-    this.dialogRef.close(this.selectedProduct.id);
+    if (!this.selectedProduct) return;
+    const force = !!this.forceOverride.value;
+    if (this.hasBarcodeConflict && !force) return;
+    this.dialogRef.close({ productId: this.selectedProduct.id, force });
   }
 }
 

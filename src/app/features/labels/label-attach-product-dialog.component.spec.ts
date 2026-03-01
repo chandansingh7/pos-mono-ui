@@ -42,5 +42,11 @@ describe('LabelAttachProductDialogComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('should not emit when no product selected', () => {
+    const closeSpy = spyOn(TestBed.inject(MatDialogRef), 'close');
+    component.confirm();
+    expect(closeSpy).not.toHaveBeenCalled();
+  });
 });
 

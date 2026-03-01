@@ -44,11 +44,11 @@ export class LabelService {
     return this.http.put<ApiResponse<LabelResponse>>(`${this.url}/${id}`, req);
   }
 
-  attachToProduct(id: number, productId: number): Observable<ApiResponse<LabelResponse>> {
+  attachToProduct(id: number, productId: number, force = false): Observable<ApiResponse<LabelResponse>> {
     return this.http.post<ApiResponse<LabelResponse>>(
       `${this.url}/${id}/attach`,
       null,
-      { params: { productId: String(productId) } }
+      { params: { productId: String(productId), force: String(force) } }
     );
   }
 

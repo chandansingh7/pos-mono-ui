@@ -293,9 +293,9 @@ export class LabelsComponent implements OnInit {
         disableClose: true,
       })
       .afterClosed()
-      .subscribe((productId: number | null) => {
-        if (!productId) return;
-        this.labelService.attachToProduct(label.id, productId).subscribe({
+      .subscribe((result: { productId: number; force: boolean } | null) => {
+        if (!result) return;
+        this.labelService.attachToProduct(label.id, result.productId, result.force).subscribe({
           next: () => {
             this.snackBar.open('Label attached to product', 'Close', { duration: 3000 });
             this.loadLabels(0);
