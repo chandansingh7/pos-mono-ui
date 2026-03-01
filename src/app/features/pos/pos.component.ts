@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
+import { Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ProductService } from '../../core/services/product.service';
@@ -22,7 +23,7 @@ interface CartItem {
   templateUrl: './pos.component.html',
   styleUrls: ['./pos.component.scss']
 })
-export class PosComponent implements OnInit {
+export class PosComponent implements OnInit, OnDestroy {
   products: ProductResponse[] = [];
   customers: CustomerResponse[] = [];
   cart: CartItem[] = [];
@@ -38,6 +39,7 @@ export class PosComponent implements OnInit {
   productsLoading = false;
   completedOrder: OrderResponse | null = null;
   company: CompanyResponse | null = null;
+  private companySub?: Subscription;
 
   paymentMethods: { value: PaymentMethod; label: string }[] = [
     { value: 'CASH', label: 'Cash' },
@@ -56,8 +58,11 @@ export class PosComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadProducts();
-    this.loadCustomers();
-    this.companyService.get().subscribe({ next: res => { this.company = res.data ?? null; } });
+    this.company = this.companyService.getCached();
+    if (!this.company) {
+      this.companyService.get().subscribe({ next: res => { this.company = res.data ?? null; } });
+    }
+    this.companySub = this.companyService.company$.subscribe(c => { this.company = c ?? this.company; });
 
     this.searchControl.valueChanges.pipe(
       debounceTime(350),
@@ -74,16 +79,26 @@ export class PosComponent implements OnInit {
 
   loadProducts(search = ''): void {
     this.productsLoading = true;
-    this.productService.getAll(search, undefined, 0, 50).subscribe({
+    this.productService.getAll(search, undefined, 0, 30).subscribe({
       next: res => { this.products = res.data?.content || []; this.productsLoading = false; },
       error: () => { this.productsLoading = false; }
     });
   }
 
+  customersLoaded = false;
+
   loadCustomers(): void {
-    this.customerService.getAll('', 0, 100).subscribe({
-      next: res => { this.customers = res.data?.content || []; }
+    if (this.customersLoaded) return;
+    this.customerService.getAll('', 0, 25).subscribe({
+      next: res => {
+        this.customers = res.data?.content || [];
+        this.customersLoaded = true;
+      }
     });
+  }
+
+  ngOnDestroy(): void {
+    this.companySub?.unsubscribe();
   }
 
   lookupBarcode(barcode: string): void {

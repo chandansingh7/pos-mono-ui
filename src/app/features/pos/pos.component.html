@@ -130,7 +130,7 @@
       <div class="checkout-fields-row">
         <mat-form-field appearance="outline" class="compact-field" subscriptSizing="dynamic" floatLabel="always">
           <mat-label>Customer</mat-label>
-          <mat-select [(value)]="selectedCustomer">
+          <mat-select [(value)]="selectedCustomer" (openedChange)="$event && loadCustomers()">
             <mat-option [value]="null">Walk-in</mat-option>
             <mat-option *ngFor="let c of customers" [value]="c">{{ c.name }}</mat-option>
           </mat-select>
