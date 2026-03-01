@@ -34,4 +34,28 @@
   &.logo-preview { max-height: 48px; max-width: 160px; }
   &.favicon-preview { max-height: 32px; max-width: 32px; }
 }
+.preview-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  min-width: 48px;
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 4px;
+  .placeholder-icon {
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+    color: rgba(0, 0, 0, 0.26);
+  }
+  &.favicon-placeholder {
+    min-height: 32px;
+    min-width: 32px;
+    .placeholder-icon {
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+    }
+  }
+}
 .upload-actions button mat-icon { margin-right: 4px; vertical-align: middle; }

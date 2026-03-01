@@ -24,8 +24,12 @@
       <div class="upload-row">
         <div class="upload-block">
           <label class="upload-label">Logo</label>
-          <div class="upload-preview" *ngIf="logoImageUrl">
-            <img [src]="logoImageUrl" alt="Logo" class="preview-img logo-preview">
+          <div class="upload-preview">
+            <img *ngIf="logoImageUrl && !logoLoadError" [src]="logoImageUrl" alt="Logo" class="preview-img logo-preview"
+                 (error)="onLogoLoadError()">
+            <div *ngIf="(!logoImageUrl || logoLoadError) && !saving" class="preview-placeholder" [matTooltip]="logoLoadError ? 'Image failed to load — click Replace to re-upload' : ''">
+              <mat-icon class="placeholder-icon">image</mat-icon>
+            </div>
           </div>
           <div class="upload-actions">
             <input #logoInput type="file" accept="image/*" hidden (change)="onLogoSelected($event)">
@@ -36,8 +40,12 @@
         </div>
         <div class="upload-block">
           <label class="upload-label">Favicon</label>
-          <div class="upload-preview" *ngIf="faviconImageUrl">
-            <img [src]="faviconImageUrl" alt="Favicon" class="preview-img favicon-preview">
+          <div class="upload-preview">
+            <img *ngIf="faviconImageUrl && !faviconLoadError" [src]="faviconImageUrl" alt="Favicon" class="preview-img favicon-preview"
+                 (error)="onFaviconLoadError()">
+            <div *ngIf="(!faviconImageUrl || faviconLoadError) && !saving" class="preview-placeholder favicon-placeholder" [matTooltip]="faviconLoadError ? 'Image failed to load — click Replace to re-upload' : ''">
+              <mat-icon class="placeholder-icon">image</mat-icon>
+            </div>
           </div>
           <div class="upload-actions">
             <input #faviconInput type="file" accept="image/*" hidden (change)="onFaviconSelected($event)">

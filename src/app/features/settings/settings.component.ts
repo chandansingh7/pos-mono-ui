@@ -18,6 +18,8 @@ export class SettingsComponent implements OnInit {
   saving = false;
   company: CompanyResponse | null = null;
   receiptPaperSizes = RECEIPT_PAPER_SIZES;
+  logoLoadError = false;
+  faviconLoadError = false;
 
   constructor(
     private fb: FormBuilder,
@@ -57,7 +59,17 @@ export class SettingsComponent implements OnInit {
     return resolveProductImageUrl(this.company?.faviconUrl);
   }
 
+  onLogoLoadError(): void {
+    this.logoLoadError = true;
+  }
+
+  onFaviconLoadError(): void {
+    this.faviconLoadError = true;
+  }
+
   load(): void {
+    this.logoLoadError = false;
+    this.faviconLoadError = false;
     this.loading = true;
     this.companyService.get(true).subscribe({
       next: res => {
@@ -116,6 +128,7 @@ export class SettingsComponent implements OnInit {
     this.companyService.uploadLogo(file).subscribe({
       next: res => {
         this.saving = false;
+        this.logoLoadError = false;
         this.company = res.data ?? this.company;
         this.snackBar.open('Logo uploaded', 'Close', { duration: 3000 });
       },
@@ -139,6 +152,7 @@ export class SettingsComponent implements OnInit {
     this.companyService.uploadFavicon(file).subscribe({
       next: res => {
         this.saving = false;
+        this.faviconLoadError = false;
         this.company = res.data ?? this.company;
         this.snackBar.open('Favicon uploaded', 'Close', { duration: 3000 });
       },
