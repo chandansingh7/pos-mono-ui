@@ -4,6 +4,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { SharedModule } from '../../shared/shared.module';
 import { LabelsComponent } from './labels.component';
 import { LabelDialogComponent } from './label-dialog.component';
+import { LabelBulkDialogComponent } from './label-bulk-dialog.component';
 import { AddAsProductDialogComponent } from './add-as-product-dialog.component';
 
 const routes: Routes = [{ path: '', component: LabelsComponent }];
@@ -12,6 +13,7 @@ const routes: Routes = [{ path: '', component: LabelsComponent }];
   declarations: [
     LabelsComponent,
     LabelDialogComponent,
+    LabelBulkDialogComponent,
     AddAsProductDialogComponent
   ],
   imports: [SharedModule, MatTabsModule, RouterModule.forChild(routes)]

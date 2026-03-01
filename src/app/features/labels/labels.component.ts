@@ -7,10 +7,11 @@ import { ProductService } from '../../core/services/product.service';
 import { LabelService } from '../../core/services/label.service';
 import { CategoryService } from '../../core/services/category.service';
 import { ProductResponse } from '../../core/models/product.models';
-import { LabelResponse } from '../../core/models/label.models';
+import { LabelRequest, LabelResponse } from '../../core/models/label.models';
 import { CategoryResponse } from '../../core/models/category.models';
 import { ApiResponse, PageResponse } from '../../core/models/api.models';
 import { LabelDialogComponent } from './label-dialog.component';
+import { LabelBulkDialogComponent } from './label-bulk-dialog.component';
 import { AddAsProductDialogComponent } from './add-as-product-dialog.component';
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
 
@@ -235,6 +236,29 @@ export class LabelsComponent implements OnInit {
           },
           error: (err) =>
             this.snackBar.open(err.error?.message || 'Error creating label', 'Close', { duration: 4000 })
+        });
+      });
+  }
+
+  openBulkCreateDialog(): void {
+    this.dialog
+      .open(LabelBulkDialogComponent, {
+        data: { categories: this.categories },
+        width: '780px',
+        maxHeight: '90vh',
+        disableClose: true
+      })
+      .afterClosed()
+      .subscribe((requests: LabelRequest[] | null) => {
+        if (!requests || requests.length === 0) return;
+        this.labelService.createBulk(requests).subscribe({
+          next: (res) => {
+            const count = res.data?.length ?? 0;
+            this.snackBar.open(`${count} label(s) created`, 'Close', { duration: 3000 });
+            this.loadLabels(0);
+          },
+          error: (err) =>
+            this.snackBar.open(err.error?.message || 'Error creating labels', 'Close', { duration: 4000 })
         });
       });
   }

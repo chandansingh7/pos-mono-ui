@@ -36,6 +36,10 @@ export class LabelService {
     return this.http.post<ApiResponse<LabelResponse>>(this.url, req);
   }
 
+  createBulk(requests: LabelRequest[]): Observable<ApiResponse<LabelResponse[]>> {
+    return this.http.post<ApiResponse<LabelResponse[]>>(`${this.url}/bulk`, requests);
+  }
+
   update(id: number, req: LabelRequest): Observable<ApiResponse<LabelResponse>> {
     return this.http.put<ApiResponse<LabelResponse>>(`${this.url}/${id}`, req);
   }

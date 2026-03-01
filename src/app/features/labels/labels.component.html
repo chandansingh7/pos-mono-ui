@@ -6,8 +6,11 @@
       matTooltip="Print labels for selected items">
       <mat-icon>print</mat-icon> Print Labels
     </button>
-    <button mat-raised-button *ngIf="activeTab === 1" (click)="openCreateLabelDialog()">
+    <button mat-stroked-button *ngIf="activeTab === 1" (click)="openCreateLabelDialog()">
       <mat-icon>add</mat-icon> Create Label
+    </button>
+    <button mat-raised-button *ngIf="activeTab === 1" (click)="openBulkCreateDialog()">
+      <mat-icon>post_add</mat-icon> Bulk Create
     </button>
   </div>
 </div>

@@ -18,9 +18,9 @@ export interface LabelDialogData {
     <mat-dialog-content>
       <form [formGroup]="form" class="dialog-form">
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Barcode *</mat-label>
-          <input matInput formControlName="barcode" placeholder="e.g. 4901234560011">
-          <mat-error>Barcode is required</mat-error>
+          <mat-label>Barcode</mat-label>
+          <input matInput formControlName="barcode" placeholder="Leave blank to auto-generate">
+          <mat-hint>Auto-generated if empty</mat-hint>
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
@@ -77,7 +77,7 @@ export class LabelDialogComponent {
   ) {
     const l = data.label;
     this.form = this.fb.group({
-      barcode: [l?.barcode ?? '', [Validators.required]],
+      barcode: [l?.barcode ?? ''],
       name: [l?.name ?? '', [Validators.required]],
       price: [l?.price ?? 0, [Validators.required, Validators.min(0.01)]],
       sku: [l?.sku ?? ''],
@@ -89,7 +89,7 @@ export class LabelDialogComponent {
     if (this.form.invalid) return;
     const v = this.form.value;
     const req: LabelRequest = {
-      barcode: String(v.barcode ?? '').trim(),
+      barcode: v.barcode ? String(v.barcode).trim() : undefined,
       name: String(v.name ?? '').trim(),
       price: Number(v.price),
       sku: v.sku ? String(v.sku).trim() : undefined,

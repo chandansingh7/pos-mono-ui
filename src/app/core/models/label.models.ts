@@ -1,5 +1,5 @@
 export interface LabelRequest {
-  barcode: string;
+  barcode?: string;
   name: string;
   price: number;
   sku?: string;
