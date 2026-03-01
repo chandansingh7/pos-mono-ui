@@ -5,6 +5,7 @@ import { SharedModule } from '../../shared/shared.module';
 import { LabelsComponent } from './labels.component';
 import { LabelDialogComponent } from './label-dialog.component';
 import { LabelBulkDialogComponent } from './label-bulk-dialog.component';
+import { LabelAttachProductDialogComponent } from './label-attach-product-dialog.component';
 import { AddAsProductDialogComponent } from './add-as-product-dialog.component';
 
 const routes: Routes = [{ path: '', component: LabelsComponent }];
@@ -13,6 +14,7 @@ const routes: Routes = [{ path: '', component: LabelsComponent }];
   declarations: [
     LabelsComponent,
     LabelDialogComponent,
+    LabelAttachProductDialogComponent,
     LabelBulkDialogComponent,
     AddAsProductDialogComponent
   ],

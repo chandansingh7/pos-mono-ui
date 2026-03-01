@@ -11,6 +11,7 @@ import { LabelRequest, LabelResponse } from '../../core/models/label.models';
 import { CategoryResponse } from '../../core/models/category.models';
 import { ApiResponse, PageResponse } from '../../core/models/api.models';
 import { LabelDialogComponent } from './label-dialog.component';
+import { LabelAttachProductDialogComponent } from './label-attach-product-dialog.component';
 import { LabelBulkDialogComponent } from './label-bulk-dialog.component';
 import { AddAsProductDialogComponent } from './add-as-product-dialog.component';
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
@@ -280,6 +281,27 @@ export class LabelsComponent implements OnInit {
           },
           error: (err) =>
             this.snackBar.open(err.error?.message || 'Error updating label', 'Close', { duration: 4000 })
+        });
+      });
+  }
+
+  attachToExistingProduct(label: LabelResponse): void {
+    this.dialog
+      .open(LabelAttachProductDialogComponent, {
+        data: { label },
+        width: '560px',
+        disableClose: true,
+      })
+      .afterClosed()
+      .subscribe((productId: number | null) => {
+        if (!productId) return;
+        this.labelService.attachToProduct(label.id, productId).subscribe({
+          next: () => {
+            this.snackBar.open('Label attached to product', 'Close', { duration: 3000 });
+            this.loadLabels(0);
+          },
+          error: (err) =>
+            this.snackBar.open(err.error?.message || 'Error attaching label', 'Close', { duration: 4000 }),
         });
       });
   }
