@@ -85,6 +85,6 @@ describe('UsersComponent', () => {
 
     component.refreshUsers();
     expect(component.pageIndex).toBe(0);
-    expect(userServiceSpy.getAll).toHaveBeenCalledWith(0);
+    expect(userServiceSpy.getAll).toHaveBeenCalledWith(0, 10);
   });
 });
