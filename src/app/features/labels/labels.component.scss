@@ -1,0 +1,67 @@
+@use 'theme' as t;
+
+.loading-center { @include t.loading-center; }
+.header-actions { display: flex; align-items: center; gap: t.$space-sm; }
+.table-wrap { overflow-x: auto; }
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: t.$space-md;
+}
+
+.page-description {
+  font-size: t.$font-size-sm;
+  color: t.$color-text-secondary;
+  margin-bottom: t.$space-lg;
+}
+
+.filters-row {
+  display: flex;
+  gap: t.$space-md;
+  margin-bottom: t.$space-md;
+
+  .search-field { flex: 1; max-width: 280px; }
+  .category-field { min-width: 160px; }
+}
+
+.selected-count {
+  font-size: t.$font-size-sm;
+  color: t.$color-text-secondary;
+  margin-right: t.$space-sm;
+}
+
+.col-select { width: 48px; text-align: center; }
+.col-name { min-width: 160px; }
+.col-sku { min-width: 100px; }
+.col-barcode { min-width: 120px; }
+.col-category { min-width: 140px; }
+.col-price { min-width: 80px; text-align: right; }
+
+.price-cell {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.select-category-btn {
+  margin-left: t.$space-xs;
+  vertical-align: middle;
+}
+
+.col-actions { min-width: 120px; text-align: right; }
+.actions-cell { white-space: nowrap; text-align: right; }
+
+.labels-tabs {
+  margin-top: t.$space-md;
+}
+
+.tab-description {
+  font-size: t.$font-size-sm;
+  color: t.$color-text-secondary;
+  margin-bottom: t.$space-md;
+}
+
+:host ::ng-deep {
+  .data-row .mat-mdc-cell { padding-top: 3px !important; padding-bottom: 3px !important; }
+}

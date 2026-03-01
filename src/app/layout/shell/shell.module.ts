@@ -23,6 +23,7 @@ const routes: Routes = [
       { path: 'inventory', loadChildren: () => import('../../features/inventory/inventory.module').then(m => m.InventoryModule) },
       { path: 'reports', loadChildren: () => import('../../features/reports/reports.module').then(m => m.ReportsModule) },
       { path: 'billing', loadChildren: () => import('../../features/billing/billing.module').then(m => m.BillingModule) },
+      { path: 'labels', loadChildren: () => import('../../features/labels/labels.module').then(m => m.LabelsModule) },
       { path: 'settings', loadChildren: () => import('../../features/settings/settings.module').then(m => m.SettingsModule) },
       { path: 'users', loadChildren: () => import('../../features/users/users.module').then(m => m.UsersModule) },
     ]
