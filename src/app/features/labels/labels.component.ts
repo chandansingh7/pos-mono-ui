@@ -20,7 +20,7 @@ const JSBARCODE_CDN = 'https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarc
 interface PrintableLabel {
   name: string;
   price: number;
-  sku?: string;
+  sku?: string | null;
   barcode?: string;
   id?: number;
 }
