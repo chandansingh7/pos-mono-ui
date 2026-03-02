@@ -1,27 +1,36 @@
 # pos-mono-ui
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 16.2.14.
+Angular 16 frontend for CicdPOS: POS/cashier, products, categories, inventory, orders, customers, labels, reports, billing, and admin (settings, users). Uses Angular Material and JWT auth.
 
-## Development server
+## Prerequisites
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+- **Node.js 18+** and **npm**
+- The **pos-mono-api** backend running (e.g. at `http://localhost:8080`) for full functionality
 
-## Code scaffolding
+## Quick start
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+1. **Install and run:**
 
-## Build
+   ```bash
+   npm ci
+   npm start
+   ```
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+2. Open **http://localhost:4200**. Log in with a user created in the API (or register if enabled).
 
-## Running unit tests
+## Commands
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+| Command        | Description                    |
+|----------------|--------------------------------|
+| `npm start`    | Dev server (port 4200)         |
+| `npm run build`| Production build → `dist/pos-mono-ui` |
+| `npm test`     | Unit tests (Karma)            |
 
-## Running end-to-end tests
+## Configuration
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+- **Dev:** API base URL is in `src/environments/environment.ts` (default `http://localhost:8080`).
+- **Prod:** API URL is set in `src/environments/environment.prod.ts` (e.g. Azure App Service URL).
 
-## Further help
+## CI/CD
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+GitHub Actions (`.github/workflows/ci.yml`) runs tests and deploys the build to Azure Static Web Apps on push to `main`. Set `AZURE_STATIC_WEB_APPS_API_TOKEN_*` in repo secrets.
