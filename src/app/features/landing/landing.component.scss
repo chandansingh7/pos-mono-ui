@@ -210,6 +210,94 @@ h1 {
   mat-icon { color: t.$color-primary; font-size: 24px; width: 24px; height: 24px; }
 }
 
+// ── Strengths & limitations ─────────────────────────────────────────────────
+.pros-cons {
+  padding: 80px t.$space-xl;
+  background: linear-gradient(180deg, #f8f9ff 0%, t.$color-white 100%);
+  text-align: center;
+}
+
+.pros-cons .section-label {
+  font-size: t.$font-size-sm;
+  font-weight: t.$font-weight-semibold;
+  color: t.$color-primary-light;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: t.$space-sm;
+}
+
+.pros-cons h2 {
+  font-size: 36px;
+  font-weight: t.$font-weight-bold;
+  color: t.$color-primary-dark;
+  margin: 0 0 t.$space-md;
+}
+
+.pros-cons-intro {
+  font-size: t.$font-size-base;
+  color: t.$color-text-secondary;
+  max-width: 640px;
+  margin: 0 auto t.$space-xl * 2;
+  line-height: t.$line-height-loose;
+}
+
+.pros-cons-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: t.$space-xl;
+  max-width: 1100px;
+  margin: 0 auto;
+  text-align: left;
+
+  @include t.md { grid-template-columns: 1fr; }
+}
+
+.pros-cons-card {
+  background: t.$color-white;
+  border-radius: t.$radius-lg;
+  padding: t.$space-xl;
+  box-shadow: t.$shadow-md;
+  border: 1px solid t.$color-divider;
+}
+
+.strengths-card .pros-cons-header mat-icon { color: t.$color-success; }
+.limitations-card .pros-cons-header mat-icon { color: t.$color-info; }
+
+.pros-cons-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: t.$space-sm;
+  margin-bottom: t.$space-lg;
+  padding-bottom: t.$space-md;
+  border-bottom: 1px solid t.$color-divider;
+
+  mat-icon { font-size: 28px; width: 28px; height: 28px; }
+  h3 { font-size: t.$font-size-lg; font-weight: t.$font-weight-semibold; color: t.$color-primary-dark; margin: 0; }
+}
+
+.pros-cons-sub {
+  width: 100%;
+  font-size: t.$font-size-sm;
+  color: t.$color-text-muted;
+  margin-top: 2px;
+}
+
+.pros-cons-list {
+  margin: 0;
+  padding-left: t.$space-lg;
+  list-style: disc;
+
+  li {
+    font-size: t.$font-size-base;
+    color: t.$color-text-secondary;
+    line-height: t.$line-height-loose;
+    margin-bottom: t.$space-sm;
+
+    &:last-child { margin-bottom: 0; }
+  }
+}
+
 // ── CTA ─────────────────────────────────────────────────────────────────────
 .cta-section {
   background: linear-gradient(135deg, t.$color-primary 0%, t.$color-primary-light 100%);

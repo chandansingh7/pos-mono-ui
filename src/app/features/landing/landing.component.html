@@ -65,6 +65,36 @@
     </div>
   </section>
 
+  <!-- ── Strengths & limitations (transparent roadmap) ─────────────────── -->
+  <section class="pros-cons">
+    <div class="section-label">Transparent product scope</div>
+    <h2>What’s included today & what’s on the roadmap</h2>
+    <p class="pros-cons-intro">We list both strengths and current limitations so you can evaluate CicdPOS fairly. Gaps below are planned improvements.</p>
+
+    <div class="pros-cons-grid">
+      <div class="pros-cons-card strengths-card">
+        <div class="pros-cons-header">
+          <mat-icon>check_circle</mat-icon>
+          <h3>Strengths</h3>
+          <span class="pros-cons-sub">What the platform offers today</span>
+        </div>
+        <ul class="pros-cons-list">
+          <li *ngFor="let item of strengths">{{ item }}</li>
+        </ul>
+      </div>
+      <div class="pros-cons-card limitations-card">
+        <div class="pros-cons-header">
+          <mat-icon>info</mat-icon>
+          <h3>Current limitations</h3>
+          <span class="pros-cons-sub">Planned improvements</span>
+        </div>
+        <ul class="pros-cons-list">
+          <li *ngFor="let item of limitations">{{ item }}</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
   <!-- ── CTA ────────────────────────────────────────────────────────── -->
   <section class="cta-section">
     <h2>Ready to get started?</h2>
