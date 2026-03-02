@@ -28,6 +28,7 @@ const routes: Routes = [
       { path: 'guide', loadChildren: () => import('../../features/guide/guide.module').then(m => m.GuideModule) },
       { path: 'settings', loadChildren: () => import('../../features/settings/settings.module').then(m => m.SettingsModule) },
       { path: 'users', loadChildren: () => import('../../features/users/users.module').then(m => m.UsersModule) },
+      { path: 'shifts', loadChildren: () => import('../../features/shifts/shifts.module').then(m => m.ShiftsModule) },
     ]
   }
 ];

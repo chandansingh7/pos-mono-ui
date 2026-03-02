@@ -1,0 +1,40 @@
+.card {
+  margin-top: 16px;
+}
+
+.shift-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 320px;
+}
+
+.close-form {
+  margin-top: 16px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.shift-summary {
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  margin: 4px 0;
+}
+
+.result {
+  margin-top: 16px;
+}
+
+.loading-center {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+}
+
