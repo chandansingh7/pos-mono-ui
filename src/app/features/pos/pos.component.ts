@@ -7,6 +7,7 @@ import { ProductService } from '../../core/services/product.service';
 import { CustomerService } from '../../core/services/customer.service';
 import { OrderService } from '../../core/services/order.service';
 import { CompanyService } from '../../core/services/company.service';
+import { RewardService } from '../../core/services/reward.service';
 import { ProductResponse } from '../../core/models/product.models';
 import { CustomerResponse } from '../../core/models/customer.models';
 import { OrderResponse, PaymentMethod } from '../../core/models/order.models';
@@ -35,6 +36,8 @@ export class PosComponent implements OnInit, OnDestroy {
   selectedCustomer: CustomerResponse | null = null;
   paymentMethod: PaymentMethod = 'CASH';
   discount = 0;
+  pointsToRedeem = 0;
+  rewardConfig: { pointsPerDollar: number; redemptionRate: number } | null = null;
   loading = false;
   productsLoading = false;
   completedOrder: OrderResponse | null = null;
@@ -53,11 +56,15 @@ export class PosComponent implements OnInit, OnDestroy {
     private customerService: CustomerService,
     private orderService: OrderService,
     private companyService: CompanyService,
+    private rewardService: RewardService,
     private snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
     this.loadProducts();
+    this.rewardService.getConfig().subscribe({
+      next: res => { this.rewardConfig = res.data ?? null; }
+    });
     this.company = this.companyService.getCached();
     if (!this.company) {
       this.companyService.get().subscribe({ next: res => { this.company = res.data ?? null; } });
@@ -149,6 +156,7 @@ export class PosComponent implements OnInit, OnDestroy {
     this.cart = [];
     this.selectedCustomer = null;
     this.discount = 0;
+    this.pointsToRedeem = 0;
     this.paymentMethod = 'CASH';
     this.completedOrder = null;
   }
@@ -161,8 +169,22 @@ export class PosComponent implements OnInit, OnDestroy {
     return this.subtotal * 0.1;
   }
 
+  get redemptionDiscount(): number {
+    if (!this.rewardConfig || !this.selectedCustomer || this.pointsToRedeem <= 0) return 0;
+    const rate = this.rewardConfig.redemptionRate || 100;
+    return this.pointsToRedeem / rate;
+  }
+
   get total(): number {
-    return this.subtotal + this.tax - (this.discount || 0);
+    return this.subtotal + this.tax - (this.discount || 0) - this.redemptionDiscount;
+  }
+
+  get maxRedeemPoints(): number {
+    if (!this.selectedCustomer) return 0;
+    const balance = this.selectedCustomer.rewardPoints ?? 0;
+    if (!this.rewardConfig || this.rewardConfig.redemptionRate <= 0) return balance;
+    const maxByOrder = Math.floor((this.subtotal + this.tax - (this.discount || 0)) * this.rewardConfig.redemptionRate);
+    return Math.min(balance, Math.max(0, maxByOrder));
   }
 
   placeOrder(): void {
@@ -175,7 +197,8 @@ export class PosComponent implements OnInit, OnDestroy {
       customerId: this.selectedCustomer?.id,
       items: this.cart.map(i => ({ productId: i.product.id, quantity: i.quantity })),
       paymentMethod: this.paymentMethod,
-      discount: this.discount || 0
+      discount: this.discount || 0,
+      pointsToRedeem: this.pointsToRedeem > 0 ? this.pointsToRedeem : undefined
     };
     this.orderService.create(request).subscribe({
       next: res => {
@@ -185,6 +208,7 @@ export class PosComponent implements OnInit, OnDestroy {
         this.cart = [];
         this.selectedCustomer = null;
         this.discount = 0;
+        this.pointsToRedeem = 0;
       },
       error: err => {
         this.snackBar.open(err.error?.message || 'Failed to place order', 'Close', { duration: 4000 });

@@ -18,7 +18,7 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/c
 })
 export class CustomersComponent implements OnInit {
   dataSource = new MatTableDataSource<CustomerResponse>();
-  displayedColumns = ['name', 'email', 'phone', 'createdAt', 'updatedAt', 'actions'];
+  displayedColumns = ['name', 'email', 'phone', 'rewardPoints', 'createdAt', 'updatedAt', 'actions'];
 
   totalElements = 0;
   pageSize = 10;

@@ -66,7 +66,15 @@ export class GuideComponent {
       ]
     },
     {
-      title: '6. Admin & user management',
+      title: '6. Member rewards',
+      bullets: [
+        'Customers earn points on every order (configurable: e.g. 1 point per $1 spent).',
+        'At POS, select a customer to see their points balance and optionally redeem points for a discount (e.g. 100 points = $1 off).',
+        'Use the Member Rewards page to view how the program works and see all members’ points balances.'
+      ]
+    },
+    {
+      title: '7. Admin & user management',
       bullets: [
         'Settings (Admin only) contains company profile and global configuration.',
         'Users (Admin only) is where you create cashiers and managers and assign roles.',
@@ -113,7 +121,11 @@ export class GuideComponent {
     },
     {
       question: 'Why can I not see some menu items?',
-      answer: 'Visibility depends on your role. Cashiers see POS, Orders, Products, Customers. Managers additionally see Categories, Inventory, Reports, Billing, Labels. Admins see everything including Settings and Users.'
+      answer: 'Visibility depends on your role. Cashiers see POS, Orders, Products, Customers. Managers additionally see Categories, Inventory, Reports, Billing, Labels, Member Rewards. Admins see everything including Settings and Users.'
+    },
+    {
+      question: 'How do member reward points work?',
+      answer: 'Customers earn points when they are selected at checkout and an order is completed. They can redeem points at POS: select the customer, enter points to redeem, and the discount is applied (e.g. 100 points = $1 off). View balances on the Member Rewards page.'
     }
   ];
 

@@ -130,11 +130,17 @@
       <div class="checkout-fields-row">
         <mat-form-field appearance="outline" class="compact-field" subscriptSizing="dynamic" floatLabel="always">
           <mat-label>Customer</mat-label>
-          <mat-select [(value)]="selectedCustomer" (openedChange)="$event && loadCustomers()">
+          <mat-select [(value)]="selectedCustomer" (openedChange)="$event && loadCustomers()" (selectionChange)="pointsToRedeem = 0">
             <mat-option [value]="null">Walk-in</mat-option>
-            <mat-option *ngFor="let c of customers" [value]="c">{{ c.name }}</mat-option>
+            <mat-option *ngFor="let c of customers" [value]="c">{{ c.name }} ({{ c.rewardPoints ?? 0 }} pts)</mat-option>
           </mat-select>
           <mat-icon matPrefix>person</mat-icon>
+        </mat-form-field>
+        <mat-form-field *ngIf="selectedCustomer && maxRedeemPoints > 0" appearance="outline" class="compact-field redeem-field" subscriptSizing="dynamic">
+          <mat-label>Redeem points</mat-label>
+          <input matInput type="number" [(ngModel)]="pointsToRedeem" [min]="0" [max]="maxRedeemPoints" step="1" placeholder="0">
+          <mat-icon matPrefix>card_giftcard</mat-icon>
+          <mat-hint *ngIf="rewardConfig">Max {{ maxRedeemPoints }} ({{ redemptionDiscount | number:'1.2-2' }} off)</mat-hint>
         </mat-form-field>
         <mat-form-field appearance="outline" class="compact-field" subscriptSizing="dynamic">
           <mat-label>Payment</mat-label>
@@ -155,6 +161,7 @@
         <div class="total-row-sm"><span>Subtotal</span><span>${{ subtotal | number:'1.2-2' }}</span></div>
         <div class="total-row-sm"><span>Tax (10%)</span><span>${{ tax | number:'1.2-2' }}</span></div>
         <div class="total-row-sm" *ngIf="discount > 0"><span>Discount</span><span>-${{ discount | number:'1.2-2' }}</span></div>
+        <div class="total-row-sm" *ngIf="redemptionDiscount > 0"><span>Reward redemption</span><span>-${{ redemptionDiscount | number:'1.2-2' }}</span></div>
         <div class="total-row-lg"><span>TOTAL</span><span>${{ total | number:'1.2-2' }}</span></div>
       </div>
 

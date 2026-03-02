@@ -9,6 +9,7 @@ export interface CustomerResponse {
   name: string;
   email: string;
   phone: string;
+  rewardPoints?: number;
   createdAt: string;
   updatedAt: string;
   updatedBy: string;

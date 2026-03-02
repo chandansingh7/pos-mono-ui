@@ -11,6 +11,7 @@ export interface OrderRequest {
   items: OrderItemRequest[];
   paymentMethod: PaymentMethod;
   discount: number;
+  pointsToRedeem?: number;
 }
 
 export interface OrderItemResponse {
