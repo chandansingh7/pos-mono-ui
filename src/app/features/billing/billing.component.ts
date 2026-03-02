@@ -40,6 +40,10 @@ export class BillingComponent implements OnInit {
     private router: Router
   ) {}
 
+  get currencyCode(): string {
+    return this.company?.displayCurrency || 'USD';
+  }
+
   ngOnInit(): void {
     this.companyService.get(true).subscribe({
       next: res => {

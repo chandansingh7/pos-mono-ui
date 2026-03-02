@@ -6,6 +6,8 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { ProductService } from '../../core/services/product.service';
 import { LabelService } from '../../core/services/label.service';
 import { CategoryService } from '../../core/services/category.service';
+import { CompanyService } from '../../core/services/company.service';
+import { formatCurrency } from '../../core/utils/currency.util';
 import { ProductResponse } from '../../core/models/product.models';
 import { LabelRequest, LabelResponse } from '../../core/models/label.models';
 import { CategoryResponse } from '../../core/models/category.models';
@@ -61,10 +63,15 @@ export class LabelsComponent implements OnInit {
     private productService: ProductService,
     private labelService: LabelService,
     private categoryService: CategoryService,
+    private companyService: CompanyService,
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
     private cdr: ChangeDetectorRef
   ) {}
+
+  get currencyCode(): string {
+    return this.companyService.getCached()?.displayCurrency || 'USD';
+  }
 
   ngOnInit(): void {
     this.loadCategories();
@@ -425,12 +432,15 @@ export class LabelsComponent implements OnInit {
     for (let i = 0; i < items.length; i += LABELS_PER_PAGE) {
       pages.push(items.slice(i, i + LABELS_PER_PAGE));
     }
+    const c = this.companyService.getCached();
+    const curr = c?.displayCurrency || 'USD';
+    const loc = c?.locale;
 
     const labelHtml = (item: PrintableLabel, idx: number) => `
       <div class="label">
         <svg id="barcode-${idx}" class="label-barcode"></svg>
         <div class="label-name">${this.escapeHtml(item.name)}</div>
-        <div class="label-price">$${Number(item.price).toFixed(2)}</div>
+        <div class="label-price">${formatCurrency(Number(item.price), curr, loc)}</div>
         <div class="label-sku">${this.escapeHtml(item.sku || '—')}</div>
       </div>
     `;

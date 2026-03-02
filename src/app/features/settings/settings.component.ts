@@ -4,7 +4,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CompanyService } from '../../core/services/company.service';
 import { AuthService } from '../../core/services/auth.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { CompanyResponse, RECEIPT_PAPER_SIZES } from '../../core/models/company.models';
+import { CompanyResponse, RECEIPT_PAPER_SIZES, DISPLAY_CURRENCIES, DISPLAY_LOCALES } from '../../core/models/company.models';
 import { resolveProductImageUrl } from '../../core/utils/product-image.util';
 
 @Component({
@@ -18,6 +18,8 @@ export class SettingsComponent implements OnInit {
   saving = false;
   company: CompanyResponse | null = null;
   receiptPaperSizes = RECEIPT_PAPER_SIZES;
+  displayCurrencies = DISPLAY_CURRENCIES;
+  displayLocales = DISPLAY_LOCALES;
   logoLoadError = false;
   faviconLoadError = false;
 
@@ -37,7 +39,9 @@ export class SettingsComponent implements OnInit {
       website: [''],
       receiptHeaderText: [''],
       receiptFooterText: [''],
-      receiptPaperSize: ['80mm']
+      receiptPaperSize: ['80mm'],
+      displayCurrency: ['USD'],
+      locale: ['en-US']
     });
   }
 
@@ -85,10 +89,12 @@ export class SettingsComponent implements OnInit {
             website: this.company.website ?? '',
             receiptHeaderText: this.company.receiptHeaderText ?? '',
             receiptFooterText: this.company.receiptFooterText ?? '',
-            receiptPaperSize: this.company.receiptPaperSize ?? '80mm'
+            receiptPaperSize: this.company.receiptPaperSize ?? '80mm',
+            displayCurrency: this.company.displayCurrency ?? 'USD',
+            locale: this.company.locale ?? 'en-US'
           });
         } else {
-          this.form.patchValue({ name: 'My Store', receiptPaperSize: '80mm' });
+          this.form.patchValue({ name: 'My Store', receiptPaperSize: '80mm', displayCurrency: 'USD', locale: 'en-US' });
         }
       },
       error: () => { this.loading = false; }

@@ -10,6 +10,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { CompanyService } from '../../core/services/company.service';
 import { OrderResponse } from '../../core/models/order.models';
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
+import { formatCurrency } from '../../core/utils/currency.util';
 
 /** Row model: either an order or a detail placeholder (shown below the expanded order). */
 export type OrderTableRow = OrderResponse | { isDetailRow: true; order: OrderResponse };
@@ -246,12 +247,12 @@ export class OrdersComponent implements OnInit, AfterViewChecked {
   <div style="margin: 8px 0; border-bottom: 1px dashed #000;"></div>
   <div>Order #${order.id}</div>
   ${(order.items || []).map((i: { productName: string; quantity: number; subtotal: number }) =>
-    `<div class="row"><span>${i.productName} x${i.quantity}</span><span>$${Number(i.subtotal).toFixed(2)}</span></div>`
+    `<div class="row"><span>${i.productName} x${i.quantity}</span><span>${formatCurrency(Number(i.subtotal), c?.displayCurrency || 'USD', c?.locale)}</span></div>`
   ).join('')}
-  <div class="row"><span>Subtotal</span><span>$${Number(order.subtotal).toFixed(2)}</span></div>
-  <div class="row"><span>Tax</span><span>$${Number(order.tax).toFixed(2)}</span></div>
-  ${(order.discount || 0) > 0 ? `<div class="row"><span>Discount</span><span>-$${Number(order.discount).toFixed(2)}</span></div>` : ''}
-  <div class="row total"><span>TOTAL</span><span>$${Number(order.total).toFixed(2)}</span></div>
+  <div class="row"><span>Subtotal</span><span>${formatCurrency(Number(order.subtotal), c?.displayCurrency || 'USD', c?.locale)}</span></div>
+  <div class="row"><span>Tax</span><span>${formatCurrency(Number(order.tax), c?.displayCurrency || 'USD', c?.locale)}</span></div>
+  ${(order.discount || 0) > 0 ? `<div class="row"><span>Discount</span><span>-${formatCurrency(Number(order.discount), c?.displayCurrency || 'USD', c?.locale)}</span></div>` : ''}
+  <div class="row total"><span>TOTAL</span><span>${formatCurrency(Number(order.total), c?.displayCurrency || 'USD', c?.locale)}</span></div>
   <div class="row"><span>Payment</span><span>${order.paymentMethod || ''}</span></div>
   ${c?.receiptFooterText ? `<div class="footer">${c.receiptFooterText}</div>` : ''}
 </body></html>`);
@@ -274,4 +275,7 @@ export class OrdersComponent implements OnInit, AfterViewChecked {
   get isAdminOrManager(): boolean { return this.authService.isAdminOrManager(); }
   get hasActiveFilters(): boolean { return Object.values(this.filters.value).some(v => !!v); }
 
+  get currencyCode(): string {
+    return this.companyService.getCached()?.displayCurrency || 'USD';
+  }
 }

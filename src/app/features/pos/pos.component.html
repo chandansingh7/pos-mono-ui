@@ -20,13 +20,13 @@
         </div>
         <div class="receipt-row" *ngFor="let item of completedOrder.items">
           <span>{{ item.productName }} x{{ item.quantity }}</span>
-          <span>${{ item.subtotal | number:'1.2-2' }}</span>
+          <span>{{ item.subtotal | currency:currencyCode }}</span>
         </div>
         <mat-divider></mat-divider>
-        <div class="receipt-row"><span>Subtotal</span><span>${{ completedOrder.subtotal | number:'1.2-2' }}</span></div>
-        <div class="receipt-row"><span>Tax</span><span>${{ completedOrder.tax | number:'1.2-2' }}</span></div>
-        <div class="receipt-row" *ngIf="completedOrder.discount > 0"><span>Discount</span><span>-${{ completedOrder.discount | number:'1.2-2' }}</span></div>
-        <div class="receipt-row total-row"><span>TOTAL</span><span>${{ completedOrder.total | number:'1.2-2' }}</span></div>
+        <div class="receipt-row"><span>Subtotal</span><span>{{ completedOrder.subtotal | currency:currencyCode }}</span></div>
+        <div class="receipt-row"><span>Tax</span><span>{{ completedOrder.tax | currency:currencyCode }}</span></div>
+        <div class="receipt-row" *ngIf="completedOrder.discount > 0"><span>Discount</span><span>-{{ completedOrder.discount | currency:currencyCode }}</span></div>
+        <div class="receipt-row total-row"><span>TOTAL</span><span>{{ completedOrder.total | currency:currencyCode }}</span></div>
         <div class="receipt-row"><span>Payment</span><span>{{ completedOrder.paymentMethod }}</span></div>
         <div class="receipt-footer-text" *ngIf="company?.receiptFooterText">{{ company?.receiptFooterText }}</div>
       </div>
@@ -67,7 +67,7 @@
         <mat-card-content>
           <mat-icon class="product-icon">inventory_2</mat-icon>
           <div class="product-name">{{ product.name }}</div>
-          <div class="product-price">${{ product.price | number:'1.2-2' }}</div>
+          <div class="product-price">{{ product.price | currency:currencyCode }}</div>
           <div class="product-stock" [class.low]="product.quantity > 0 && product.quantity <= 10" [class.out]="product.quantity <= 0">
             Stock: {{ product.quantity }}
           </div>
@@ -93,7 +93,7 @@
 
         <div class="item-left">
           <span class="item-name">{{ item.product.name }}</span>
-          <span class="item-unit-price">${{ item.product.price | number:'1.2-2' }} each</span>
+          <span class="item-unit-price">{{ item.product.price | currency:currencyCode }} each</span>
         </div>
 
         <div class="item-right-group">
@@ -106,7 +106,7 @@
               <mat-icon>add</mat-icon>
             </button>
           </div>
-          <span class="item-subtotal">${{ item.subtotal | number:'1.2-2' }}</span>
+          <span class="item-subtotal">{{ item.subtotal | currency:currencyCode }}</span>
           <button class="item-remove" (click)="removeFromCart(item)" matTooltip="Remove">
             <mat-icon>close</mat-icon>
           </button>
@@ -140,7 +140,7 @@
           <mat-label>Redeem points</mat-label>
           <input matInput type="number" [(ngModel)]="pointsToRedeem" [min]="0" [max]="maxRedeemPoints" step="1" placeholder="0">
           <mat-icon matPrefix>card_giftcard</mat-icon>
-          <mat-hint *ngIf="rewardConfig">Max {{ maxRedeemPoints }} ({{ redemptionDiscount | number:'1.2-2' }} off)</mat-hint>
+          <mat-hint *ngIf="rewardConfig">Max {{ maxRedeemPoints }} ({{ redemptionDiscount | currency:currencyCode }} off)</mat-hint>
         </mat-form-field>
         <mat-form-field appearance="outline" class="compact-field" subscriptSizing="dynamic">
           <mat-label>Payment</mat-label>
@@ -158,11 +158,11 @@
 
       <!-- HCI: clear hierarchy — totals grouped, TOTAL emphasized -->
       <div class="totals-block">
-        <div class="total-row-sm"><span>Subtotal</span><span>${{ subtotal | number:'1.2-2' }}</span></div>
-        <div class="total-row-sm"><span>Tax (10%)</span><span>${{ tax | number:'1.2-2' }}</span></div>
-        <div class="total-row-sm" *ngIf="discount > 0"><span>Discount</span><span>-${{ discount | number:'1.2-2' }}</span></div>
-        <div class="total-row-sm" *ngIf="redemptionDiscount > 0"><span>Reward redemption</span><span>-${{ redemptionDiscount | number:'1.2-2' }}</span></div>
-        <div class="total-row-lg"><span>TOTAL</span><span>${{ total | number:'1.2-2' }}</span></div>
+        <div class="total-row-sm"><span>Subtotal</span><span>{{ subtotal | currency:currencyCode }}</span></div>
+        <div class="total-row-sm"><span>Tax (10%)</span><span>{{ tax | currency:currencyCode }}</span></div>
+        <div class="total-row-sm" *ngIf="discount > 0"><span>Discount</span><span>-{{ discount | currency:currencyCode }}</span></div>
+        <div class="total-row-sm" *ngIf="redemptionDiscount > 0"><span>Reward redemption</span><span>-{{ redemptionDiscount | currency:currencyCode }}</span></div>
+        <div class="total-row-lg"><span>TOTAL</span><span>{{ total | currency:currencyCode }}</span></div>
       </div>
 
       <button mat-raised-button color="primary" class="full-width checkout-btn" [disabled]="loading || !cart.length" (click)="placeOrder()">

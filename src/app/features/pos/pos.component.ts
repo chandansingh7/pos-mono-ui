@@ -12,6 +12,7 @@ import { ProductResponse } from '../../core/models/product.models';
 import { CustomerResponse } from '../../core/models/customer.models';
 import { OrderResponse, PaymentMethod } from '../../core/models/order.models';
 import { CompanyResponse } from '../../core/models/company.models';
+import { formatCurrency } from '../../core/utils/currency.util';
 
 interface CartItem {
   product: ProductResponse;
@@ -270,12 +271,12 @@ export class PosComponent implements OnInit, OnDestroy {
   <div style="margin: 8px 0; border-bottom: 1px dashed #000;"></div>
   <div>Order #${o.id}</div>
   ${(o.items || []).map((i: { productName: string; quantity: number; subtotal: number }) =>
-    `<div class="row"><span>${i.productName} x${i.quantity}</span><span>$${Number(i.subtotal).toFixed(2)}</span></div>`
+    `<div class="row"><span>${i.productName} x${i.quantity}</span><span>${formatCurrency(Number(i.subtotal), c?.displayCurrency || 'USD', c?.locale)}</span></div>`
   ).join('')}
-  <div class="row"><span>Subtotal</span><span>$${Number(o.subtotal).toFixed(2)}</span></div>
-  <div class="row"><span>Tax</span><span>$${Number(o.tax).toFixed(2)}</span></div>
-  ${(o.discount || 0) > 0 ? `<div class="row"><span>Discount</span><span>-$${Number(o.discount).toFixed(2)}</span></div>` : ''}
-  <div class="row total"><span>TOTAL</span><span>$${Number(o.total).toFixed(2)}</span></div>
+  <div class="row"><span>Subtotal</span><span>${formatCurrency(Number(o.subtotal), c?.displayCurrency || 'USD', c?.locale)}</span></div>
+  <div class="row"><span>Tax</span><span>${formatCurrency(Number(o.tax), c?.displayCurrency || 'USD', c?.locale)}</span></div>
+  ${(o.discount || 0) > 0 ? `<div class="row"><span>Discount</span><span>-${formatCurrency(Number(o.discount), c?.displayCurrency || 'USD', c?.locale)}</span></div>` : ''}
+  <div class="row total"><span>TOTAL</span><span>${formatCurrency(Number(o.total), c?.displayCurrency || 'USD', c?.locale)}</span></div>
   <div class="row"><span>Payment</span><span>${o.paymentMethod || ''}</span></div>
   ${c?.receiptFooterText ? `<div class="footer">${c.receiptFooterText}</div>` : ''}
 </body></html>`);
@@ -286,5 +287,10 @@ export class PosComponent implements OnInit, OnDestroy {
 
   displayCustomer(customer: CustomerResponse | null): string {
     return customer?.name || '';
+  }
+
+  /** Display currency code for templates (POS, receipt). */
+  get currencyCode(): string {
+    return this.company?.displayCurrency || 'USD';
   }
 }

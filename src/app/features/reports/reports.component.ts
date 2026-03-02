@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { ReportService } from '../../core/services/report.service';
+import { CompanyService } from '../../core/services/company.service';
 import { SalesReportResponse } from '../../core/models/report.models';
 
 @Component({
@@ -28,7 +29,14 @@ export class ReportsComponent implements OnInit {
     { value: 10, label: 'October' }, { value: 11, label: 'November' }, { value: 12, label: 'December' }
   ];
 
-  constructor(private reportService: ReportService) {}
+  constructor(
+    private reportService: ReportService,
+    private companyService: CompanyService
+  ) {}
+
+  get currencyCode(): string {
+    return this.companyService.getCached()?.displayCurrency || 'USD';
+  }
 
   ngOnInit(): void { this.loadDaily(); }
 

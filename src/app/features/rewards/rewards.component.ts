@@ -3,6 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CustomerService } from '../../core/services/customer.service';
 import { RewardService } from '../../core/services/reward.service';
+import { CompanyService } from '../../core/services/company.service';
 import { CustomerResponse } from '../../core/models/customer.models';
 import { MemberCardDialogComponent } from '../../shared/components/member-card-dialog/member-card-dialog.component';
 
@@ -21,9 +22,14 @@ export class RewardsComponent implements OnInit {
   constructor(
     private rewardService: RewardService,
     private customerService: CustomerService,
+    private companyService: CompanyService,
     private dialog: MatDialog,
     private snackBar: MatSnackBar
   ) {}
+
+  get currencyCode(): string {
+    return this.companyService.getCached()?.displayCurrency || 'USD';
+  }
 
   ngOnInit(): void {
     this.loading = true;

@@ -41,14 +41,14 @@
       <mat-card class="stat-card success-card">
         <mat-card-content>
           <mat-icon>payments</mat-icon>
-          <div class="stat-value">${{ dailyReport.totalRevenue | number:'1.2-2' }}</div>
+          <div class="stat-value">{{ dailyReport.totalRevenue | currency:currencyCode }}</div>
           <div class="stat-label">Total Revenue</div>
         </mat-card-content>
       </mat-card>
       <mat-card class="stat-card accent-card">
         <mat-card-content>
           <mat-icon>trending_up</mat-icon>
-          <div class="stat-value">${{ dailyReport.averageOrderValue | number:'1.2-2' }}</div>
+          <div class="stat-value">{{ dailyReport.averageOrderValue | currency:currencyCode }}</div>
           <div class="stat-label">Average Order</div>
         </mat-card-content>
       </mat-card>
@@ -106,14 +106,14 @@
       <mat-card class="stat-card success-card">
         <mat-card-content>
           <mat-icon>payments</mat-icon>
-          <div class="stat-value">${{ monthlyReport.totalRevenue | number:'1.2-2' }}</div>
+          <div class="stat-value">{{ monthlyReport.totalRevenue | currency:currencyCode }}</div>
           <div class="stat-label">Total Revenue</div>
         </mat-card-content>
       </mat-card>
       <mat-card class="stat-card accent-card">
         <mat-card-content>
           <mat-icon>trending_up</mat-icon>
-          <div class="stat-value">${{ monthlyReport.averageOrderValue | number:'1.2-2' }}</div>
+          <div class="stat-value">{{ monthlyReport.averageOrderValue | currency:currencyCode }}</div>
           <div class="stat-label">Average Order</div>
         </mat-card-content>
       </mat-card>

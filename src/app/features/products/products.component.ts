@@ -7,6 +7,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { ProductService, ProductStats, BulkUploadResult } from '../../core/services/product.service';
 import { CategoryService } from '../../core/services/category.service';
+import { CompanyService } from '../../core/services/company.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ProductResponse } from '../../core/models/product.models';
 import { CategoryResponse } from '../../core/models/category.models';
@@ -56,11 +57,16 @@ export class ProductsComponent implements OnInit {
   constructor(
     private productService: ProductService,
     private categoryService: CategoryService,
+    private companyService: CompanyService,
     private authService: AuthService,
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
     private cdr: ChangeDetectorRef
   ) {}
+
+  get currencyCode(): string {
+    return this.companyService.getCached()?.displayCurrency || 'USD';
+  }
 
   ngOnInit(): void {
     // Default: show most recently updated products first

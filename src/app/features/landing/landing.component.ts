@@ -26,7 +26,7 @@ export class LandingComponent {
     'Member rewards: earn points per sale, redeem at checkout; configurable rates.',
     'Label printing: product labels and standalone labels with barcodes; attach labels to products.',
     'Daily and monthly sales reports with top products and Excel export.',
-    'Company branding: logo, receipt layout (paper size, header/footer), tax ID.',
+    'Company branding: logo, receipt layout (paper size, header/footer), tax ID; display currency and locale (multi-currency and localisation).',
     'User management: Admin, Manager, Cashier roles; create, edit, activate/deactivate users.',
     'In-app Guide, Support and FAQ with search.',
     'JWT authentication, role-based API security, and centralised error handling.',
@@ -50,7 +50,6 @@ export class LandingComponent {
     'No accounting or e-commerce integrations (e.g. QuickBooks, Xero).',
     'No shift or cash-drawer reconciliation.',
     'Single SKU per product; no size/color variants.',
-    'Single language and currency; no localisation or multi-currency.',
   ];
 
   constructor(private authService: AuthService, private router: Router) {

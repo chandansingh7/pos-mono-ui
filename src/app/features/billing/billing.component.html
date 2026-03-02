@@ -56,13 +56,13 @@
         <div class="r-order-id">Order #{{ sampleOrder.orderId }}</div>
         <div class="r-row" *ngFor="let item of sampleOrder.items">
           <span class="r-item-desc">{{ item.productName }} x{{ item.quantity }}</span>
-          <span class="r-item-amt">${{ item.subtotal | number:'1.2-2' }}</span>
+          <span class="r-item-amt">{{ item.subtotal | currency:currencyCode }}</span>
         </div>
         <div class="r-divider"></div>
-        <div class="r-row"><span>Subtotal</span><span>${{ sampleOrder.subtotal | number:'1.2-2' }}</span></div>
-        <div class="r-row"><span>Tax</span><span>${{ sampleOrder.tax | number:'1.2-2' }}</span></div>
-        <div class="r-row" *ngIf="sampleOrder.discount > 0"><span>Discount</span><span>-${{ sampleOrder.discount | number:'1.2-2' }}</span></div>
-        <div class="r-row r-total"><span>TOTAL</span><span>${{ sampleOrder.total | number:'1.2-2' }}</span></div>
+        <div class="r-row"><span>Subtotal</span><span>{{ sampleOrder.subtotal | currency:currencyCode }}</span></div>
+        <div class="r-row"><span>Tax</span><span>{{ sampleOrder.tax | currency:currencyCode }}</span></div>
+        <div class="r-row" *ngIf="sampleOrder.discount > 0"><span>Discount</span><span>-{{ sampleOrder.discount | currency:currencyCode }}</span></div>
+        <div class="r-row r-total"><span>TOTAL</span><span>{{ sampleOrder.total | currency:currencyCode }}</span></div>
         <div class="r-row"><span>Payment</span><span>{{ sampleOrder.paymentMethod }}</span></div>
         <div *ngIf="company.receiptFooterText" class="r-footer">{{ company.receiptFooterText }}</div>
       </div>
