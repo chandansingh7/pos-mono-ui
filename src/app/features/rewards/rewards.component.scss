@@ -1,0 +1,34 @@
+@use '../../../styles/variables' as v;
+
+.page-header {
+  margin-bottom: v.$space-lg;
+}
+
+.config-card {
+  margin-bottom: v.$space-lg;
+  box-shadow: v.$shadow-sm;
+}
+
+.card {
+  box-shadow: v.$shadow-sm;
+}
+
+.loading-center {
+  display: flex;
+  justify-content: center;
+  padding: v.$space-xxl;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.empty-row .mat-cell {
+  text-align: center;
+  color: v.$color-text-muted;
+  padding: v.$space-lg;
+}
