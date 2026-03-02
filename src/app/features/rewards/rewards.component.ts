@@ -1,7 +1,10 @@
 import { Component, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { CustomerService } from '../../core/services/customer.service';
 import { RewardService } from '../../core/services/reward.service';
 import { CustomerResponse } from '../../core/models/customer.models';
+import { MemberCardDialogComponent } from '../../shared/components/member-card-dialog/member-card-dialog.component';
 
 @Component({
   selector: 'app-rewards',
@@ -13,11 +16,13 @@ export class RewardsComponent implements OnInit {
   customers: CustomerResponse[] = [];
   loading = false;
 
-  displayedColumns = ['name', 'email', 'rewardPoints', 'redemptionValue'];
+  displayedColumns = ['name', 'email', 'rewardPoints', 'redemptionValue', 'card'];
 
   constructor(
     private rewardService: RewardService,
-    private customerService: CustomerService
+    private customerService: CustomerService,
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
@@ -37,5 +42,20 @@ export class RewardsComponent implements OnInit {
   redemptionValue(points: number): number {
     if (!this.config || this.config.redemptionRate <= 0) return 0;
     return points / this.config.redemptionRate;
+  }
+
+  openMemberCard(customer: CustomerResponse): void {
+    const openDialog = (c: CustomerResponse) => {
+      this.dialog.open(MemberCardDialogComponent, { data: { customer: c }, width: '380px' })
+        .afterClosed().subscribe(() => this.ngOnInit());
+    };
+    if (customer.memberCardBarcode) {
+      openDialog(customer);
+    } else {
+      this.customerService.createMemberCard(customer.id).subscribe({
+        next: res => { if (res.data) openDialog(res.data); else this.snackBar.open('Could not create card', 'Close', { duration: 3000 }); },
+        error: err => this.snackBar.open(err.error?.message || 'Error', 'Close', { duration: 4000 })
+      });
+    }
   }
 }

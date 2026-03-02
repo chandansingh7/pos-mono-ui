@@ -109,14 +109,33 @@ export class PosComponent implements OnInit, OnDestroy {
   }
 
   lookupBarcode(barcode: string): void {
+    const tryMemberCard = () => {
+      this.customerService.getByMemberCard(barcode).subscribe({
+        next: res => {
+          if (res.data) {
+            this.selectedCustomer = res.data;
+            if (!this.customers.find(c => c.id === res.data!.id)) {
+              this.customers = [...this.customers, res.data];
+            }
+            this.barcodeControl.setValue('', { emitEvent: false });
+            this.snackBar.open('Member: ' + res.data.name + ' (' + (res.data.rewardPoints ?? 0) + ' pts)', 'Close', { duration: 3000 });
+          } else {
+            this.snackBar.open('Product or member card not found: ' + barcode, 'Close', { duration: 3000 });
+          }
+        },
+        error: () => this.snackBar.open('Product or member card not found: ' + barcode, 'Close', { duration: 3000 })
+      });
+    };
     this.productService.getByBarcode(barcode).subscribe({
       next: res => {
         if (res.data) {
           this.addToCart(res.data);
           this.barcodeControl.setValue('', { emitEvent: false });
+        } else {
+          tryMemberCard();
         }
       },
-      error: () => this.snackBar.open('Product not found for barcode: ' + barcode, 'Close', { duration: 3000 })
+      error: () => tryMemberCard()
     });
   }
 

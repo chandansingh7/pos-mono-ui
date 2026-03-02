@@ -10,6 +10,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { CustomerResponse } from '../../core/models/customer.models';
 import { CustomerDialogComponent } from './customer-dialog.component';
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
+import { MemberCardDialogComponent } from '../../shared/components/member-card-dialog/member-card-dialog.component';
 
 @Component({
   selector: 'app-customers',
@@ -142,6 +143,26 @@ export class CustomersComponent implements OnInit {
 
   viewOrders(customer: CustomerResponse): void {
     this.snackBar.open(`Viewing orders for ${customer.name} — coming soon`, 'Close', { duration: 3000 });
+  }
+
+  openMemberCard(customer: CustomerResponse): void {
+    const openDialog = (c: CustomerResponse) => {
+      this.dialog.open(MemberCardDialogComponent, {
+        data: { customer: c },
+        width: '380px'
+      }).afterClosed().subscribe(() => this.load());
+    };
+    if (customer.memberCardBarcode) {
+      openDialog(customer);
+    } else {
+      this.customerService.createMemberCard(customer.id).subscribe({
+        next: res => {
+          if (res.data) openDialog(res.data);
+          else this.snackBar.open('Could not create card', 'Close', { duration: 3000 });
+        },
+        error: err => this.snackBar.open(err.error?.message || 'Error creating card', 'Close', { duration: 4000 })
+      });
+    }
   }
 
   delete(customer: CustomerResponse): void {

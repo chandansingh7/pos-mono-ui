@@ -22,6 +22,14 @@ export class CustomerService {
     return this.http.get<ApiResponse<CustomerResponse>>(`${this.url}/${id}`);
   }
 
+  getByMemberCard(barcode: string): Observable<ApiResponse<CustomerResponse>> {
+    return this.http.get<ApiResponse<CustomerResponse>>(`${this.url}/by-card/${encodeURIComponent(barcode)}`);
+  }
+
+  createMemberCard(id: number): Observable<ApiResponse<CustomerResponse>> {
+    return this.http.post<ApiResponse<CustomerResponse>>(`${this.url}/${id}/member-card`, {});
+  }
+
   create(req: CustomerRequest): Observable<ApiResponse<CustomerResponse>> {
     return this.http.post<ApiResponse<CustomerResponse>>(this.url, req);
   }

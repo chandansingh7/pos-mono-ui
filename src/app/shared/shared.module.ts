@@ -27,6 +27,7 @@ import { TextFieldModule } from '@angular/cdk/text-field';
 import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
 import { ChangePasswordDialogComponent } from './components/change-password-dialog/change-password-dialog.component';
 import { EditUserDialogComponent } from './components/edit-user-dialog/edit-user-dialog.component';
+import { MemberCardDialogComponent } from './components/member-card-dialog/member-card-dialog.component';
 import { ProductImageUrlPipe } from './pipes/product-image-url.pipe';
 
 const MATERIAL_MODULES = [
@@ -41,7 +42,7 @@ const MATERIAL_MODULES = [
 ];
 
 @NgModule({
-  declarations: [ConfirmDialogComponent, ChangePasswordDialogComponent, EditUserDialogComponent, ProductImageUrlPipe],
+  declarations: [ConfirmDialogComponent, ChangePasswordDialogComponent, EditUserDialogComponent, MemberCardDialogComponent, ProductImageUrlPipe],
   imports: [CommonModule, ReactiveFormsModule, FormsModule, ...MATERIAL_MODULES],
   exports: [
     CommonModule, ReactiveFormsModule, FormsModule,
@@ -49,6 +50,7 @@ const MATERIAL_MODULES = [
     ConfirmDialogComponent,
     ChangePasswordDialogComponent,
     EditUserDialogComponent,
+    MemberCardDialogComponent,
     ProductImageUrlPipe
   ]
 })

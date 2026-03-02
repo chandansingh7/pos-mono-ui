@@ -10,6 +10,7 @@ export interface CustomerResponse {
   email: string;
   phone: string;
   rewardPoints?: number;
+  memberCardBarcode?: string | null;
   createdAt: string;
   updatedAt: string;
   updatedBy: string;

@@ -69,8 +69,9 @@ export class GuideComponent {
       title: '6. Member rewards',
       bullets: [
         'Customers earn points on every order (configurable: e.g. 1 point per $1 spent).',
-        'At POS, select a customer to see their points balance and optionally redeem points for a discount (e.g. 100 points = $1 off).',
-        'Use the Member Rewards page to view how the program works and see all members’ points balances.'
+        'Create a member card (Customers or Member Rewards → Create card): the card has a unique barcode. Print it for the member.',
+        'At POS, scan the member card barcode (or select customer manually) to attach the sale to the member and use their points balance and redemption.',
+        'Use the Member Rewards page to view how the program works, see points balances, and create or reprint cards.'
       ]
     },
     {

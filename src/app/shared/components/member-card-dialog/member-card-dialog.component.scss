@@ -1,0 +1,38 @@
+.card-preview {
+  text-align: center;
+  padding: 8px 0;
+  min-width: 280px;
+}
+
+.card-name {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.card-points {
+  color: #666;
+  margin-bottom: 16px;
+}
+
+.barcode-wrap {
+  margin: 16px 0;
+}
+
+.barcode-svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.barcode-num {
+  font-family: monospace;
+  font-size: 12px;
+  letter-spacing: 1px;
+  margin-top: 8px;
+}
+
+.card-hint {
+  font-size: 12px;
+  color: #757575;
+  margin-top: 16px;
+}

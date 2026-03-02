@@ -1,0 +1,18 @@
+<h2 mat-dialog-title>Member Card</h2>
+<mat-dialog-content>
+  <div class="card-preview" *ngIf="customer">
+    <div class="card-name">{{ customer.name }}</div>
+    <div class="card-points" *ngIf="customer.rewardPoints != null">{{ customer.rewardPoints }} points</div>
+    <div class="barcode-wrap" *ngIf="customer.memberCardBarcode">
+      <svg #barcodeSvg class="barcode-svg"></svg>
+      <div class="barcode-num">{{ customer.memberCardBarcode }}</div>
+    </div>
+    <p class="card-hint">Scan this barcode at checkout to apply member rewards.</p>
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="close()">Close</button>
+  <button mat-raised-button color="primary" (click)="print()" *ngIf="customer?.memberCardBarcode">
+    <mat-icon>print</mat-icon> Print Card
+  </button>
+</mat-dialog-actions>
