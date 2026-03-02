@@ -49,7 +49,6 @@ export class LandingComponent {
     'Reports use fixed periods; no custom date range or period comparison.',
     'No accounting or e-commerce integrations (e.g. QuickBooks, Xero).',
     'No shift or cash-drawer reconciliation.',
-    'Single SKU per product; no size/color variants.',
   ];
 
   constructor(private authService: AuthService, private router: Router) {

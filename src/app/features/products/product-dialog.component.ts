@@ -73,6 +73,17 @@ export interface ProductDialogData {
 
         <div class="row-2">
           <mat-form-field appearance="outline">
+            <mat-label>Size</mat-label>
+            <input matInput formControlName="size" placeholder="e.g. S, M, 42">
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Color</mat-label>
+            <input matInput formControlName="color" placeholder="e.g. Red, Blue">
+          </mat-form-field>
+        </div>
+
+        <div class="row-2">
+          <mat-form-field appearance="outline">
             <mat-label>Price *</mat-label>
             <input matInput type="number" formControlName="price" min="0.01">
             <span matPrefix>$&nbsp;</span>
@@ -180,6 +191,8 @@ export class ProductDialogComponent implements OnInit, OnDestroy {
       name:              [p?.name || '', Validators.required],
       sku:               [p?.sku || ''],
       barcode:           [p?.barcode || ''],
+      size:              [p?.size || ''],
+      color:             [p?.color || ''],
       price:             [p?.price || '', [Validators.required, Validators.min(0.01)]],
       categoryId:        [p?.categoryId || null],
       imageUrl:          [p?.imageUrl || ''],

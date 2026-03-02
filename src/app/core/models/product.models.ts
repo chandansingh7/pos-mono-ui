@@ -2,6 +2,8 @@ export interface ProductRequest {
   name: string;
   sku?: string;
   barcode?: string;
+  size?: string;
+  color?: string;
   price: number;
   categoryId?: number;
   imageUrl?: string;
@@ -15,6 +17,8 @@ export interface ProductResponse {
   name: string;
   sku: string;
   barcode: string;
+  size?: string;
+  color?: string;
   price: number;
   categoryId: number;
   categoryName: string;

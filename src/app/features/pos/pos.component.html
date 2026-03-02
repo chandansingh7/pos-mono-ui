@@ -66,7 +66,12 @@
                 (click)="addToCart(product)">
         <mat-card-content>
           <mat-icon class="product-icon">inventory_2</mat-icon>
-          <div class="product-name">{{ product.name }}</div>
+          <div class="product-name">
+            {{ product.name }}
+            <ng-container *ngIf="product.size || product.color">
+              — <span class="variant-text">{{ product.size }}<ng-container *ngIf="product.size && product.color"> / </ng-container>{{ product.color }}</span>
+            </ng-container>
+          </div>
           <div class="product-price">{{ product.price | currency:currencyCode }}</div>
           <div class="product-stock" [class.low]="product.quantity > 0 && product.quantity <= 10" [class.out]="product.quantity <= 0">
             Stock: {{ product.quantity }}
@@ -92,7 +97,12 @@
       <div *ngFor="let item of cart" class="cart-item">
 
         <div class="item-left">
-          <span class="item-name">{{ item.product.name }}</span>
+          <span class="item-name">
+            {{ item.product.name }}
+            <ng-container *ngIf="item.product.size || item.product.color">
+              — <span class="variant-text">{{ item.product.size }}<ng-container *ngIf="item.product.size && item.product.color"> / </ng-container>{{ item.product.color }}</span>
+            </ng-container>
+          </span>
           <span class="item-unit-price">{{ item.product.price | currency:currencyCode }} each</span>
         </div>
 
