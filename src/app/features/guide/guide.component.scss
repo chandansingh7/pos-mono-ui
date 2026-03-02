@@ -1,0 +1,34 @@
+@import '../../styles/variables';
+
+.guide-page {
+  padding: $space-lg;
+  display: flex;
+  flex-direction: column;
+  gap: $space-lg;
+}
+
+.guide-hero {
+  box-shadow: $shadow-sm;
+}
+
+.guide-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: $space-lg;
+}
+
+.guide-section {
+  box-shadow: $shadow-sm;
+
+  ul {
+    margin: 0;
+    padding-left: $space-md;
+  }
+
+  li {
+    margin-bottom: $space-xs;
+    font-size: $font-size-base;
+    color: $color-text-secondary;
+  }
+}
+
