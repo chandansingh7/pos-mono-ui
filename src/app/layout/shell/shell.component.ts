@@ -41,6 +41,7 @@ export class ShellComponent implements OnInit, OnDestroy {
     { label: 'Reports', icon: 'bar_chart', route: '/app/reports', managerPlus: true },
     { label: 'Billing', icon: 'receipt', route: '/app/billing', managerPlus: true },
     { label: 'Labels', icon: 'label', route: '/app/labels', managerPlus: true },
+    { label: 'Guide / Manual', icon: 'help_outline', route: '/app/guide' },
     { label: 'Settings', icon: 'business', route: '/app/settings', adminOnly: true },
     { label: 'Users', icon: 'manage_accounts', route: '/app/users', adminOnly: true },
   ];

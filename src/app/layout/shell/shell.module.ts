@@ -24,6 +24,7 @@ const routes: Routes = [
       { path: 'reports', loadChildren: () => import('../../features/reports/reports.module').then(m => m.ReportsModule) },
       { path: 'billing', loadChildren: () => import('../../features/billing/billing.module').then(m => m.BillingModule) },
       { path: 'labels', loadChildren: () => import('../../features/labels/labels.module').then(m => m.LabelsModule) },
+      { path: 'guide', loadChildren: () => import('../../features/guide/guide.module').then(m => m.GuideModule) },
       { path: 'settings', loadChildren: () => import('../../features/settings/settings.module').then(m => m.SettingsModule) },
       { path: 'users', loadChildren: () => import('../../features/users/users.module').then(m => m.UsersModule) },
     ]
