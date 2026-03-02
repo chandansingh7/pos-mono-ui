@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { of } from 'rxjs';
 import { ProductService } from '../../core/services/product.service';
 import { LabelService } from '../../core/services/label.service';
@@ -89,7 +90,7 @@ describe('LabelsComponent', () => {
 
     await TestBed.configureTestingModule({
       declarations: [LabelsComponent],
-      imports: [SharedModule, MatTabsModule, NoopAnimationsModule],
+      imports: [SharedModule, MatTabsModule, NoopAnimationsModule, HttpClientTestingModule],
       providers: [
         { provide: ProductService, useValue: productService },
         { provide: LabelService, useValue: labelService },

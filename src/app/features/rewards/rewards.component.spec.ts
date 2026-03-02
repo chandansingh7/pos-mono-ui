@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { of } from 'rxjs';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { CustomerService } from '../../core/services/customer.service';
@@ -28,7 +29,7 @@ describe('RewardsComponent', () => {
 
     await TestBed.configureTestingModule({
       declarations: [RewardsComponent],
-      imports: [SharedModule, NoopAnimationsModule],
+      imports: [SharedModule, NoopAnimationsModule, HttpClientTestingModule],
       providers: [
         { provide: RewardService, useValue: rewardService },
         { provide: CustomerService, useValue: customerService }
