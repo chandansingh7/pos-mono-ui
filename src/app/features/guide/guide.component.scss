@@ -1,34 +1,70 @@
-@import '../../styles/variables';
+@use '../../../styles/variables' as v;
 
 .guide-page {
-  padding: $space-lg;
+  padding: v.$space-lg;
   display: flex;
   flex-direction: column;
-  gap: $space-lg;
+  gap: v.$space-lg;
 }
 
 .guide-hero {
-  box-shadow: $shadow-sm;
+  box-shadow: v.$shadow-sm;
 }
 
 .guide-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: $space-lg;
+  gap: v.$space-lg;
+}
+
+.guide-search {
+  max-width: 400px;
+
+  .search-field {
+    width: 100%;
+  }
+}
+
+.guide-tabs {
+  .tab-content {
+    padding: v.$space-md 0;
+  }
+}
+
+.no-results {
+  color: v.$color-text-muted;
+  font-size: v.$font-size-base;
+  margin: v.$space-lg 0;
 }
 
 .guide-section {
-  box-shadow: $shadow-sm;
+  box-shadow: v.$shadow-sm;
 
   ul {
     margin: 0;
-    padding-left: $space-md;
+    padding-left: v.$space-md;
   }
 
   li {
-    margin-bottom: $space-xs;
-    font-size: $font-size-base;
-    color: $color-text-secondary;
+    margin-bottom: v.$space-xs;
+    font-size: v.$font-size-base;
+    color: v.$color-text-secondary;
   }
+
+  p {
+    margin: 0;
+    font-size: v.$font-size-base;
+    color: v.$color-text-secondary;
+  }
+}
+
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-md;
+}
+
+.faq-item .mat-mdc-card-title {
+  font-size: v.$font-size-md;
 }
 
