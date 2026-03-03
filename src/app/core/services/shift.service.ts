@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../models/api.models';
 import { CloseShiftRequest, OpenShiftRequest, ShiftListResponse, ShiftResponse } from '../models/shift.models';
+import { SILENT_ERROR_HEADER } from '../interceptors/error.interceptor';
 
 @Injectable({ providedIn: 'root' })
 export class ShiftService {
@@ -16,7 +17,10 @@ export class ShiftService {
   }
 
   getCurrent(): Observable<ApiResponse<ShiftResponse>> {
-    return this.http.get<ApiResponse<ShiftResponse>>(`${this.url}/current`);
+    // Silent because "no open shift" is handled gracefully by the Shifts component
+    return this.http.get<ApiResponse<ShiftResponse>>(`${this.url}/current`, {
+      headers: new HttpHeaders({ [SILENT_ERROR_HEADER]: '1' })
+    });
   }
 
   close(request: CloseShiftRequest): Observable<ApiResponse<ShiftResponse>> {
