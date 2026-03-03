@@ -1,39 +1,40 @@
-<div class="page-header page-header-pos">
-  <div class="title-group">
-    <h2>POS / Cashier</h2>
-    <div class="shift-status" *ngIf="paymentMethod === 'CASH' && showShiftControls">
-      <span *ngIf="hasOpenShift" class="status-chip ok">
-        <mat-icon>check_circle</mat-icon>
-        Shift open
-      </span>
-      <span *ngIf="!hasOpenShift" class="status-chip warn">
-        <mat-icon>warning</mat-icon>
-        No open shift — cash payments blocked
-      </span>
-      <span class="status-hint">
-        Card and digital payments do not require an open shift.
-      </span>
+<div class="pos-page">
+  <div class="page-header page-header-pos">
+    <div class="title-group">
+      <h2>POS / Cashier</h2>
+      <div class="shift-status" *ngIf="paymentMethod === 'CASH' && showShiftControls">
+        <span *ngIf="hasOpenShift" class="status-chip ok">
+          <mat-icon>check_circle</mat-icon>
+          Shift open
+        </span>
+        <span *ngIf="!hasOpenShift" class="status-chip warn">
+          <mat-icon>warning</mat-icon>
+          No open shift — cash payments blocked
+        </span>
+        <span class="status-hint">
+          Card and digital payments do not require an open shift.
+        </span>
+      </div>
+    </div>
+    <div class="shift-actions" *ngIf="paymentMethod === 'CASH' && showShiftControls">
+      <button mat-stroked-button color="primary"
+              class="start-shift-btn"
+              *ngIf="!hasOpenShift"
+              (click)="openShiftDialog()">
+        <mat-icon>login</mat-icon>
+        Start shift
+      </button>
+      <button mat-stroked-button color="warn"
+              class="start-shift-btn"
+              *ngIf="hasOpenShift"
+              (click)="openCloseShiftDialog()">
+        <mat-icon>logout</mat-icon>
+        Close shift
+      </button>
     </div>
   </div>
-  <div class="shift-actions" *ngIf="paymentMethod === 'CASH' && showShiftControls">
-    <button mat-stroked-button color="primary"
-            class="start-shift-btn"
-            *ngIf="!hasOpenShift"
-            (click)="openShiftDialog()">
-      <mat-icon>login</mat-icon>
-      Start shift
-    </button>
-    <button mat-stroked-button color="warn"
-            class="start-shift-btn"
-            *ngIf="hasOpenShift"
-            (click)="openCloseShiftDialog()">
-      <mat-icon>logout</mat-icon>
-      Close shift
-    </button>
-  </div>
-</div>
 
-<div *ngIf="completedOrder" class="receipt-container">
+  <div *ngIf="completedOrder" class="receipt-container">
   <mat-card class="receipt-card">
     <mat-card-content>
       <div class="receipt-header">
@@ -71,9 +72,9 @@
       </div>
     </mat-card-content>
   </mat-card>
-</div>
+  </div>
 
-<div *ngIf="!completedOrder" class="pos-layout">
+  <div *ngIf="!completedOrder" class="pos-layout">
   <div class="product-panel">
     <div class="search-controls">
       <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">

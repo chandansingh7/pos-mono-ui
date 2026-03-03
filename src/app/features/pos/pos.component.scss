@@ -1,17 +1,23 @@
 @use 'theme' as t;
 
+.pos-page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
 .pos-layout {
   display: grid;
   /* Give the checkout column a bit more room so Customer/Payment/Discount labels are not truncated. */
   grid-template-columns: 1fr 420px;
   gap: t.$space-lg;
-  height: calc(100vh - 140px);
+  flex: 1;
   min-height: 0;
   overflow: hidden;
 
   @include t.sm {
     grid-template-columns: 1fr;
-    height: auto;
     overflow: visible;
   }
 }
