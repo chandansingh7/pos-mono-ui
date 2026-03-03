@@ -7,6 +7,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { SharedModule } from '../../shared.module';
 import { CloseShiftDialogComponent } from './close-shift-dialog.component';
 import { ShiftService } from '../../../core/services/shift.service';
+import { ApiResponse } from '../../../core/models/api.models';
+import { ShiftResponse } from '../../../core/models/shift.models';
 
 describe('CloseShiftDialogComponent', () => {
   let component: CloseShiftDialogComponent;
@@ -22,16 +24,16 @@ describe('CloseShiftDialogComponent', () => {
 
     shiftService.getCurrent.and.returnValue(of({
       success: true,
-      data: { id: 1, cashierUsername: 'cashier', openingFloat: 100, cashSales: 50, expectedCash: 150 } as any,
+      data: { id: 1, cashierUsername: 'cashier', openingFloat: 100, cashSales: 50, expectedCash: 150 } as unknown as ShiftResponse,
       message: null,
       errorCode: null
-    }));
+    } as ApiResponse<ShiftResponse>));
     shiftService.close.and.returnValue(of({
       success: true,
-      data: { id: 1, difference: 0 } as any,
+      data: { id: 1, difference: 0 } as unknown as ShiftResponse,
       message: null,
       errorCode: null
-    }));
+    } as ApiResponse<ShiftResponse>));
 
     await TestBed.configureTestingModule({
       declarations: [CloseShiftDialogComponent],
@@ -69,5 +71,5 @@ describe('CloseShiftDialogComponent', () => {
     component.submit();
     expect(shiftService.close).not.toHaveBeenCalled();
   });
-}
+});
 

@@ -12,6 +12,8 @@ import { RewardService } from '../../core/services/reward.service';
 import { ShiftService } from '../../core/services/shift.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
+import { ApiResponse } from '../../core/models/api.models';
+import { OrderResponse } from '../../core/models/order.models';
 
 describe('PosComponent', () => {
   let component: PosComponent;
@@ -31,7 +33,12 @@ describe('PosComponent', () => {
     customerSvc.getByMemberCard.and.returnValue(of({ success: true, data: null, message: null, errorCode: null }));
 
     orderService = jasmine.createSpyObj('OrderService', ['create']);
-    orderService.create.and.returnValue(of({ success: true, data: null, message: null, errorCode: null }));
+    orderService.create.and.returnValue(of({
+      success: true,
+      data: { id: 1 } as unknown as OrderResponse,
+      message: null,
+      errorCode: null
+    } as ApiResponse<OrderResponse>));
 
     const companySvc = jasmine.createSpyObj('CompanyService', ['get', 'getCached'], { company$: of(null) });
     companySvc.get.and.returnValue(of({ success: true, data: null, message: null, errorCode: null }));
@@ -84,5 +91,5 @@ describe('PosComponent', () => {
     expect(orderService.create).not.toHaveBeenCalled();
     expect(snackBar.open).toHaveBeenCalled();
   });
-}
+});
 

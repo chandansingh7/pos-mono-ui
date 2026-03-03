@@ -16,6 +16,7 @@ import { CompanyResponse } from '../../core/models/company.models';
 import { ShiftService } from '../../core/services/shift.service';
 import { formatCurrency } from '../../core/utils/currency.util';
 import { StartShiftDialogComponent } from '../../shared/components/start-shift-dialog/start-shift-dialog.component';
+import { CloseShiftDialogComponent } from '../../shared/components/close-shift-dialog/close-shift-dialog.component';
 
 interface CartItem {
   product: ProductResponse;

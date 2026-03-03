@@ -53,7 +53,12 @@ export class LandingComponent {
 
   constructor(private authService: AuthService, private router: Router) {
     if (this.authService.isLoggedIn()) {
-      this.router.navigate(['/app/dashboard']);
+      const role = this.authService.getRole();
+      if (role === 'CASHIER') {
+        this.router.navigate(['/app/pos']);
+      } else {
+        this.router.navigate(['/app/dashboard']);
+      }
     }
   }
 }

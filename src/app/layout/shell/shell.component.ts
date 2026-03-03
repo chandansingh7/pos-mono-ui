@@ -31,7 +31,7 @@ export class ShellComponent implements OnInit, OnDestroy {
   private companySub?: Subscription;
 
   navItems: NavItem[] = [
-    { label: 'Dashboard', icon: 'dashboard', route: '/app/dashboard' },
+    { label: 'Dashboard', icon: 'dashboard', route: '/app/dashboard', managerPlus: true },
     { label: 'POS / Cashier', icon: 'point_of_sale', route: '/app/pos' },
     { label: 'Shifts', icon: 'payments', route: '/app/shifts' },
     { label: 'Orders', icon: 'receipt_long', route: '/app/orders' },

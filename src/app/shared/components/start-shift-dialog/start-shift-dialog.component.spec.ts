@@ -7,6 +7,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { SharedModule } from '../../shared.module';
 import { StartShiftDialogComponent } from './start-shift-dialog.component';
 import { ShiftService } from '../../../core/services/shift.service';
+import { ApiResponse } from '../../../core/models/api.models';
+import { ShiftResponse } from '../../../core/models/shift.models';
 
 describe('StartShiftDialogComponent', () => {
   let component: StartShiftDialogComponent;
@@ -41,7 +43,12 @@ describe('StartShiftDialogComponent', () => {
 
   it('should call shiftService.open on submit when form is valid', () => {
     component.form.setValue({ openingFloat: 100 });
-    shiftService.open.and.returnValue(of({ success: true, data: null, message: null, errorCode: null }));
+    shiftService.open.and.returnValue(of({
+      success: true,
+      data: { id: 1 } as unknown as ShiftResponse,
+      message: null,
+      errorCode: null
+    } as ApiResponse<ShiftResponse>));
 
     component.submit();
 
@@ -54,5 +61,5 @@ describe('StartShiftDialogComponent', () => {
     component.submit();
     expect(shiftService.open).not.toHaveBeenCalled();
   });
-}
+});
 
