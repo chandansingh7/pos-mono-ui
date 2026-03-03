@@ -6,6 +6,7 @@ import { MatListModule } from '@angular/material/list';
 import { SharedModule } from '../../shared/shared.module';
 import { ShellComponent } from './shell.component';
 import { AuthGuard } from '../../core/guards/auth.guard';
+import { DashboardGuard } from '../../core/guards/dashboard.guard';
 
 const routes: Routes = [
   {
@@ -14,7 +15,11 @@ const routes: Routes = [
     canActivate: [AuthGuard],
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-      { path: 'dashboard', loadChildren: () => import('../../features/dashboard/dashboard.module').then(m => m.DashboardModule) },
+          {
+            path: 'dashboard',
+            canActivate: [DashboardGuard],
+            loadChildren: () => import('../../features/dashboard/dashboard.module').then(m => m.DashboardModule)
+          },
       { path: 'pos', loadChildren: () => import('../../features/pos/pos.module').then(m => m.PosModule) },
       { path: 'products', loadChildren: () => import('../../features/products/products.module').then(m => m.ProductsModule) },
       { path: 'categories', loadChildren: () => import('../../features/categories/categories.module').then(m => m.CategoriesModule) },
