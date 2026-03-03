@@ -8,6 +8,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTableModule } from '@angular/material/table';
+import { MatChipsModule } from '@angular/material/chips';
 import { ShiftsComponent } from './shifts.component';
 
 const routes: Routes = [
@@ -25,6 +27,8 @@ const routes: Routes = [
     MatButtonModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
+    MatTableModule,
+    MatChipsModule,
     RouterModule.forChild(routes)
   ]
 })

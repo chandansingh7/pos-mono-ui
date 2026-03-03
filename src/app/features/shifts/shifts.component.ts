@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ShiftService } from '../../core/services/shift.service';
+import { AuthService } from '../../core/services/auth.service';
 import { ShiftResponse } from '../../core/models/shift.models';
 
 @Component({
@@ -13,13 +14,18 @@ export class ShiftsComponent implements OnInit {
   loading = false;
   currentShift: ShiftResponse | null = null;
   errorMessage: string | null = null;
+  shiftList: ShiftResponse[] = [];
+  openCount = 0;
+  listLoading = false;
 
   openForm: FormGroup;
   closeForm: FormGroup;
+  displayedColumns = ['cashier', 'openedAt', 'closedAt', 'openingFloat', 'cashSales', 'expectedCash', 'countedCash', 'difference', 'status'];
 
   constructor(
     private fb: FormBuilder,
     private shiftService: ShiftService,
+    private authService: AuthService,
     private snackBar: MatSnackBar
   ) {
     this.openForm = this.fb.group({
@@ -30,8 +36,28 @@ export class ShiftsComponent implements OnInit {
     });
   }
 
+  get isManagerPlus(): boolean {
+    return this.authService.isAdminOrManager();
+  }
+
   ngOnInit(): void {
     this.refresh();
+    if (this.isManagerPlus) this.loadOverview();
+  }
+
+  loadOverview(): void {
+    this.listLoading = true;
+    this.shiftService.list(0, 50).subscribe({
+      next: res => {
+        const data = res.data;
+        if (data) {
+          this.openCount = data.openCount ?? 0;
+          this.shiftList = data.shifts ?? [];
+        }
+        this.listLoading = false;
+      },
+      error: () => { this.listLoading = false; }
+    });
   }
 
   refresh(): void {
@@ -66,6 +92,7 @@ export class ShiftsComponent implements OnInit {
     this.shiftService.open(this.openForm.value).subscribe({
       next: res => {
         this.currentShift = res.data ?? null;
+        if (this.isManagerPlus) this.loadOverview();
         this.snackBar.open('Shift opened', 'Close', { duration: 3000 });
         this.loading = false;
       },
@@ -82,6 +109,7 @@ export class ShiftsComponent implements OnInit {
     this.shiftService.close(this.closeForm.value).subscribe({
       next: res => {
         this.currentShift = res.data ?? null;
+        if (this.isManagerPlus) this.loadOverview();
         this.snackBar.open('Shift closed & reconciled', 'Close', { duration: 4000 });
         this.loading = false;
       },

@@ -21,3 +21,8 @@ export interface CloseShiftRequest {
   countedCash: number;
 }
 
+export interface ShiftListResponse {
+  openCount: number;
+  shifts: ShiftResponse[];
+}
+
