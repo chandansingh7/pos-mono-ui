@@ -21,7 +21,7 @@ export class AccessLogsComponent implements OnInit {
   usernameFilter = '';
   selectedUsernameForIps = '';
 
-  displayedColumns = ['username', 'ipAddress', 'country', 'path', 'createdAt'];
+  displayedColumns = ['username', 'ipAddress', 'country', 'action', 'path', 'createdAt'];
 
   constructor(private accessLogService: AccessLogService) {}
 

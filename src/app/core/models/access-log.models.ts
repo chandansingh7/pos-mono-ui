@@ -7,6 +7,8 @@ export interface AccessLogResponse {
   country?: string;
   userAgent?: string;
   path: string;
+   /** Human-friendly description, e.g. "Create order". */
+  action?: string;
   createdAt: string;
 }
 

@@ -45,6 +45,11 @@
             <td mat-cell *matCellDef="let row">{{ row.country || '—' }}</td>
           </ng-container>
 
+          <ng-container matColumnDef="action">
+            <th mat-header-cell *matHeaderCellDef>Action</th>
+            <td mat-cell *matCellDef="let row">{{ row.action || (row.path + ' ' ) }}</td>
+          </ng-container>
+
           <ng-container matColumnDef="path">
             <th mat-header-cell *matHeaderCellDef>Path</th>
             <td mat-cell *matCellDef="let row">{{ row.path }}</td>
