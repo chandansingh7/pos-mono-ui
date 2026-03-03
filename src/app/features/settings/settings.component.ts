@@ -41,7 +41,8 @@ export class SettingsComponent implements OnInit {
       receiptFooterText: [''],
       receiptPaperSize: ['80mm'],
       displayCurrency: ['USD'],
-      locale: ['en-US']
+      locale: ['en-US'],
+      posQuickShiftControls: [false]
     });
   }
 
@@ -91,7 +92,8 @@ export class SettingsComponent implements OnInit {
             receiptFooterText: this.company.receiptFooterText ?? '',
             receiptPaperSize: this.company.receiptPaperSize ?? '80mm',
             displayCurrency: this.company.displayCurrency ?? 'USD',
-            locale: this.company.locale ?? 'en-US'
+            locale: this.company.locale ?? 'en-US',
+            posQuickShiftControls: this.company.posQuickShiftControls ?? false
           });
         } else {
           this.form.patchValue({ name: 'My Store', receiptPaperSize: '80mm', displayCurrency: 'USD', locale: 'en-US' });

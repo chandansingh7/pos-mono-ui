@@ -5,7 +5,7 @@
   /* Give the checkout column a bit more room so Customer/Payment/Discount labels are not truncated. */
   grid-template-columns: 1fr 420px;
   gap: t.$space-lg;
-  height: calc(100vh - 140px);
+  height: calc(100vh - 120px);
   min-height: 0;
 
   @include t.sm { grid-template-columns: 1fr; }
@@ -378,3 +378,64 @@
 .total-row     { font-size: t.$font-size-lg; font-weight: t.$font-weight-bold; color: t.$color-primary; padding: t.$space-sm 0; }
 
 .loading-center { @include t.loading-center(t.$space-xl); }
+
+.page-header-pos {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: t.$space-sm;
+
+  .title-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  h2 {
+    margin-bottom: 0;
+  }
+}
+
+.shift-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  font-size: 12px;
+}
+
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: t.$font-weight-semibold;
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
+
+  &.ok {
+    background: rgba(67, 160, 71, 0.08);
+    color: #2e7d32;
+  }
+
+  &.warn {
+    background: rgba(245, 124, 0, 0.08);
+    color: #e65100;
+  }
+}
+
+.status-hint {
+  color: t.$color-text-muted;
+}
+
+.start-shift-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}

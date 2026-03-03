@@ -129,3 +129,20 @@
     </form>
   </mat-card-content>
 </mat-card>
+
+<mat-card class="card" *ngIf="!loading">
+  <mat-card-header>
+    <mat-card-title>POS / Cashier behaviour</mat-card-title>
+    <mat-card-subtitle>Control quick shift actions directly on the POS screen</mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
+    <form [formGroup]="form" class="settings-form">
+      <mat-slide-toggle formControlName="posQuickShiftControls">
+        Allow cashiers to start / close shifts from the POS / Cashier page
+      </mat-slide-toggle>
+      <p class="helper-text">
+        When disabled, cashiers must use the Shifts screen to open and close shifts. Cash payments are still blocked when no shift is open.
+      </p>
+    </form>
+  </mat-card-content>
+</mat-card>

@@ -3,6 +3,7 @@ import { FormControl } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
 import { ProductService } from '../../core/services/product.service';
 import { CustomerService } from '../../core/services/customer.service';
 import { OrderService } from '../../core/services/order.service';
@@ -14,6 +15,7 @@ import { OrderResponse, PaymentMethod } from '../../core/models/order.models';
 import { CompanyResponse } from '../../core/models/company.models';
 import { ShiftService } from '../../core/services/shift.service';
 import { formatCurrency } from '../../core/utils/currency.util';
+import { StartShiftDialogComponent } from '../../shared/components/start-shift-dialog/start-shift-dialog.component';
 
 interface CartItem {
   product: ProductResponse;
@@ -62,7 +64,8 @@ export class PosComponent implements OnInit, OnDestroy {
     private companyService: CompanyService,
     private rewardService: RewardService,
     private shiftService: ShiftService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -90,10 +93,40 @@ export class PosComponent implements OnInit, OnDestroy {
     });
   }
 
+  get showShiftControls(): boolean {
+    return !!this.company?.posQuickShiftControls;
+  }
+
   private checkShift(): void {
     this.shiftService.getCurrent().subscribe({
       next: res => { this.hasOpenShift = !!res.data; },
       error: () => { this.hasOpenShift = false; }
+    });
+  }
+
+  openShiftDialog(): void {
+    const ref = this.dialog.open(StartShiftDialogComponent, {
+      width: '420px',
+    });
+    ref.afterClosed().subscribe(result => {
+      if (result) {
+        this.hasOpenShift = true;
+      } else {
+        this.checkShift();
+      }
+    });
+  }
+
+  openCloseShiftDialog(): void {
+    const ref = this.dialog.open(CloseShiftDialogComponent, {
+      width: '460px',
+    });
+    ref.afterClosed().subscribe(result => {
+      if (result) {
+        this.hasOpenShift = false;
+      } else {
+        this.checkShift();
+      }
     });
   }
 

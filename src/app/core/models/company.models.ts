@@ -16,6 +16,8 @@ export interface CompanyResponse {
   /** Locale for number/date formatting (e.g. en-US, hi-IN). */
   locale?: string;
   updatedAt?: string;
+  /** Whether quick shift open/close controls are enabled on POS / Cashier. */
+  posQuickShiftControls?: boolean;
 }
 
 export interface CompanyRequest {
@@ -32,6 +34,7 @@ export interface CompanyRequest {
   receiptPaperSize?: string;
   displayCurrency?: string;
   locale?: string;
+  posQuickShiftControls?: boolean;
 }
 
 export const RECEIPT_PAPER_SIZES = [

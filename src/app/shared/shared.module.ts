@@ -28,6 +28,8 @@ import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dial
 import { ChangePasswordDialogComponent } from './components/change-password-dialog/change-password-dialog.component';
 import { EditUserDialogComponent } from './components/edit-user-dialog/edit-user-dialog.component';
 import { MemberCardDialogComponent } from './components/member-card-dialog/member-card-dialog.component';
+import { StartShiftDialogComponent } from './components/start-shift-dialog/start-shift-dialog.component';
+import { CloseShiftDialogComponent } from './components/close-shift-dialog/close-shift-dialog.component';
 import { ProductImageUrlPipe } from './pipes/product-image-url.pipe';
 
 const MATERIAL_MODULES = [
@@ -42,7 +44,15 @@ const MATERIAL_MODULES = [
 ];
 
 @NgModule({
-  declarations: [ConfirmDialogComponent, ChangePasswordDialogComponent, EditUserDialogComponent, MemberCardDialogComponent, ProductImageUrlPipe],
+  declarations: [
+    ConfirmDialogComponent,
+    ChangePasswordDialogComponent,
+    EditUserDialogComponent,
+    MemberCardDialogComponent,
+    StartShiftDialogComponent,
+    CloseShiftDialogComponent,
+    ProductImageUrlPipe
+  ],
   imports: [CommonModule, ReactiveFormsModule, FormsModule, ...MATERIAL_MODULES],
   exports: [
     CommonModule, ReactiveFormsModule, FormsModule,
@@ -51,6 +61,8 @@ const MATERIAL_MODULES = [
     ChangePasswordDialogComponent,
     EditUserDialogComponent,
     MemberCardDialogComponent,
+    StartShiftDialogComponent,
+    CloseShiftDialogComponent,
     ProductImageUrlPipe
   ]
 })

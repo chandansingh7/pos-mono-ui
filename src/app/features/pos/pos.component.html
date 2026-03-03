@@ -1,13 +1,37 @@
-<div class="page-header">
-  <h2>POS / Cashier</h2>
+<div class="page-header page-header-pos">
+  <div class="title-group">
+    <h2>POS / Cashier</h2>
+    <div class="shift-status" *ngIf="paymentMethod === 'CASH' && showShiftControls">
+      <span *ngIf="hasOpenShift" class="status-chip ok">
+        <mat-icon>check_circle</mat-icon>
+        Shift open
+      </span>
+      <span *ngIf="!hasOpenShift" class="status-chip warn">
+        <mat-icon>warning</mat-icon>
+        No open shift — cash payments blocked
+      </span>
+      <span class="status-hint">
+        Card and digital payments do not require an open shift.
+      </span>
+    </div>
+  </div>
+  <div class="shift-actions" *ngIf="paymentMethod === 'CASH' && showShiftControls">
+    <button mat-stroked-button color="primary"
+            class="start-shift-btn"
+            *ngIf="!hasOpenShift"
+            (click)="openShiftDialog()">
+      <mat-icon>login</mat-icon>
+      Start shift
+    </button>
+    <button mat-stroked-button color="warn"
+            class="start-shift-btn"
+            *ngIf="hasOpenShift"
+            (click)="openCloseShiftDialog()">
+      <mat-icon>logout</mat-icon>
+      Close shift
+    </button>
+  </div>
 </div>
-
-<mat-card class="card card-warn" *ngIf="paymentMethod === 'CASH' && !hasOpenShift">
-  <mat-card-content>
-    <p>No open shift for this cashier. Open a shift on the Shifts page before taking cash payments.</p>
-    <p class="hint-text">Card and digital payments do not require an open shift.</p>
-  </mat-card-content>
-</mat-card>
 
 <div *ngIf="completedOrder" class="receipt-container">
   <mat-card class="receipt-card">
