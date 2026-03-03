@@ -1,0 +1,97 @@
+<div class="page-header">
+  <h2>Access logs</h2>
+</div>
+
+<mat-card class="card">
+  <mat-card-header>
+    <mat-card-title>API access by user</mat-card-title>
+    <mat-card-subtitle>Track where users are connecting from (IP and country, best-effort).</mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
+    <div class="filters-row">
+      <mat-form-field appearance="outline" class="filter-field" subscriptSizing="dynamic">
+        <mat-label>Filter by username</mat-label>
+        <input matInput [(ngModel)]="usernameFilter" (keyup.enter)="onFilterChange()" placeholder="e.g. admin1">
+      </mat-form-field>
+      <button mat-stroked-button color="primary" (click)="onFilterChange()">
+        Apply
+      </button>
+    </div>
+
+    <div *ngIf="loading" class="loading-center">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+
+    <div class="content-grid" *ngIf="!loading">
+      <div class="table-wrap">
+        <table mat-table [dataSource]="logs" class="full-width">
+
+          <ng-container matColumnDef="username">
+            <th mat-header-cell *matHeaderCellDef>Username</th>
+            <td mat-cell *matCellDef="let row">
+              <button mat-button color="primary" (click)="viewIps(row.username)">
+                {{ row.username }}
+              </button>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="ipAddress">
+            <th mat-header-cell *matHeaderCellDef>IP address</th>
+            <td mat-cell *matCellDef="let row">{{ row.ipAddress }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="country">
+            <th mat-header-cell *matHeaderCellDef>Country</th>
+            <td mat-cell *matCellDef="let row">{{ row.country || '—' }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="path">
+            <th mat-header-cell *matHeaderCellDef>Path</th>
+            <td mat-cell *matCellDef="let row">{{ row.path }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="createdAt">
+            <th mat-header-cell *matHeaderCellDef>When</th>
+            <td mat-cell *matCellDef="let row">{{ row.createdAt | date:'short' }}</td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+          <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell" [attr.colspan]="displayedColumns.length">No access logs yet.</td>
+          </tr>
+        </table>
+
+        <mat-paginator
+          [length]="totalElements"
+          [pageSize]="size"
+          [pageSizeOptions]="[10, 20, 50]"
+          (page)="onPageChange($event)">
+        </mat-paginator>
+      </div>
+
+      <div class="ips-panel">
+        <h3>IPs for {{ selectedUsernameForIps || 'selected user' }}</h3>
+        <div *ngIf="ipsLoading" class="loading-center">
+          <mat-spinner diameter="32"></mat-spinner>
+        </div>
+        <div *ngIf="!ipsLoading && !ips.length" class="empty-ips">
+          <p>Select a username on the left to see IP addresses.</p>
+        </div>
+        <div *ngIf="!ipsLoading && ips.length" class="ips-list">
+          <div class="ip-row" *ngFor="let ip of ips">
+            <div class="ip-main">
+              <span class="ip-address">{{ ip.ipAddress }}</span>
+              <span class="ip-country" *ngIf="ip.country">{{ ip.country }}</span>
+            </div>
+            <div class="ip-meta">
+              <span>{{ ip.count }} request(s)</span>
+              <span *ngIf="ip.lastUsedAt">Last: {{ ip.lastUsedAt | date:'short' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </mat-card-content>
+</mat-card>
+

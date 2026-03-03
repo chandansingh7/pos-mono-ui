@@ -1,0 +1,98 @@
+@use 'theme' as t;
+
+.card {
+  margin-bottom: t.$space-lg;
+}
+
+.filters-row {
+  display: flex;
+  align-items: center;
+  gap: t.$space-md;
+  margin-bottom: t.$space-md;
+}
+
+.filter-field {
+  width: 260px;
+}
+
+.content-grid {
+  display: grid;
+  grid-template-columns: 2fr 1.2fr;
+  gap: t.$space-lg;
+
+  @include t.sm {
+    grid-template-columns: 1fr;
+  }
+}
+
+.table-wrap {
+  max-height: 480px;
+  overflow: auto;
+}
+
+.ips-panel {
+  border-left: 1px solid t.$color-divider;
+  padding-left: t.$space-md;
+
+  @include t.sm {
+    border-left: none;
+    padding-left: 0;
+    border-top: 1px solid t.$color-divider;
+    margin-top: t.$space-md;
+    padding-top: t.$space-md;
+  }
+
+  h3 {
+    margin-top: 0;
+    font-size: t.$font-size-lg;
+  }
+}
+
+.ips-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ip-row {
+  border-radius: 8px;
+  border: 1px solid t.$color-divider;
+  padding: 6px 10px;
+  background: #fafafa;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ip-main {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ip-address {
+  font-family: monospace;
+  font-size: 13px;
+}
+
+.ip-country {
+  font-size: 12px;
+  color: t.$color-text-muted;
+}
+
+.ip-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: t.$color-text-muted;
+}
+
+.empty-ips {
+  font-size: 13px;
+  color: t.$color-text-muted;
+}
+
+.loading-center {
+  @include t.loading-center(t.$space-md);
+}
+
