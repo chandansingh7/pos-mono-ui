@@ -108,9 +108,28 @@ export class ShiftsComponent implements OnInit {
     this.loading = true;
     this.shiftService.close(this.closeForm.value).subscribe({
       next: res => {
-        this.currentShift = res.data ?? null;
+        const closed = res.data ?? null;
+        let message = 'Shift closed.';
+
+        if (closed && closed.difference !== undefined && closed.difference !== null) {
+          const diff = Number(closed.difference);
+          if (!isNaN(diff)) {
+            if (diff === 0) {
+              message = 'Shift closed. Drawer matches expected cash.';
+            } else {
+              const abs = Math.abs(diff).toFixed(2);
+              message = diff > 0
+                ? `Shift closed with overage: drawer is OVER by ${abs}.`
+                : `Shift closed with shortage: drawer is SHORT by ${abs}.`;
+            }
+          }
+        }
+
+        // Shift is now closed — treat as no active shift and refresh overview
+        this.currentShift = null;
+        this.closeForm.reset({ countedCash: 0 });
         if (this.isManagerPlus) this.loadOverview();
-        this.snackBar.open('Shift closed & reconciled', 'Close', { duration: 4000 });
+        this.snackBar.open(message, 'Close', { duration: 5000 });
         this.loading = false;
       },
       error: err => {

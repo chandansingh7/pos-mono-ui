@@ -2,6 +2,13 @@
   <h2>POS / Cashier</h2>
 </div>
 
+<mat-card class="card card-warn" *ngIf="paymentMethod === 'CASH' && !hasOpenShift">
+  <mat-card-content>
+    <p>No open shift for this cashier. Open a shift on the Shifts page before taking cash payments.</p>
+    <p class="hint-text">Card and digital payments do not require an open shift.</p>
+  </mat-card-content>
+</mat-card>
+
 <div *ngIf="completedOrder" class="receipt-container">
   <mat-card class="receipt-card">
     <mat-card-content>
@@ -175,7 +182,9 @@
         <div class="total-row-lg"><span>TOTAL</span><span>{{ total | currency:currencyCode }}</span></div>
       </div>
 
-      <button mat-raised-button color="primary" class="full-width checkout-btn" [disabled]="loading || !cart.length" (click)="placeOrder()">
+      <button mat-raised-button color="primary" class="full-width checkout-btn"
+              [disabled]="loading || !cart.length || (paymentMethod === 'CASH' && !hasOpenShift)"
+              (click)="placeOrder()">
         <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
         <mat-icon *ngIf="!loading">point_of_sale</mat-icon>
         <span>{{ loading ? 'Processing...' : 'Place Order' }}</span>

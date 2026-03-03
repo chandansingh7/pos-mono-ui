@@ -12,6 +12,7 @@ import { ProductResponse } from '../../core/models/product.models';
 import { CustomerResponse } from '../../core/models/customer.models';
 import { OrderResponse, PaymentMethod } from '../../core/models/order.models';
 import { CompanyResponse } from '../../core/models/company.models';
+import { ShiftService } from '../../core/services/shift.service';
 import { formatCurrency } from '../../core/utils/currency.util';
 
 interface CartItem {
@@ -45,6 +46,8 @@ export class PosComponent implements OnInit, OnDestroy {
   company: CompanyResponse | null = null;
   private companySub?: Subscription;
 
+  hasOpenShift = true;
+
   paymentMethods: { value: PaymentMethod; label: string }[] = [
     { value: 'CASH', label: 'Cash' },
     { value: 'CREDIT_CARD', label: 'Credit Card' },
@@ -58,10 +61,12 @@ export class PosComponent implements OnInit, OnDestroy {
     private orderService: OrderService,
     private companyService: CompanyService,
     private rewardService: RewardService,
+    private shiftService: ShiftService,
     private snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
+    this.checkShift();
     this.loadProducts();
     this.rewardService.getConfig().subscribe({
       next: res => { this.rewardConfig = res.data ?? null; }
@@ -82,6 +87,13 @@ export class PosComponent implements OnInit, OnDestroy {
       distinctUntilChanged()
     ).subscribe(barcode => {
       if (barcode && barcode.length > 3) this.lookupBarcode(barcode);
+    });
+  }
+
+  private checkShift(): void {
+    this.shiftService.getCurrent().subscribe({
+      next: res => { this.hasOpenShift = !!res.data; },
+      error: () => { this.hasOpenShift = false; }
     });
   }
 
@@ -210,6 +222,10 @@ export class PosComponent implements OnInit, OnDestroy {
   placeOrder(): void {
     if (!this.cart.length) {
       this.snackBar.open('Cart is empty', 'Close', { duration: 2000 });
+      return;
+    }
+    if (this.paymentMethod === 'CASH' && !this.hasOpenShift) {
+      this.snackBar.open('Open a shift on the Shifts page before taking cash payments.', 'Close', { duration: 4000 });
       return;
     }
     this.loading = true;
