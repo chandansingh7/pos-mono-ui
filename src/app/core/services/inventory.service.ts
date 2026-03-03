@@ -24,8 +24,9 @@ export class InventoryService {
     return this.http.get<ApiResponse<PageResponse<InventoryResponse>>>(this.url, { params: params as any });
   }
 
-  getLowStock(): Observable<ApiResponse<InventoryResponse[]>> {
-    return this.http.get<ApiResponse<InventoryResponse[]>>(`${this.url}/low-stock`);
+  getLowStock(silent = false): Observable<ApiResponse<InventoryResponse[]>> {
+    const headers = silent ? new HttpHeaders({ [SILENT_ERROR_HEADER]: '1' }) : undefined;
+    return this.http.get<ApiResponse<InventoryResponse[]>>(`${this.url}/low-stock`, { headers });
   }
 
   getByProduct(productId: number): Observable<ApiResponse<InventoryResponse>> {

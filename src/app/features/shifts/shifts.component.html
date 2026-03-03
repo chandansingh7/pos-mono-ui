@@ -2,7 +2,14 @@
   <h2>Cash drawer / Shift</h2>
 </div>
 
-<mat-card class="card" *ngIf="!loading && !currentShift">
+<mat-card class="card card-warn" *ngIf="errorMessage">
+  <mat-card-content>
+    <p>{{ errorMessage }}</p>
+    <button mat-stroked-button (click)="errorMessage = null; refresh()">Retry</button>
+  </mat-card-content>
+</mat-card>
+
+<mat-card class="card" *ngIf="!loading && !currentShift && !errorMessage">
   <mat-card-header>
     <mat-card-title>Open shift</mat-card-title>
     <mat-card-subtitle>Start a new cashier shift and record the opening float.</mat-card-subtitle>
@@ -20,7 +27,7 @@
   </mat-card-content>
 </mat-card>
 
-<mat-card class="card" *ngIf="!loading && currentShift">
+<mat-card class="card" *ngIf="!loading && currentShift && !errorMessage">
   <mat-card-header>
     <mat-card-title>Current shift</mat-card-title>
     <mat-card-subtitle>

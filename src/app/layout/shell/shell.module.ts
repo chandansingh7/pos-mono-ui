@@ -29,6 +29,8 @@ const routes: Routes = [
       { path: 'settings', loadChildren: () => import('../../features/settings/settings.module').then(m => m.SettingsModule) },
       { path: 'users', loadChildren: () => import('../../features/users/users.module').then(m => m.UsersModule) },
       { path: 'shifts', loadChildren: () => import('../../features/shifts/shifts.module').then(m => m.ShiftsModule) },
+      { path: 'my-shift', loadChildren: () => import('../../features/shifts/shifts.module').then(m => m.ShiftsModule) },
+      { path: 'shift', redirectTo: 'shifts', pathMatch: 'full' },
     ]
   }
 ];

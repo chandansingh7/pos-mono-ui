@@ -12,6 +12,7 @@ import { ShiftResponse } from '../../core/models/shift.models';
 export class ShiftsComponent implements OnInit {
   loading = false;
   currentShift: ShiftResponse | null = null;
+  errorMessage: string | null = null;
 
   openForm: FormGroup;
   closeForm: FormGroup;
@@ -36,6 +37,7 @@ export class ShiftsComponent implements OnInit {
   refresh(): void {
     this.loading = true;
     this.currentShift = null;
+    this.errorMessage = null;
     this.shiftService.getCurrent().subscribe({
       next: res => {
         this.currentShift = res.data ?? null;
@@ -44,7 +46,17 @@ export class ShiftsComponent implements OnInit {
         }
         this.loading = false;
       },
-      error: () => { this.loading = false; }
+      error: err => {
+        this.loading = false;
+        const status = err.status;
+        const code = err.error?.errorCode;
+        const msg = err.error?.message;
+        if (status === 404 || (code === 'OR001' && msg?.toLowerCase().includes('shift'))) {
+          this.currentShift = null;
+        } else {
+          this.errorMessage = msg || 'Could not load shift. Ensure your account exists in Settings → Users.';
+        }
+      }
     });
   }
 

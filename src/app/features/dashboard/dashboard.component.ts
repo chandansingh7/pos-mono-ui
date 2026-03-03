@@ -33,9 +33,9 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit(): void {
     forkJoin({
-      daily:    this.reportService.getDailyReport().pipe(catchError(() => of({ data: null, success: false, message: null, errorCode: null }))),
-      monthly:  this.reportService.getMonthlyReport().pipe(catchError(() => of({ data: null, success: false, message: null, errorCode: null }))),
-      lowStock: this.inventoryService.getLowStock().pipe(catchError(() => of({ data: [], success: false, message: null, errorCode: null }))),
+      daily:    this.reportService.getDailyReport(undefined, true).pipe(catchError(() => of({ data: null, success: false, message: null, errorCode: null }))),
+      monthly:  this.reportService.getMonthlyReport(undefined, undefined, true).pipe(catchError(() => of({ data: null, success: false, message: null, errorCode: null }))),
+      lowStock: this.inventoryService.getLowStock(true).pipe(catchError(() => of({ data: [], success: false, message: null, errorCode: null }))),
       orders:   this.orderService.getAll(0, 5).pipe(catchError(() => of({ data: { content: [], totalElements: 0, totalPages: 0, size: 5, number: 0 }, success: false, message: null, errorCode: null })))
     }).subscribe({
       next: ({ daily, monthly, lowStock, orders }) => {

@@ -33,6 +33,7 @@ export class ShellComponent implements OnInit, OnDestroy {
   navItems: NavItem[] = [
     { label: 'Dashboard', icon: 'dashboard', route: '/app/dashboard' },
     { label: 'POS / Cashier', icon: 'point_of_sale', route: '/app/pos' },
+    { label: 'My shift', icon: 'payments', route: '/app/my-shift' },
     { label: 'Orders', icon: 'receipt_long', route: '/app/orders' },
     { label: 'Products', icon: 'inventory_2', route: '/app/products' },
     { label: 'Categories', icon: 'category', route: '/app/categories', managerPlus: true },
@@ -40,7 +41,7 @@ export class ShellComponent implements OnInit, OnDestroy {
     { label: 'Inventory', icon: 'warehouse', route: '/app/inventory', managerPlus: true },
     { label: 'Reports', icon: 'bar_chart', route: '/app/reports', managerPlus: true },
     { label: 'Billing', icon: 'receipt', route: '/app/billing', managerPlus: true },
-    { label: 'Shifts / Cash drawer', icon: 'payments', route: '/app/shifts', managerPlus: true },
+    { label: 'Shifts (admin)', icon: 'account_balance_wallet', route: '/app/shifts', managerPlus: true },
     { label: 'Labels', icon: 'label', route: '/app/labels', managerPlus: true },
     { label: 'Member Rewards', icon: 'card_giftcard', route: '/app/rewards', managerPlus: true },
     { label: 'Guide / Manual', icon: 'help_outline', route: '/app/guide' },
