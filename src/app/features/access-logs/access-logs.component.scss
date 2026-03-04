@@ -25,9 +25,30 @@
   }
 }
 
-.table-wrap {
-  max-height: 480px;
+.table-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.table-scroll {
   overflow: auto;
+  max-height: 420px;
+  flex-shrink: 0;
+
+  // Sticky header so it stays visible when scrolling the table body
+  .mat-mdc-header-row {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: #fafafa;
+    box-shadow: 0 2px 0 0 #e0e0e0;
+  }
+}
+
+mat-paginator {
+  flex-shrink: 0;
+  border-top: 1px solid t.$color-divider;
 }
 
 .ips-panel {
@@ -48,6 +69,17 @@
   }
 }
 
+.allow-list-section {
+  margin-bottom: t.$space-sm;
+}
+
+.allow-list-title {
+  font-size: t.$font-size-md;
+  font-weight: 600;
+  margin: 0 0 t.$space-xs 0;
+  color: t.$color-text;
+}
+
 .ips-hint {
   font-size: 12px;
   color: t.$color-text-muted;
@@ -63,17 +95,27 @@
 .ip-row {
   border-radius: 8px;
   border: 1px solid t.$color-divider;
-  padding: 6px 10px;
+  padding: 8px 10px;
   background: #fafafa;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
 }
 
-.ip-main {
+.ip-top {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ip-actions-inline {
+  margin-left: auto;
+  flex-shrink: 0;
+
+  button {
+    margin: 0;
+  }
 }
 
 .ip-address {
@@ -101,10 +143,6 @@
   border-radius: 999px;
   background: t.$color-success-bg;
   color: t.$color-success;
-}
-
-.ip-actions {
-  margin-top: 4px;
 }
 
 .empty-ips {

@@ -23,50 +23,51 @@
     </div>
 
     <div class="content-grid" *ngIf="!loading">
-      <div class="table-wrap">
-        <table mat-table [dataSource]="logs" class="full-width">
+      <div class="table-container">
+        <div class="table-scroll">
+          <table mat-table [dataSource]="logs" class="full-width">
 
-          <ng-container matColumnDef="username">
-            <th mat-header-cell *matHeaderCellDef>Username</th>
-            <td mat-cell *matCellDef="let row">
-              <button mat-button color="primary" (click)="viewIps(row.username)">
-                {{ row.username }}
-              </button>
-            </td>
-          </ng-container>
+            <ng-container matColumnDef="username">
+              <th mat-header-cell *matHeaderCellDef>Username</th>
+              <td mat-cell *matCellDef="let row">
+                <button mat-button color="primary" (click)="viewIps(row.username)">
+                  {{ row.username }}
+                </button>
+              </td>
+            </ng-container>
 
-          <ng-container matColumnDef="ipAddress">
-            <th mat-header-cell *matHeaderCellDef>IP address</th>
-            <td mat-cell *matCellDef="let row">{{ row.ipAddress }}</td>
-          </ng-container>
+            <ng-container matColumnDef="ipAddress">
+              <th mat-header-cell *matHeaderCellDef>IP address</th>
+              <td mat-cell *matCellDef="let row">{{ row.ipAddress }}</td>
+            </ng-container>
 
-          <ng-container matColumnDef="country">
-            <th mat-header-cell *matHeaderCellDef>Country</th>
-            <td mat-cell *matCellDef="let row">{{ row.country || '—' }}</td>
-          </ng-container>
+            <ng-container matColumnDef="country">
+              <th mat-header-cell *matHeaderCellDef>Country</th>
+              <td mat-cell *matCellDef="let row">{{ row.country || '—' }}</td>
+            </ng-container>
 
-          <ng-container matColumnDef="action">
-            <th mat-header-cell *matHeaderCellDef>Action</th>
-            <td mat-cell *matCellDef="let row">{{ row.action || (row.path + ' ' ) }}</td>
-          </ng-container>
+            <ng-container matColumnDef="action">
+              <th mat-header-cell *matHeaderCellDef>Action</th>
+              <td mat-cell *matCellDef="let row">{{ row.action || (row.path + ' ' ) }}</td>
+            </ng-container>
 
-          <ng-container matColumnDef="path">
-            <th mat-header-cell *matHeaderCellDef>Path</th>
-            <td mat-cell *matCellDef="let row">{{ row.path }}</td>
-          </ng-container>
+            <ng-container matColumnDef="path">
+              <th mat-header-cell *matHeaderCellDef>Path</th>
+              <td mat-cell *matCellDef="let row">{{ row.path }}</td>
+            </ng-container>
 
-          <ng-container matColumnDef="createdAt">
-            <th mat-header-cell *matHeaderCellDef>When</th>
-            <td mat-cell *matCellDef="let row">{{ row.createdAt | date:'short' }}</td>
-          </ng-container>
+            <ng-container matColumnDef="createdAt">
+              <th mat-header-cell *matHeaderCellDef>When</th>
+              <td mat-cell *matCellDef="let row">{{ row.createdAt | date:'short' }}</td>
+            </ng-container>
 
-          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-          <tr class="mat-row" *matNoDataRow>
-            <td class="mat-cell" [attr.colspan]="displayedColumns.length">No access logs yet.</td>
-          </tr>
-        </table>
-
+            <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            <tr class="mat-row" *matNoDataRow>
+              <td class="mat-cell" [attr.colspan]="displayedColumns.length">No access logs yet.</td>
+            </tr>
+          </table>
+        </div>
         <mat-paginator
           [length]="totalElements"
           [pageSize]="size"
@@ -77,33 +78,36 @@
 
       <div class="ips-panel">
         <h3>IPs for {{ selectedUsernameForIps || 'selected user' }}</h3>
-        <p class="ips-hint" *ngIf="selectedUsernameForIps">
-          Allow list: when non-empty, this user can only log in from these IPs. Add or remove below.
-        </p>
+        <div class="allow-list-section" *ngIf="selectedUsernameForIps">
+          <h4 class="allow-list-title">IP allow list</h4>
+          <p class="ips-hint">
+            When you add IPs here, this user can only log in from those IPs. Use the buttons below to add or remove.
+          </p>
+        </div>
         <div *ngIf="ipsLoading" class="loading-center">
           <mat-spinner diameter="32"></mat-spinner>
         </div>
         <div *ngIf="!ipsLoading && !ips.length" class="empty-ips">
-          <p>Select a username on the left to see IP addresses.</p>
+          <p>Select a username on the left to see IP addresses and manage the allow list.</p>
         </div>
         <div *ngIf="!ipsLoading && ips.length" class="ips-list">
           <div class="ip-row" *ngFor="let ip of ips">
-            <div class="ip-main">
+            <div class="ip-top">
               <span class="ip-address">{{ ip.ipAddress }}</span>
               <span class="ip-country" *ngIf="ip.country">{{ ip.country }}</span>
               <span *ngIf="isAllowed(ip.ipAddress)" class="allowed-badge">Allowed</span>
+              <span class="ip-actions-inline">
+                <button *ngIf="!isAllowed(ip.ipAddress)" mat-stroked-button color="primary" (click)="addToAllowList(ip.ipAddress)">
+                  Allow this IP
+                </button>
+                <button *ngIf="isAllowed(ip.ipAddress)" mat-stroked-button (click)="removeFromAllowList(ip.ipAddress)">
+                  Remove
+                </button>
+              </span>
             </div>
             <div class="ip-meta">
               <span>{{ ip.count }} request(s)</span>
               <span *ngIf="ip.lastUsedAt">Last: {{ ip.lastUsedAt | date:'short' }}</span>
-            </div>
-            <div class="ip-actions">
-              <button *ngIf="!isAllowed(ip.ipAddress)" mat-stroked-button color="primary" (click)="addToAllowList(ip.ipAddress)">
-                Allow this IP
-              </button>
-              <button *ngIf="isAllowed(ip.ipAddress)" mat-stroked-button (click)="removeFromAllowList(ip.ipAddress)">
-                Remove from allow list
-              </button>
             </div>
           </div>
         </div>
