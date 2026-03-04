@@ -42,6 +42,14 @@
   }
 }
 
+.mat-mdc-row {
+  cursor: pointer;
+
+  &.row-selected {
+    background-color: t.$color-surface-selected;
+  }
+}
+
 // Sticky header: pierce encapsulation so it applies to Material table
 :host ::ng-deep .table-scroll {
   .mat-mdc-header-row,

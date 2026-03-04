@@ -78,6 +78,13 @@ export class AccessLogsComponent implements OnInit {
     return this.blockedIps.some(b => this.normalizeIp(b) === normalized);
   }
 
+  onRowClicked(row: AccessLogResponse): void {
+    if (!row || !row.username) {
+      return;
+    }
+    this.viewIps(row.username);
+  }
+
   /** True if this IP is the current user's own client IP (cannot block it). */
   isOwnCurrentIp(ipAddress: string): boolean {
     const currentUsername = this.authService.getUsername();
