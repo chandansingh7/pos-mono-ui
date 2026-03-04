@@ -3,6 +3,7 @@ import { PageEvent } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AccessLogService } from '../../core/services/access-log.service';
 import { AllowedIpService } from '../../core/services/allowed-ip.service';
+import { AuthService } from '../../core/services/auth.service';
 import { BlockedIpService } from '../../core/services/blocked-ip.service';
 import { AccessLogResponse, UserIpUsageResponse } from '../../core/models/access-log.models';
 
@@ -16,6 +17,7 @@ export class AccessLogsComponent implements OnInit {
   ips: UserIpUsageResponse[] = [];
   allowedIps: string[] = [];
   blockedIps: string[] = [];
+  currentClientIp: string | null = null;
   loading = false;
   ipsLoading = false;
 
@@ -31,6 +33,7 @@ export class AccessLogsComponent implements OnInit {
   constructor(
     private accessLogService: AccessLogService,
     private allowedIpService: AllowedIpService,
+    private authService: AuthService,
     private blockedIpService: BlockedIpService,
     private snackBar: MatSnackBar
   ) {}
@@ -75,12 +78,24 @@ export class AccessLogsComponent implements OnInit {
     return this.blockedIps.some(b => this.normalizeIp(b) === normalized);
   }
 
+  /** True if this IP is the current user's own client IP (cannot block it). */
+  isOwnCurrentIp(ipAddress: string): boolean {
+    const currentUsername = this.authService.getUsername();
+    if (!currentUsername || this.selectedUsernameForIps !== currentUsername || !this.currentClientIp) return false;
+    return this.normalizeIp(ipAddress) === this.normalizeIp(this.currentClientIp);
+  }
+
   viewIps(username: string): void {
     this.selectedUsernameForIps = username;
     this.ipsLoading = true;
     this.ips = [];
     this.allowedIps = [];
     this.blockedIps = [];
+    this.currentClientIp = null;
+    this.authService.getClientIp().subscribe({
+      next: res => { this.currentClientIp = res.data ?? null; },
+      error: () => { this.currentClientIp = null; }
+    });
     this.accessLogService.getUserIps(username).subscribe({
       next: res => {
         this.ips = res.data ?? [];

@@ -84,15 +84,16 @@
             When you add IPs here, this user can only log in from those IPs. Use the buttons below to add or remove.
           </p>
         </div>
-        <div class="block-list-section" *ngIf="selectedUsernameForIps && blockedIps.length">
+        <div class="block-list-section" *ngIf="selectedUsernameForIps">
           <h4 class="block-list-title">Blocked IPs</h4>
-          <p class="ips-hint">Blocked IPs cannot log in. Click Whitelist to allow again.</p>
-          <div class="blocked-ips-list">
+          <p class="ips-hint">Blocked IPs cannot log in. Click Allow to remove from block list.</p>
+          <div class="blocked-ips-list" *ngIf="blockedIps.length">
             <div class="blocked-ip-row" *ngFor="let blockedIp of blockedIps">
               <span class="ip-address">{{ blockedIp }}</span>
-              <button mat-stroked-button (click)="unblockIp(blockedIp)">Whitelist</button>
+              <button mat-stroked-button (click)="unblockIp(blockedIp)">Allow</button>
             </div>
           </div>
+          <p class="empty-blocked" *ngIf="!ipsLoading && !blockedIps.length">No blocked IPs for this user.</p>
         </div>
         <div *ngIf="ipsLoading" class="loading-center">
           <mat-spinner diameter="32"></mat-spinner>
@@ -108,9 +109,10 @@
               <span *ngIf="isAllowed(ip.ipAddress)" class="allowed-badge">Allowed</span>
               <span *ngIf="isBlocked(ip.ipAddress)" class="blocked-badge">Blocked</span>
               <span class="ip-actions-inline">
-                <button *ngIf="!isBlocked(ip.ipAddress)" mat-stroked-button color="warn" (click)="blockThisIp(ip.ipAddress)">
+                <button *ngIf="!isBlocked(ip.ipAddress) && !isOwnCurrentIp(ip.ipAddress)" mat-stroked-button color="warn" (click)="blockThisIp(ip.ipAddress)">
                   Block this IP
                 </button>
+                <span *ngIf="!isBlocked(ip.ipAddress) && isOwnCurrentIp(ip.ipAddress)" class="ip-own-hint">(current IP — cannot block)</span>
                 <button *ngIf="isBlocked(ip.ipAddress)" mat-stroked-button color="primary" (click)="unblockIp(ip.ipAddress)">
                   Allow
                 </button>

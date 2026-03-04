@@ -62,6 +62,11 @@ export class AuthService {
     return this.getCurrentUser()?.username ?? null;
   }
 
+  /** Resolved client IP for the current request (e.g. to avoid blocking own IP in Access Logs). */
+  getClientIp(): Observable<ApiResponse<string>> {
+    return this.http.get<ApiResponse<string>>(`${environment.apiUrl}/api/auth/client-ip`);
+  }
+
   isLoggedIn(): boolean {
     return !!this.getToken();
   }
