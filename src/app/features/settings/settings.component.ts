@@ -42,7 +42,11 @@ export class SettingsComponent implements OnInit {
       receiptPaperSize: ['80mm'],
       displayCurrency: ['USD'],
       locale: ['en-US'],
-      posQuickShiftControls: [false]
+      posQuickShiftControls: [false],
+      shiftMaxDifferenceAbsolute: [null],
+      shiftMinOpenMinutes: [null],
+      shiftMaxOpenHours: [null],
+      shiftRequireSameDay: [false]
     });
   }
 
@@ -93,10 +97,24 @@ export class SettingsComponent implements OnInit {
             receiptPaperSize: this.company.receiptPaperSize ?? '80mm',
             displayCurrency: this.company.displayCurrency ?? 'USD',
             locale: this.company.locale ?? 'en-US',
-            posQuickShiftControls: this.company.posQuickShiftControls ?? false
+            posQuickShiftControls: this.company.posQuickShiftControls ?? false,
+            shiftMaxDifferenceAbsolute: this.company.shiftMaxDifferenceAbsolute ?? null,
+            shiftMinOpenMinutes: this.company.shiftMinOpenMinutes ?? null,
+            shiftMaxOpenHours: this.company.shiftMaxOpenHours ?? null,
+            shiftRequireSameDay: this.company.shiftRequireSameDay ?? false
           });
         } else {
-          this.form.patchValue({ name: 'My Store', receiptPaperSize: '80mm', displayCurrency: 'USD', locale: 'en-US' });
+          this.form.patchValue({
+            name: 'My Store',
+            receiptPaperSize: '80mm',
+            displayCurrency: 'USD',
+            locale: 'en-US',
+            posQuickShiftControls: false,
+            shiftMaxDifferenceAbsolute: null,
+            shiftMinOpenMinutes: null,
+            shiftMaxOpenHours: null,
+            shiftRequireSameDay: false
+          });
         }
       },
       error: () => { this.loading = false; }

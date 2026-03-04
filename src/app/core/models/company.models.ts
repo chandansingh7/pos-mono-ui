@@ -18,6 +18,14 @@ export interface CompanyResponse {
   updatedAt?: string;
   /** Whether quick shift open/close controls are enabled on POS / Cashier. */
   posQuickShiftControls?: boolean;
+  /** Shift rule: max allowed cash difference when closing a shift. */
+  shiftMaxDifferenceAbsolute?: number;
+  /** Shift rule: minimum open minutes before close is allowed. */
+  shiftMinOpenMinutes?: number;
+  /** Shift rule: maximum open hours before close is blocked. */
+  shiftMaxOpenHours?: number;
+  /** Shift rule: require same-day close. */
+  shiftRequireSameDay?: boolean;
 }
 
 export interface CompanyRequest {
@@ -35,6 +43,10 @@ export interface CompanyRequest {
   displayCurrency?: string;
   locale?: string;
   posQuickShiftControls?: boolean;
+  shiftMaxDifferenceAbsolute?: number | null;
+  shiftMinOpenMinutes?: number | null;
+  shiftMaxOpenHours?: number | null;
+  shiftRequireSameDay?: boolean | null;
 }
 
 export const RECEIPT_PAPER_SIZES = [

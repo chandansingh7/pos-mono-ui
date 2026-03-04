@@ -146,3 +146,39 @@
     </form>
   </mat-card-content>
 </mat-card>
+
+<mat-card class="card" *ngIf="!loading">
+  <mat-card-header>
+    <mat-card-title>Shift / cash drawer rules</mat-card-title>
+    <mat-card-subtitle>Configure when cashiers can close shifts and how much over/short is allowed</mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
+    <form [formGroup]="form" class="settings-form">
+      <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+        <mat-label>Max allowed cash difference</mat-label>
+        <input matInput type="number" formControlName="shiftMaxDifferenceAbsolute" placeholder="0 = no limit">
+        <span matPrefix>{{ form.value.displayCurrency || 'USD' }}&nbsp;</span>
+        <mat-hint>Maximum over/short allowed when closing a shift. Leave empty or 0 to disable this rule.</mat-hint>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+        <mat-label>Minimum open time (minutes)</mat-label>
+        <input matInput type="number" formControlName="shiftMinOpenMinutes" placeholder="0 = no minimum">
+        <mat-hint>Require a shift to be open for at least this many minutes before it can be closed.</mat-hint>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+        <mat-label>Maximum open time (hours)</mat-label>
+        <input matInput type="number" formControlName="shiftMaxOpenHours" placeholder="0 = no maximum">
+        <mat-hint>Block closing shifts that have been open longer than this. Use together with force-close for admins.</mat-hint>
+      </mat-form-field>
+
+      <mat-slide-toggle formControlName="shiftRequireSameDay">
+        Require shifts to be closed on the same calendar day they were opened
+      </mat-slide-toggle>
+      <p class="helper-text">
+        When enabled, cashiers cannot close shifts that rolled over to the next day; an admin must force-close them from the Shifts screen.
+      </p>
+    </form>
+  </mat-card-content>
+</mat-card>
