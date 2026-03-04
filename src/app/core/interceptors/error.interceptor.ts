@@ -56,6 +56,14 @@ export class ErrorInterceptor implements HttpInterceptor {
           if (!silent) {
             this.showError(ERROR_MAP[401].code, ERROR_MAP[401].message, 3000);
           }
+        } else if (error.status === 403 && error.error?.errorCode === 'AU008') {
+          // IP not allowed / blocked — end session and redirect to login
+          this.authService.logout();
+          this.router.navigate(['/login']);
+          if (!silent) {
+            const { code, message } = this.resolveError(error);
+            this.showError(code, message, 5000);
+          }
         } else if (!silent) {
           const { code, message } = this.resolveError(error);
           this.showError(code, message, SERVER_DOWN_STATUSES.has(error.status) ? 6000 : 5000);

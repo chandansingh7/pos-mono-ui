@@ -3,6 +3,7 @@ import { PageEvent } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AccessLogService } from '../../core/services/access-log.service';
 import { AllowedIpService } from '../../core/services/allowed-ip.service';
+import { BlockedIpService } from '../../core/services/blocked-ip.service';
 import { AccessLogResponse, UserIpUsageResponse } from '../../core/models/access-log.models';
 
 @Component({
@@ -14,6 +15,7 @@ export class AccessLogsComponent implements OnInit {
   logs: AccessLogResponse[] = [];
   ips: UserIpUsageResponse[] = [];
   allowedIps: string[] = [];
+  blockedIps: string[] = [];
   loading = false;
   ipsLoading = false;
 
@@ -29,6 +31,7 @@ export class AccessLogsComponent implements OnInit {
   constructor(
     private accessLogService: AccessLogService,
     private allowedIpService: AllowedIpService,
+    private blockedIpService: BlockedIpService,
     private snackBar: MatSnackBar
   ) {}
 
@@ -67,11 +70,17 @@ export class AccessLogsComponent implements OnInit {
     return this.allowedIps.some(a => this.normalizeIp(a) === normalized);
   }
 
+  isBlocked(ipAddress: string): boolean {
+    const normalized = this.normalizeIp(ipAddress);
+    return this.blockedIps.some(b => this.normalizeIp(b) === normalized);
+  }
+
   viewIps(username: string): void {
     this.selectedUsernameForIps = username;
     this.ipsLoading = true;
     this.ips = [];
     this.allowedIps = [];
+    this.blockedIps = [];
     this.accessLogService.getUserIps(username).subscribe({
       next: res => {
         this.ips = res.data ?? [];
@@ -82,6 +91,42 @@ export class AccessLogsComponent implements OnInit {
     this.allowedIpService.getAllowedIps(username).subscribe({
       next: res => { this.allowedIps = res.data ?? []; },
       error: () => { this.allowedIps = []; }
+    });
+    this.blockedIpService.getBlockedIps(username).subscribe({
+      next: res => { this.blockedIps = res.data ?? []; },
+      error: () => { this.blockedIps = []; }
+    });
+  }
+
+  blockThisIp(ipAddress: string): void {
+    const username = this.selectedUsernameForIps;
+    if (!username || !ipAddress?.trim()) return;
+    const normalized = this.normalizeIp(ipAddress);
+    this.blockedIpService.addBlockedIp(username, normalized).subscribe({
+      next: res => {
+        this.blockedIps = res.data ?? [];
+        this.snackBar.open('IP added to block list. User will be logged out from this IP.', 'Close', { duration: 4000 });
+      },
+      error: err => {
+        const msg = err.error?.message || err.error?.errorCode || 'Failed to block IP';
+        this.snackBar.open(msg, 'Close', { duration: 4000 });
+      }
+    });
+  }
+
+  unblockIp(ipAddress: string): void {
+    const username = this.selectedUsernameForIps;
+    if (!username || !ipAddress?.trim()) return;
+    const normalized = this.normalizeIp(ipAddress);
+    this.blockedIpService.removeBlockedIp(username, normalized).subscribe({
+      next: res => {
+        this.blockedIps = res.data ?? [];
+        this.snackBar.open('IP removed from block list (whitelisted)', 'Close', { duration: 3000 });
+      },
+      error: err => {
+        const msg = err.error?.message || err.error?.errorCode || 'Failed to unblock IP';
+        this.snackBar.open(msg, 'Close', { duration: 4000 });
+      }
     });
   }
 

@@ -98,6 +98,49 @@ mat-paginator {
   margin: 0 0 t.$space-sm 0;
 }
 
+.block-list-section {
+  margin-bottom: t.$space-sm;
+}
+
+.block-list-title {
+  font-size: t.$font-size-md;
+  font-weight: 600;
+  margin: 0 0 t.$space-xs 0;
+  color: t.$color-text-primary;
+}
+
+.blocked-ips-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: t.$space-md;
+}
+
+.blocked-ip-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid t.$color-divider;
+  background: #ffebee;
+
+  .ip-address {
+    font-family: monospace;
+    font-size: 13px;
+  }
+}
+
+.blocked-badge {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #ffcdd2;
+  color: #c62828;
+}
+
 .ips-list {
   display: flex;
   flex-direction: column;
