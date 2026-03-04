@@ -39,14 +39,17 @@
   // Ensure the table doesn't create its own scroll context (global .mat-mdc-table has overflow: hidden)
   .mat-mdc-table {
     overflow: visible !important;
+    background-color: t.$color-surface;
   }
 }
 
-.mat-mdc-row {
+// Table row interactions and selected state (pierce Material styles)
+:host ::ng-deep .mat-mdc-row {
   cursor: pointer;
+  background-color: t.$color-surface;
 
   &.row-selected {
-    background-color: t.$color-primary-muted;
+    background-color: t.$color-primary-muted !important;
   }
 }
 
