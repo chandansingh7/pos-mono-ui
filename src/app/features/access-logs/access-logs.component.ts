@@ -55,8 +55,16 @@ export class AccessLogsComponent implements OnInit {
     this.load(0);
   }
 
+  /** Normalize IP by stripping port (e.g. "24.28.169.48:57706" -> "24.28.169.48") so allow list matches by host. */
+  normalizeIp(ipAddress: string): string {
+    const s = (ipAddress || '').trim();
+    const match = s.match(/^(.+):(\d+)$/);
+    return match ? match[1] : s;
+  }
+
   isAllowed(ipAddress: string): boolean {
-    return this.allowedIps.some(a => (a || '').trim() === (ipAddress || '').trim());
+    const normalized = this.normalizeIp(ipAddress);
+    return this.allowedIps.some(a => this.normalizeIp(a) === normalized);
   }
 
   viewIps(username: string): void {
@@ -80,7 +88,8 @@ export class AccessLogsComponent implements OnInit {
   addToAllowList(ipAddress: string): void {
     const username = this.selectedUsernameForIps;
     if (!username || !ipAddress?.trim()) return;
-    this.allowedIpService.addAllowedIp(username, ipAddress.trim()).subscribe({
+    const normalized = this.normalizeIp(ipAddress);
+    this.allowedIpService.addAllowedIp(username, normalized).subscribe({
       next: res => {
         this.allowedIps = res.data ?? [];
         this.snackBar.open('IP added to allow list', 'Close', { duration: 3000 });
@@ -95,7 +104,8 @@ export class AccessLogsComponent implements OnInit {
   removeFromAllowList(ipAddress: string): void {
     const username = this.selectedUsernameForIps;
     if (!username || !ipAddress?.trim()) return;
-    this.allowedIpService.removeAllowedIp(username, ipAddress.trim()).subscribe({
+    const normalized = this.normalizeIp(ipAddress);
+    this.allowedIpService.removeAllowedIp(username, normalized).subscribe({
       next: res => {
         this.allowedIps = res.data ?? [];
         this.snackBar.open('IP removed from allow list', 'Close', { duration: 3000 });
