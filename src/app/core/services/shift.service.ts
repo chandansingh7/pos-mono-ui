@@ -27,6 +27,10 @@ export class ShiftService {
     return this.http.post<ApiResponse<ShiftResponse>>(`${this.url}/close`, request);
   }
 
+  forceClose(id: number, request: CloseShiftRequest): Observable<ApiResponse<ShiftResponse>> {
+    return this.http.post<ApiResponse<ShiftResponse>>(`${this.url}/${id}/force-close`, request);
+  }
+
   list(page = 0, size = 20): Observable<ApiResponse<ShiftListResponse>> {
     return this.http.get<ApiResponse<ShiftListResponse>>(this.url, {
       params: { page: String(page), size: String(size) }

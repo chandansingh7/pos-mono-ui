@@ -4,6 +4,11 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ShiftService } from '../../core/services/shift.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ShiftResponse } from '../../core/models/shift.models';
+import { MatDialog } from '@angular/material/dialog';
+import {
+  AdminForceCloseShiftDialogComponent,
+  AdminForceCloseShiftDialogData
+} from '../../shared/components/admin-force-close-shift-dialog/admin-force-close-shift-dialog.component';
 
 @Component({
   selector: 'app-shifts',
@@ -20,13 +25,14 @@ export class ShiftsComponent implements OnInit {
 
   openForm: FormGroup;
   closeForm: FormGroup;
-  displayedColumns = ['cashier', 'openedAt', 'closedAt', 'openingFloat', 'cashSales', 'expectedCash', 'countedCash', 'difference', 'status'];
+  displayedColumns = ['cashier', 'openedAt', 'closedAt', 'openingFloat', 'cashSales', 'expectedCash', 'countedCash', 'difference', 'status', 'actions'];
 
   constructor(
     private fb: FormBuilder,
     private shiftService: ShiftService,
     private authService: AuthService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog
   ) {
     this.openForm = this.fb.group({
       openingFloat: [0, [Validators.required, Validators.min(0)]]
@@ -135,6 +141,19 @@ export class ShiftsComponent implements OnInit {
       error: err => {
         this.snackBar.open(err.error?.message || 'Failed to close shift', 'Close', { duration: 4000 });
         this.loading = false;
+      }
+    });
+  }
+
+  forceCloseShift(row: ShiftResponse): void {
+    if (!row.id || row.status !== 'OPEN') return;
+    const data: AdminForceCloseShiftDialogData = { shift: row };
+    this.dialog.open(AdminForceCloseShiftDialogComponent, {
+      width: '420px',
+      data
+    }).afterClosed().subscribe(result => {
+      if (result) {
+        this.loadOverview();
       }
     });
   }

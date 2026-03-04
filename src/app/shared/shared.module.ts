@@ -30,6 +30,7 @@ import { EditUserDialogComponent } from './components/edit-user-dialog/edit-user
 import { MemberCardDialogComponent } from './components/member-card-dialog/member-card-dialog.component';
 import { StartShiftDialogComponent } from './components/start-shift-dialog/start-shift-dialog.component';
 import { CloseShiftDialogComponent } from './components/close-shift-dialog/close-shift-dialog.component';
+import { AdminForceCloseShiftDialogComponent } from './components/admin-force-close-shift-dialog/admin-force-close-shift-dialog.component';
 import { ProductImageUrlPipe } from './pipes/product-image-url.pipe';
 
 const MATERIAL_MODULES = [
@@ -51,6 +52,7 @@ const MATERIAL_MODULES = [
     MemberCardDialogComponent,
     StartShiftDialogComponent,
     CloseShiftDialogComponent,
+    AdminForceCloseShiftDialogComponent,
     ProductImageUrlPipe
   ],
   imports: [CommonModule, ReactiveFormsModule, FormsModule, ...MATERIAL_MODULES],
@@ -63,6 +65,7 @@ const MATERIAL_MODULES = [
     MemberCardDialogComponent,
     StartShiftDialogComponent,
     CloseShiftDialogComponent,
+    AdminForceCloseShiftDialogComponent,
     ProductImageUrlPipe
   ]
 })
