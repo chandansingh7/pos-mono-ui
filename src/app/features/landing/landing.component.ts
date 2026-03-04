@@ -26,8 +26,12 @@ export class LandingComponent {
     'Member rewards: earn points per sale, redeem at checkout; configurable rates.',
     'Label printing: product labels and standalone labels with barcodes; attach labels to products.',
     'Daily and monthly sales reports with top products and Excel export.',
+    'Shift and cash-drawer management with opening float, close & reconcile, and over/short checks.',
+    'Admin tools for resolving stuck shifts, including force-close with full reconciliation details.',
     'Company branding: logo, receipt layout (paper size, header/footer), tax ID; display currency and locale (multi-currency and localisation).',
     'User management: Admin, Manager, Cashier roles; create, edit, activate/deactivate users.',
+    'Granular access control on UI modules (e.g. Dashboard guarded from cashiers).',
+    'Access logging with per-user IP usage and friendly action labels for key operations.',
     'In-app Guide, Support and FAQ with search.',
     'JWT authentication, role-based API security, and centralised error handling.',
     'Deployed on Azure with CI/CD (GitHub Actions).',
@@ -42,13 +46,13 @@ export class LandingComponent {
     'Single-location only; no multi-store or stock transfers.',
     'Web-only; no offline mode or PWA sync for poor connectivity.',
     'No dedicated mobile or tablet-optimised layout.',
-    'No audit trail for price or inventory changes.',
+    'No audit trail for price or inventory changes (access logs do not yet track field-level changes).',
     'Billing is receipt configuration only; no formal invoicing (numbered invoices, PDF, due dates).',
     'Customer order history view is not yet implemented.',
     'No email receipt option for customers.',
     'Reports use fixed periods; no custom date range or period comparison.',
     'No accounting or e-commerce integrations (e.g. QuickBooks, Xero).',
-    'No shift or cash-drawer reconciliation.',
+    'No IP-based allow/block list; IPs are captured for reporting only.',
   ];
 
   constructor(private authService: AuthService, private router: Router) {

@@ -38,7 +38,8 @@ export class GuideComponent {
         'Open POS / Cashier for all selling and checkout work.',
         'Scan a barcode or search by product name to add items to the cart.',
         'Adjust quantities, apply discounts if allowed, and choose the payment method.',
-        'Complete the sale to create an order and automatically update inventory.'
+        'Complete the sale to create an order and automatically update inventory.',
+        'For CASH payments you must have an open shift; the app will block cash sales if no shift is open.'
       ]
     },
     {
@@ -58,7 +59,17 @@ export class GuideComponent {
       ]
     },
     {
-      title: '5. Orders, billing & reports',
+      title: '5. Shifts & cash drawer',
+      bullets: [
+        'Cashiers open a shift with an opening float amount, and close & reconcile at the end of the day.',
+        'From the Shifts page, you can see your current shift, past shifts, and whether any shifts are still open.',
+        'When closing a shift you enter the counted cash; the system compares it to expected cash and shows over/short.',
+        'Admins can configure rules in Settings → Company (max allowed difference, minimum/maximum shift duration, and whether shifts must be closed the same day).',
+        'Admins and managers can force-close stuck or overnight shifts from the Shifts admin view, with full reconciliation details.'
+      ]
+    },
+    {
+      title: '6. Orders, billing & reports',
       bullets: [
         'Use Orders to look up past sales, see order details and status.',
         'Use Billing for invoices, outstanding amounts and payment history.',
@@ -66,7 +77,7 @@ export class GuideComponent {
       ]
     },
     {
-      title: '6. Member rewards',
+      title: '7. Member rewards',
       bullets: [
         'Customers earn points on every order (configurable: e.g. 1 point per $1 spent).',
         'Create a member card (Customers or Member Rewards → Create card): the card has a unique barcode. Print it for the member.',
@@ -75,10 +86,12 @@ export class GuideComponent {
       ]
     },
     {
-      title: '7. Admin & user management',
+      title: '8. Audit, access logs & admin',
       bullets: [
-        'Settings (Admin only) contains company profile and global configuration.',
+        'Settings (Admin only) contains company profile, shift rules and other global configuration.',
         'Users (Admin only) is where you create cashiers and managers and assign roles.',
+        'Access Logs (Admin only) shows who is using the system, from which IPs, and which high-level actions they perform (for example “Created order”, “Updated product”).',
+        'Cashiers are redirected to POS and cannot access the Dashboard; managers and admins see the Dashboard and more analytics.',
         'Use your profile menu in the top bar to change password or update your own details.'
       ]
     }
@@ -123,6 +136,18 @@ export class GuideComponent {
     {
       question: 'Why can I not see some menu items?',
       answer: 'Visibility depends on your role. Cashiers see POS, Orders, Products, Customers. Managers additionally see Categories, Inventory, Reports, Billing, Labels, Member Rewards. Admins see everything including Settings and Users.'
+    },
+    {
+      question: 'How do shifts and cash drawer reconciliation work?',
+      answer: 'Before taking CASH payments, open a shift with your opening float (cash in the drawer). During the day, POS tracks cash sales. When you close & reconcile, enter the counted cash; the system calculates expected cash and shows whether you are over, short, or exact. Depending on shift rules configured in Settings, large differences or very short/very long shifts may be blocked and require an admin to review or force-close.'
+    },
+    {
+      question: 'What happens if a shift stays open overnight?',
+      answer: 'If the same-day rule is enabled in Settings, cashiers will not be able to close a shift that has rolled over to the next calendar day. An Admin or Manager must go to the Shifts page and use Force close to reconcile and close that shift.'
+    },
+    {
+      question: 'How are my actions and IP address logged?',
+      answer: 'For security, the system records which user performed key actions (such as login, creating orders, updating products) along with their IP address and browser information. Admins can review this on the Access Logs page, including a list of IPs used by each user. This is for audit and security monitoring; it does not yet block or allow logins based on IP.'
     },
     {
       question: 'How do member reward points work?',
