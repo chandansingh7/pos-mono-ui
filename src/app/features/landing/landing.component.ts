@@ -32,6 +32,7 @@ export class LandingComponent {
     'User management: Admin, Manager, Cashier roles; create, edit, activate/deactivate users.',
     'Granular access control on UI modules (e.g. Dashboard guarded from cashiers).',
     'Access logging with per-user IP usage and friendly action labels for key operations.',
+    'Per-user IP allow list (whitelist): restrict login and API access to specific IPs from Access Logs.',
     'In-app Guide, Support and FAQ with search.',
     'JWT authentication, role-based API security, and centralised error handling.',
     'Deployed on Azure with CI/CD (GitHub Actions).',
@@ -52,7 +53,6 @@ export class LandingComponent {
     'No email receipt option for customers.',
     'Reports use fixed periods; no custom date range or period comparison.',
     'No accounting or e-commerce integrations (e.g. QuickBooks, Xero).',
-    'No IP-based allow/block list; IPs are captured for reporting only.',
   ];
 
   constructor(private authService: AuthService, private router: Router) {

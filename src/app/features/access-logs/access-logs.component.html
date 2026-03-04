@@ -77,6 +77,9 @@
 
       <div class="ips-panel">
         <h3>IPs for {{ selectedUsernameForIps || 'selected user' }}</h3>
+        <p class="ips-hint" *ngIf="selectedUsernameForIps">
+          Allow list: when non-empty, this user can only log in from these IPs. Add or remove below.
+        </p>
         <div *ngIf="ipsLoading" class="loading-center">
           <mat-spinner diameter="32"></mat-spinner>
         </div>
@@ -88,10 +91,19 @@
             <div class="ip-main">
               <span class="ip-address">{{ ip.ipAddress }}</span>
               <span class="ip-country" *ngIf="ip.country">{{ ip.country }}</span>
+              <span *ngIf="isAllowed(ip.ipAddress)" class="allowed-badge">Allowed</span>
             </div>
             <div class="ip-meta">
               <span>{{ ip.count }} request(s)</span>
               <span *ngIf="ip.lastUsedAt">Last: {{ ip.lastUsedAt | date:'short' }}</span>
+            </div>
+            <div class="ip-actions">
+              <button *ngIf="!isAllowed(ip.ipAddress)" mat-stroked-button color="primary" (click)="addToAllowList(ip.ipAddress)">
+                Allow this IP
+              </button>
+              <button *ngIf="isAllowed(ip.ipAddress)" mat-stroked-button (click)="removeFromAllowList(ip.ipAddress)">
+                Remove from allow list
+              </button>
             </div>
           </div>
         </div>

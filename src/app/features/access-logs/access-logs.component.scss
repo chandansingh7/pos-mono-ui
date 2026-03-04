@@ -48,6 +48,12 @@
   }
 }
 
+.ips-hint {
+  font-size: 12px;
+  color: t.$color-text-muted;
+  margin: 0 0 t.$space-sm 0;
+}
+
 .ips-list {
   display: flex;
   flex-direction: column;
@@ -85,6 +91,20 @@
   justify-content: space-between;
   font-size: 11px;
   color: t.$color-text-muted;
+}
+
+.allowed-badge {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: t.$color-success-bg;
+  color: t.$color-success;
+}
+
+.ip-actions {
+  margin-top: 4px;
 }
 
 .empty-ips {

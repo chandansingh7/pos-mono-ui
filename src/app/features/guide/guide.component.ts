@@ -147,7 +147,7 @@ export class GuideComponent {
     },
     {
       question: 'How are my actions and IP address logged?',
-      answer: 'For security, the system records which user performed key actions (such as login, creating orders, updating products) along with their IP address and browser information. Admins can review this on the Access Logs page, including a list of IPs used by each user. This is for audit and security monitoring; it does not yet block or allow logins based on IP.'
+      answer: 'For security, the system records which user performed key actions (such as login, creating orders, updating products) along with their IP address and browser information. Admins can review this on the Access Logs page. From there, admins can add or remove IPs to a per-user allow list (whitelist). When a user has at least one allowed IP, only those IPs can be used for login and API access; otherwise all IPs are allowed.'
     },
     {
       question: 'How do member reward points work?',
