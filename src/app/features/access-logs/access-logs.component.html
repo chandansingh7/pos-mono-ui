@@ -108,14 +108,11 @@
               <span *ngIf="isAllowed(ip.ipAddress)" class="allowed-badge">Allowed</span>
               <span *ngIf="isBlocked(ip.ipAddress)" class="blocked-badge">Blocked</span>
               <span class="ip-actions-inline">
-                <button *ngIf="!isAllowed(ip.ipAddress)" mat-stroked-button color="primary" (click)="addToAllowList(ip.ipAddress)">
-                  Allow this IP
-                </button>
-                <button *ngIf="isAllowed(ip.ipAddress)" mat-stroked-button (click)="removeFromAllowList(ip.ipAddress)">
-                  Remove
-                </button>
                 <button *ngIf="!isBlocked(ip.ipAddress)" mat-stroked-button color="warn" (click)="blockThisIp(ip.ipAddress)">
                   Block this IP
+                </button>
+                <button *ngIf="isBlocked(ip.ipAddress)" mat-stroked-button color="primary" (click)="unblockIp(ip.ipAddress)">
+                  Allow
                 </button>
               </span>
             </div>
