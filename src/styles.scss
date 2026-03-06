@@ -26,53 +26,63 @@ html, body {
   background: v.$color-background;
 }
 
-// ─── Global compact controls (32px) — decoupled, single source of truth ─────
-// Reference: Access logs filter, Products table filters. All inputs, buttons,
-// selects, paginator use this compact size for consistency.
+// ─── Global control standard (single source of truth) ────────────────────────
+// One consistent control size across the whole app: inputs, selects, and buttons.
+// If we ever want to adjust the app-wide control size, we change it here once.
 
-$compact-control-height: 32px;
+$control-height: 40px;
+$control-font-size: v.$font-size-base; // 14px
+$control-label-font-size: v.$font-size-sm; // 12px
 
-// All mat-form-fields — compact 32px container; consistent text alignment (HCI: left-aligned)
+// All mat-form-fields — standard 40px container; centered text; left-aligned content
 .mat-mdc-form-field {
-  --mdc-outlined-text-field-container-height: #{$compact-control-height};
-  font-size: v.$font-size-xs; // 11px — matches filter fields
+  --mdc-outlined-text-field-container-height: #{$control-height};
+  font-size: $control-font-size;
 
+  .mat-mdc-text-field-wrapper {
+    padding: 0 10px !important;
+  }
+  .mat-mdc-form-field-flex {
+    height: $control-height;
+    align-items: center;
+  }
   .mat-mdc-form-field-infix {
-    padding-top: 2px !important;
-    padding-bottom: 2px !important;
-    min-height: 24px !important;
-    font-size: v.$font-size-xs !important;
+    /* Works for both placeholder-only and floatLabel="always". */
+    padding-top: 6px !important;
+    padding-bottom: 6px !important;
+    min-height: $control-height !important;
+    font-size: $control-font-size !important;
     display: flex !important;
     align-items: center !important;
   }
-  .mat-mdc-text-field-wrapper {
-    padding: 0 6px !important;
-  }
   .mat-mdc-floating-label {
-    font-size: v.$font-size-xs !important;
+    font-size: $control-label-font-size !important;
   }
-  .mat-mdc-input-element:not([type="number"]),
-  input[type="text"]::placeholder,
-  input[type="search"]::placeholder,
-  input:not([type="number"])::placeholder {
+
+  .mat-mdc-input-element,
+  input::placeholder {
     text-align: left !important;
+    font-size: $control-font-size !important;
+    line-height: 20px !important;
   }
-  .mat-mdc-input-element {
-    line-height: 1.5 !important;
+
+  .mat-mdc-select-trigger {
+    height: $control-height !important;
+    align-items: center !important;
   }
 }
 
-// Buttons — compact 32px to match inputs (exclude icon-button, FAB)
+// Buttons — standard 40px to match inputs (exclude icon-button, FAB)
 .mat-mdc-raised-button:not(.mat-mdc-icon-button):not(.mat-mdc-fab),
 .mat-mdc-outlined-button:not(.mat-mdc-icon-button):not(.mat-mdc-fab),
 .mat-mdc-stroked-button:not(.mat-mdc-icon-button):not(.mat-mdc-fab),
 .mat-mdc-button:not(.mat-mdc-icon-button):not(.mat-mdc-fab) {
-  min-height: $compact-control-height !important;
-  height: $compact-control-height !important;
+  min-height: $control-height !important;
+  height: $control-height !important;
   padding: 0 12px !important;
-  font-size: v.$font-size-xs !important;
+  font-size: $control-font-size !important;
   font-weight: v.$font-weight-medium;
-  line-height: $compact-control-height !important;
+  line-height: $control-height !important;
 
   .mat-icon {
     font-size: 18px !important;
@@ -82,10 +92,10 @@ $compact-control-height: 32px;
   }
 }
 
-// Icon-only buttons — 32px touch target
+// Icon-only buttons — keep same height as other controls (sync)
 .mat-mdc-icon-button {
-  width: $compact-control-height !important;
-  height: $compact-control-height !important;
+  width: $control-height !important;
+  height: $control-height !important;
   padding: 0 !important;
 
   .mat-icon {
@@ -95,12 +105,12 @@ $compact-control-height: 32px;
   }
 }
 
-// Paginator — compact row and dropdown
+// Paginator — match global control standard
 .mat-mdc-paginator {
-  min-height: $compact-control-height !important;
+  min-height: $control-height !important;
 
   .mat-mdc-paginator-container {
-    min-height: $compact-control-height !important;
+    min-height: $control-height !important;
     padding-top: 4px !important;
     padding-bottom: 4px !important;
   }
@@ -111,15 +121,15 @@ $compact-control-height: 32px;
       margin: 0 8px;
     }
     .mat-mdc-select {
-      font-size: v.$font-size-xs !important;
+      font-size: $control-font-size !important;
     }
   }
   .mat-mdc-paginator-navigation-previous,
   .mat-mdc-paginator-navigation-next,
   .mat-mdc-paginator-navigation-first,
   .mat-mdc-paginator-navigation-last {
-    width: $compact-control-height !important;
-    height: $compact-control-height !important;
+    width: $control-height !important;
+    height: $control-height !important;
   }
 }
 
