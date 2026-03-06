@@ -37,7 +37,7 @@
   </mat-card-header>
   <mat-card-content>
     <div class="restore-form">
-      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="restore-format-field">
         <mat-label>Backup format</mat-label>
         <mat-select [(value)]="restoreFormat">
           <mat-option value="json">JSON</mat-option>
@@ -50,7 +50,7 @@
         <input #fileInput type="file" hidden
                [accept]="restoreFormat === 'json' ? '.json' : '.sql'"
                (change)="onFileSelected($event)">
-        <button mat-stroked-button type="button" (click)="fileInput.click()">
+        <button mat-stroked-button type="button" class="restore-action-btn" (click)="fileInput.click()">
           <mat-icon>upload_file</mat-icon>
           {{ selectedFile ? selectedFile.name : 'Choose file' }}
         </button>
@@ -60,7 +60,7 @@
         </button>
       </div>
 
-      <button mat-raised-button color="warn" (click)="restore()"
+      <button mat-raised-button color="warn" class="restore-action-btn" (click)="restore()"
               [disabled]="!selectedFile || restoring"
               matTooltip="Restore will replace all data">
         <mat-icon>restore</mat-icon>

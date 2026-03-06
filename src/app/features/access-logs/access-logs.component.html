@@ -14,7 +14,7 @@
   </mat-card-header>
   <mat-card-content>
     <div class="filters-row">
-      <mat-form-field appearance="outline" class="filter-field" subscriptSizing="dynamic">
+      <mat-form-field appearance="outline" class="filter-field filter-field-standard" subscriptSizing="dynamic" floatLabel="always">
         <mat-label>Filter by username</mat-label>
         <input matInput [(ngModel)]="usernameFilter" (keyup.enter)="onFilterChange()" placeholder="e.g. admin1">
       </mat-form-field>

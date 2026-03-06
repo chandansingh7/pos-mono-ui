@@ -79,13 +79,13 @@
   <ng-container *ngIf="!isScanLayout">
   <div class="product-panel">
     <div class="search-controls">
-      <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
-        <input matInput [formControl]="searchControl" placeholder="Search products (name or SKU)">
+      <mat-form-field appearance="outline" class="full-width pos-search-field" subscriptSizing="dynamic">
         <mat-icon matPrefix>search</mat-icon>
+        <input matInput [formControl]="searchControl" placeholder="Search products (name or SKU)">
       </mat-form-field>
-      <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
-        <input matInput [formControl]="barcodeControl" placeholder="Scan or enter barcode">
+      <mat-form-field appearance="outline" class="full-width pos-search-field" subscriptSizing="dynamic">
         <mat-icon matPrefix>qr_code_scanner</mat-icon>
+        <input matInput [formControl]="barcodeControl" placeholder="Scan or enter barcode">
       </mat-form-field>
     </div>
 
@@ -145,8 +145,8 @@
     </div>
     <div class="search-scan-bottom">
       <mat-form-field appearance="outline" class="full-width search-key-in-field" subscriptSizing="dynamic">
-        <input matInput [formControl]="barcodeControl" placeholder="Search or Key in Item.">
         <mat-icon matPrefix>search</mat-icon>
+        <input matInput [formControl]="barcodeControl" placeholder="Search or Key in Item.">
       </mat-form-field>
     </div>
   </div>
@@ -220,20 +220,20 @@
           </mat-select>
           <mat-icon matPrefix>person</mat-icon>
         </mat-form-field>
-        <mat-form-field *ngIf="selectedCustomer && maxRedeemPoints > 0" appearance="outline" class="compact-field redeem-field" subscriptSizing="dynamic">
+        <mat-form-field *ngIf="selectedCustomer && maxRedeemPoints > 0" appearance="outline" class="compact-field redeem-field" subscriptSizing="dynamic" floatLabel="always">
           <mat-label>Redeem points</mat-label>
           <input matInput type="number" [(ngModel)]="pointsToRedeem" [min]="0" [max]="maxRedeemPoints" step="1" placeholder="0">
           <mat-icon matPrefix>card_giftcard</mat-icon>
           <mat-hint *ngIf="rewardConfig">Max {{ maxRedeemPoints }} ({{ redemptionDiscount | currency:currencyCode }} off)</mat-hint>
         </mat-form-field>
-        <mat-form-field appearance="outline" class="compact-field" subscriptSizing="dynamic">
+        <mat-form-field appearance="outline" class="compact-field" subscriptSizing="dynamic" floatLabel="always">
           <mat-label>Payment</mat-label>
           <mat-select [(value)]="paymentMethod">
             <mat-option *ngFor="let pm of paymentMethods" [value]="pm.value">{{ pm.label }}</mat-option>
           </mat-select>
           <mat-icon matPrefix>payment</mat-icon>
         </mat-form-field>
-        <mat-form-field appearance="outline" class="compact-field discount-field" subscriptSizing="dynamic">
+        <mat-form-field appearance="outline" class="compact-field discount-field" subscriptSizing="dynamic" floatLabel="always">
           <mat-label>Discount ($)</mat-label>
           <input matInput type="number" [(ngModel)]="discount" min="0" step="0.01" placeholder="0">
           <mat-icon matPrefix>discount</mat-icon>
