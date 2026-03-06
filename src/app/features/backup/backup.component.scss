@@ -1,0 +1,53 @@
+@use '../../../styles/variables' as v;
+
+.page-header {
+  margin-bottom: v.$space-md;
+}
+
+.card {
+  margin-bottom: v.$space-md;
+}
+
+.export-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: v.$space-md;
+
+  button {
+    margin-right: v.$space-sm;
+  }
+
+  .checking,
+  .sql-unavailable {
+    font-size: 12px;
+    color: v.$color-text-muted;
+    display: flex;
+    align-items: center;
+    gap: v.$space-sm;
+  }
+}
+
+.restore-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: v.$space-md;
+  margin-bottom: v.$space-md;
+
+  mat-form-field {
+    min-width: 140px;
+  }
+
+  .file-row {
+    display: flex;
+    align-items: center;
+    gap: v.$space-xs;
+  }
+}
+
+.helper-text {
+  font-size: 12px;
+  color: v.$color-text-muted;
+  margin: 0;
+}

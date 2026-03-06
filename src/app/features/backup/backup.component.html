@@ -1,0 +1,74 @@
+<div class="page-header">
+  <h2>Backup &amp; Restore</h2>
+</div>
+
+<mat-card class="card">
+  <mat-card-header>
+    <mat-card-title>Export backup</mat-card-title>
+    <mat-card-subtitle>Download a full backup of your data. Choose JSON (portable) or SQL (PostgreSQL).</mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
+    <div class="export-actions">
+      <button mat-raised-button color="primary" (click)="downloadJson()" [disabled]="exporting"
+              matTooltip="Download backup as JSON file">
+        <mat-icon>download</mat-icon>
+        {{ exporting ? 'Exporting...' : 'Download JSON backup' }}
+      </button>
+      <button *ngIf="sqlAvailable" mat-raised-button (click)="downloadSql()" [disabled]="exporting"
+              matTooltip="Download backup as PostgreSQL SQL dump">
+        <mat-icon>storage</mat-icon>
+        {{ exporting ? 'Exporting...' : 'Download SQL backup' }}
+      </button>
+      <span *ngIf="loadingSqlCheck" class="checking">
+        <mat-spinner diameter="20"></mat-spinner>
+        Checking SQL availability...
+      </span>
+      <span *ngIf="!loadingSqlCheck && !sqlAvailable" class="sql-unavailable">
+        SQL backup requires PostgreSQL and pg_dump on the server.
+      </span>
+    </div>
+  </mat-card-content>
+</mat-card>
+
+<mat-card class="card">
+  <mat-card-header>
+    <mat-card-title>Restore from backup</mat-card-title>
+    <mat-card-subtitle>Upload a backup file to restore data. This replaces all existing data.</mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
+    <div class="restore-form">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Backup format</mat-label>
+        <mat-select [(value)]="restoreFormat">
+          <mat-option value="json">JSON</mat-option>
+          <mat-option value="sql">SQL</mat-option>
+        </mat-select>
+        <mat-hint>Must match the format of the file you upload</mat-hint>
+      </mat-form-field>
+
+      <div class="file-row">
+        <input #fileInput type="file" hidden
+               [accept]="restoreFormat === 'json' ? '.json' : '.sql'"
+               (change)="onFileSelected($event)">
+        <button mat-stroked-button type="button" (click)="fileInput.click()">
+          <mat-icon>upload_file</mat-icon>
+          {{ selectedFile ? selectedFile.name : 'Choose file' }}
+        </button>
+        <button *ngIf="selectedFile" mat-icon-button (click)="clearFile()"
+                matTooltip="Clear selected file">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <button mat-raised-button color="warn" (click)="restore()"
+              [disabled]="!selectedFile || restoring"
+              matTooltip="Restore will replace all data">
+        <mat-icon>restore</mat-icon>
+        {{ restoring ? 'Restoring...' : 'Restore' }}
+      </button>
+    </div>
+    <p class="helper-text">
+      Restore overwrites all company, users, products, orders, and other data. Make a backup first if needed.
+    </p>
+  </mat-card-content>
+</mat-card>

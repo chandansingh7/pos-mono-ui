@@ -47,6 +47,7 @@ export class ShellComponent implements OnInit, OnDestroy {
     { label: 'Settings', icon: 'business', route: '/app/settings', adminOnly: true },
     { label: 'Users', icon: 'manage_accounts', route: '/app/users', adminOnly: true },
     { label: 'Access logs', icon: 'public', route: '/app/access-logs', adminOnly: true },
+    { label: 'Backup & Restore', icon: 'backup', route: '/app/backup', adminOnly: true },
   ];
 
   constructor(

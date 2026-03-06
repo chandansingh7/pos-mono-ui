@@ -34,6 +34,7 @@ const routes: Routes = [
       { path: 'settings', loadChildren: () => import('../../features/settings/settings.module').then(m => m.SettingsModule) },
       { path: 'users', loadChildren: () => import('../../features/users/users.module').then(m => m.UsersModule) },
           { path: 'access-logs', loadChildren: () => import('../../features/access-logs/access-logs.module').then(m => m.AccessLogsModule) },
+      { path: 'backup', loadChildren: () => import('../../features/backup/backup.module').then(m => m.BackupModule) },
       { path: 'shifts', loadChildren: () => import('../../features/shifts/shifts.module').then(m => m.ShiftsModule) },
       { path: 'my-shift', loadChildren: () => import('../../features/shifts/shifts.module').then(m => m.ShiftsModule) },
       { path: 'shift', redirectTo: 'shifts', pathMatch: 'full' },
