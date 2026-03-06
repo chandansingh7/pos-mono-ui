@@ -7,9 +7,20 @@ export interface AccessLogResponse {
   country?: string;
   userAgent?: string;
   path: string;
-   /** Human-friendly description, e.g. "Create order". */
+  /** Human-friendly description, e.g. "Create order". */
   action?: string;
   createdAt: string;
+}
+
+/** One row per (username, normalized IP) for the summary view. */
+export interface AccessLogSummaryResponse {
+  username: string;
+  ipAddress: string;
+  country?: string;
+  requestCount: number;
+  lastAction?: string;
+  lastPath?: string;
+  lastWhen?: string;
 }
 
 export interface UserIpUsageResponse {

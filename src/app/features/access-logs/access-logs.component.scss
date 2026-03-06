@@ -9,6 +9,12 @@
   align-items: center;
   gap: t.$space-md;
   margin-bottom: t.$space-md;
+  flex-wrap: wrap;
+}
+
+.view-toggle {
+  display: inline-flex;
+  gap: t.$space-xs;
 }
 
 .filter-field {

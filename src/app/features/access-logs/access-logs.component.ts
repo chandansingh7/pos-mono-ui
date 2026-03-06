@@ -5,7 +5,9 @@ import { AccessLogService } from '../../core/services/access-log.service';
 import { AllowedIpService } from '../../core/services/allowed-ip.service';
 import { AuthService } from '../../core/services/auth.service';
 import { BlockedIpService } from '../../core/services/blocked-ip.service';
-import { AccessLogResponse, UserIpUsageResponse } from '../../core/models/access-log.models';
+import { AccessLogResponse, AccessLogSummaryResponse, UserIpUsageResponse } from '../../core/models/access-log.models';
+
+export type AccessLogViewMode = 'summary' | 'raw';
 
 @Component({
   selector: 'app-access-logs',
@@ -14,6 +16,7 @@ import { AccessLogResponse, UserIpUsageResponse } from '../../core/models/access
 })
 export class AccessLogsComponent implements OnInit {
   logs: AccessLogResponse[] = [];
+  summaryRows: AccessLogSummaryResponse[] = [];
   ips: UserIpUsageResponse[] = [];
   allowedIps: string[] = [];
   blockedIps: string[] = [];
@@ -27,8 +30,10 @@ export class AccessLogsComponent implements OnInit {
 
   usernameFilter = '';
   selectedUsernameForIps = '';
+  viewMode: AccessLogViewMode = 'summary';
 
   displayedColumns = ['username', 'ipAddress', 'country', 'action', 'path', 'createdAt'];
+  summaryColumns = ['username', 'ipAddress', 'country', 'requestCount', 'lastAction', 'lastWhen'];
 
   constructor(
     private accessLogService: AccessLogService,
@@ -39,7 +44,7 @@ export class AccessLogsComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.load();
+    this.loadView();
   }
 
   load(page: number = this.page): void {
@@ -56,9 +61,37 @@ export class AccessLogsComponent implements OnInit {
     });
   }
 
+  loadSummary(page: number = this.page): void {
+    this.loading = true;
+    this.page = page;
+    this.accessLogService.getSummary(this.page, this.size, this.usernameFilter).subscribe({
+      next: res => {
+        const data = res.data;
+        this.summaryRows = data?.content ?? [];
+        this.totalElements = data?.totalElements ?? 0;
+        this.loading = false;
+      },
+      error: () => { this.loading = false; }
+    });
+  }
+
+  loadView(page: number = this.page): void {
+    if (this.viewMode === 'summary') {
+      this.loadSummary(page);
+    } else {
+      this.load(page);
+    }
+  }
+
+  onViewModeChange(mode: AccessLogViewMode): void {
+    this.viewMode = mode;
+    this.page = 0;
+    this.loadView(0);
+  }
+
   onFilterChange(): void {
     this.page = 0;
-    this.load(0);
+    this.loadView(0);
   }
 
   /** Normalize IP by stripping port (e.g. "24.28.169.48:57706" -> "24.28.169.48") so allow list matches by host. */
@@ -79,9 +112,12 @@ export class AccessLogsComponent implements OnInit {
   }
 
   onRowClicked(row: AccessLogResponse): void {
-    if (!row || !row.username) {
-      return;
-    }
+    if (!row || !row.username) return;
+    this.viewIps(row.username);
+  }
+
+  onSummaryRowClicked(row: AccessLogSummaryResponse): void {
+    if (!row || !row.username) return;
     this.viewIps(row.username);
   }
 
@@ -186,7 +222,7 @@ export class AccessLogsComponent implements OnInit {
 
   onPageChange(event: PageEvent): void {
     this.size = event.pageSize;
-    this.load(event.pageIndex);
+    this.loadView(event.pageIndex);
   }
 }
 
