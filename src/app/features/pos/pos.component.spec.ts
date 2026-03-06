@@ -121,6 +121,19 @@ describe('PosComponent', () => {
     expect(component.cart.length).toBe(1);
     expect(component.cart[0].product).toBe(product);
     expect(component.barcodeControl.value).toBe('');
+    expect(component.lastAddedProduct).toBe(product);
+  });
+
+  it('addToCart in scan layout sets lastAddedProduct; clearCart clears it', () => {
+    component.company = { posLayout: 'scan' } as any;
+    const product = { id: 1, name: 'Item', price: 10, quantity: 5 } as any;
+
+    component.addToCart(product);
+    expect(component.lastAddedProduct).toBe(product);
+
+    component.clearCart();
+    expect(component.lastAddedProduct).toBeNull();
+    expect(component.cart.length).toBe(0);
   });
 });
 

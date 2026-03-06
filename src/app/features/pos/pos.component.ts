@@ -48,6 +48,8 @@ export class PosComponent implements OnInit, OnDestroy {
   completedOrder: OrderResponse | null = null;
   company: CompanyResponse | null = null;
   private companySub?: Subscription;
+  /** Scan layout: last product added (shown at top of left panel). */
+  lastAddedProduct: ProductResponse | null = null;
 
   hasOpenShift = true;
 
@@ -255,6 +257,9 @@ export class PosComponent implements OnInit, OnDestroy {
     } else {
       this.cart.push({ product, quantity: 1, subtotal: product.price });
     }
+    if (this.isScanLayout) {
+      this.lastAddedProduct = product;
+    }
   }
 
   updateQty(item: CartItem, qty: number): void {
@@ -269,10 +274,14 @@ export class PosComponent implements OnInit, OnDestroy {
 
   removeFromCart(item: CartItem): void {
     this.cart = this.cart.filter(i => i !== item);
+    if (this.cart.length === 0) {
+      this.lastAddedProduct = null;
+    }
   }
 
   clearCart(): void {
     this.cart = [];
+    this.lastAddedProduct = null;
     this.selectedCustomer = null;
     this.discount = 0;
     this.pointsToRedeem = 0;
@@ -329,6 +338,7 @@ export class PosComponent implements OnInit, OnDestroy {
         this.loading = false;
         this.snackBar.open('Order placed successfully!', 'Close', { duration: 3000 });
         this.cart = [];
+        this.lastAddedProduct = null;
         this.selectedCustomer = null;
         this.discount = 0;
         this.pointsToRedeem = 0;
@@ -342,6 +352,7 @@ export class PosComponent implements OnInit, OnDestroy {
 
   newOrder(): void {
     this.completedOrder = null;
+    this.lastAddedProduct = null;
   }
 
   printReceipt(): void {

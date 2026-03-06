@@ -120,33 +120,50 @@
   </div>
   </ng-container>
 
-  <!-- Scan layout: product list at top + single "Search or key in item" at bottom; barcode adds to cart -->
+  <!-- Scan layout: current product at top, product grid, then "Search or key in item" at bottom; cart right (no Customer/Payment/Discount) -->
   <ng-container *ngIf="isScanLayout">
   <div class="product-panel scan-layout-panel">
-    <div class="product-list-scan">
-      <div *ngIf="productsLoading" class="loading-center">
-        <mat-spinner diameter="36"></mat-spinner>
+    <div class="current-product-scan" *ngIf="lastAddedProduct">
+      <div class="current-product-image-wrap">
+        <img *ngIf="lastAddedProduct.imageUrl" [src]="lastAddedProduct.imageUrl | productImageUrl" [alt]="lastAddedProduct.name" class="current-product-image">
+        <mat-icon *ngIf="!lastAddedProduct.imageUrl" class="current-product-icon">inventory_2</mat-icon>
       </div>
-      <div class="product-list-scroll" *ngIf="!productsLoading">
-        <button *ngFor="let product of products"
-                type="button"
-                class="product-list-row"
+      <div class="current-product-info">
+        <span class="current-product-name">{{ lastAddedProduct.name }}</span>
+        <span class="current-product-price">{{ lastAddedProduct.price | currency:currencyCode }}</span>
+      </div>
+    </div>
+    <div *ngIf="productsLoading" class="loading-center">
+      <mat-spinner diameter="36"></mat-spinner>
+    </div>
+    <div class="product-grid product-grid-scan" *ngIf="!productsLoading">
+      <mat-card *ngFor="let product of products"
+                class="product-tile"
                 [class.out-of-stock]="product.quantity <= 0"
-                [disabled]="product.quantity <= 0"
                 (click)="addToCart(product)">
-          <span class="product-list-name">{{ product.name }}</span>
-          <span class="product-list-price">{{ product.price | currency:currencyCode }}</span>
-        </button>
-        <div *ngIf="!products.length" class="no-products-inlist">
-          <mat-icon>inventory_2</mat-icon>
-          <p>No products found. Search or scan to add.</p>
-        </div>
+        <mat-card-content>
+          <mat-icon class="product-icon">inventory_2</mat-icon>
+          <div class="product-name">
+            {{ product.name }}
+            <ng-container *ngIf="product.size || product.color">
+              — <span class="variant-text">{{ product.size }}<ng-container *ngIf="product.size && product.color"> / </ng-container>{{ product.color }}</span>
+            </ng-container>
+          </div>
+          <div class="product-price">{{ product.price | currency:currencyCode }}</div>
+          <div class="product-stock" [class.low]="product.quantity > 0 && product.quantity <= 10" [class.out]="product.quantity <= 0">
+            Stock: {{ product.quantity }}
+          </div>
+        </mat-card-content>
+      </mat-card>
+      <div *ngIf="!products.length" class="no-products">
+        <mat-icon>inventory_2</mat-icon>
+        <p>No products found</p>
       </div>
     </div>
     <div class="search-scan-bottom">
       <mat-form-field appearance="outline" class="full-width search-key-in-field" subscriptSizing="dynamic">
         <mat-icon matPrefix>search</mat-icon>
-        <input matInput [formControl]="barcodeControl" placeholder="Search or Key in Item.">
+        <input matInput [formControl]="barcodeControl" placeholder="Search or Key in Item">
       </mat-form-field>
     </div>
   </div>
@@ -210,8 +227,8 @@
     <div class="cart-footer" *ngIf="cart.length">
       <mat-divider></mat-divider>
 
-      <!-- HCI: single row for efficiency, minimal vertical space -->
-      <div class="checkout-fields-row">
+      <!-- Grid layout only: Customer, Payment, Discount -->
+      <div class="checkout-fields-row" *ngIf="!isScanLayout">
         <mat-form-field appearance="outline" class="compact-field" subscriptSizing="dynamic" floatLabel="always">
           <mat-label>Customer</mat-label>
           <mat-select [(value)]="selectedCustomer" (openedChange)="$event && loadCustomers()" (selectionChange)="pointsToRedeem = 0">
@@ -240,10 +257,12 @@
         </mat-form-field>
       </div>
 
-      <!-- HCI: clear hierarchy — totals grouped, TOTAL emphasized -->
-      <div class="totals-block">
-        <div class="total-row-sm"><span>Subtotal</span><span>{{ subtotal | currency:currencyCode }}</span></div>
-        <div class="total-row-sm"><span>Tax (10%)</span><span>{{ tax | currency:currencyCode }}</span></div>
+      <!-- Totals: full breakdown for grid layout; Tax + Total only for scan layout -->
+      <div class="totals-block" [class.totals-block-scan]="isScanLayout">
+        <ng-container *ngIf="!isScanLayout">
+          <div class="total-row-sm"><span>Subtotal</span><span>{{ subtotal | currency:currencyCode }}</span></div>
+        </ng-container>
+        <div class="total-row-sm"><span>Tax</span><span>{{ tax | currency:currencyCode }}</span></div>
         <div class="total-row-sm" *ngIf="discount > 0"><span>Discount</span><span>-{{ discount | currency:currencyCode }}</span></div>
         <div class="total-row-sm" *ngIf="redemptionDiscount > 0"><span>Reward redemption</span><span>-{{ redemptionDiscount | currency:currencyCode }}</span></div>
         <div class="total-row-lg"><span>TOTAL</span><span>{{ total | currency:currencyCode }}</span></div>
