@@ -12,8 +12,14 @@ describe('AccessLogsComponent', () => {
   let service: jasmine.SpyObj<AccessLogService>;
 
   beforeEach(async () => {
-    service = jasmine.createSpyObj('AccessLogService', ['getAll', 'getUserIps']);
+    service = jasmine.createSpyObj('AccessLogService', ['getAll', 'getSummary', 'getUserIps']);
     service.getAll.and.returnValue(of({
+      success: true,
+      data: { content: [], totalElements: 0, totalPages: 0, size: 20, number: 0 },
+      message: null,
+      errorCode: null
+    }));
+    service.getSummary.and.returnValue(of({
       success: true,
       data: { content: [], totalElements: 0, totalPages: 0, size: 20, number: 0 },
       message: null,
