@@ -48,8 +48,12 @@ export class PosComponent implements OnInit, OnDestroy {
   completedOrder: OrderResponse | null = null;
   company: CompanyResponse | null = null;
   private companySub?: Subscription;
-  /** Scan layout: last product added (shown at top of left panel). */
+  /** Scan layout: last product added (shown at top of left panel; auto-hides after CURRENT_PRODUCT_BANNER_SECONDS). */
   lastAddedProduct: ProductResponse | null = null;
+  private currentProductBannerTimer: ReturnType<typeof setTimeout> | null = null;
+
+  /** Seconds before the "last added product" banner auto-hides (scan layout). */
+  private static readonly CURRENT_PRODUCT_BANNER_SECONDS = 3;
 
   hasOpenShift = true;
 
@@ -168,6 +172,9 @@ export class PosComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.companySub?.unsubscribe();
+    if (this.currentProductBannerTimer) {
+      clearTimeout(this.currentProductBannerTimer);
+    }
   }
 
   lookupBarcode(barcode: string): void {
@@ -258,8 +265,19 @@ export class PosComponent implements OnInit, OnDestroy {
       this.cart.push({ product, quantity: 1, subtotal: product.price });
     }
     if (this.isScanLayout) {
+      this.scheduleCurrentProductBannerHide();
       this.lastAddedProduct = product;
     }
+  }
+
+  private scheduleCurrentProductBannerHide(): void {
+    if (this.currentProductBannerTimer) {
+      clearTimeout(this.currentProductBannerTimer);
+    }
+    this.currentProductBannerTimer = setTimeout(() => {
+      this.lastAddedProduct = null;
+      this.currentProductBannerTimer = null;
+    }, PosComponent.CURRENT_PRODUCT_BANNER_SECONDS * 1000);
   }
 
   updateQty(item: CartItem, qty: number): void {
@@ -276,12 +294,20 @@ export class PosComponent implements OnInit, OnDestroy {
     this.cart = this.cart.filter(i => i !== item);
     if (this.cart.length === 0) {
       this.lastAddedProduct = null;
+      if (this.currentProductBannerTimer) {
+        clearTimeout(this.currentProductBannerTimer);
+        this.currentProductBannerTimer = null;
+      }
     }
   }
 
   clearCart(): void {
     this.cart = [];
     this.lastAddedProduct = null;
+    if (this.currentProductBannerTimer) {
+      clearTimeout(this.currentProductBannerTimer);
+      this.currentProductBannerTimer = null;
+    }
     this.selectedCustomer = null;
     this.discount = 0;
     this.pointsToRedeem = 0;
@@ -339,6 +365,10 @@ export class PosComponent implements OnInit, OnDestroy {
         this.snackBar.open('Order placed successfully!', 'Close', { duration: 3000 });
         this.cart = [];
         this.lastAddedProduct = null;
+        if (this.currentProductBannerTimer) {
+          clearTimeout(this.currentProductBannerTimer);
+          this.currentProductBannerTimer = null;
+        }
         this.selectedCustomer = null;
         this.discount = 0;
         this.pointsToRedeem = 0;

@@ -96,18 +96,22 @@
     <div class="product-grid" *ngIf="!productsLoading">
       <mat-card *ngFor="let product of products"
                 class="product-tile"
+                [class.product-tile-with-image]="product.imageUrl"
                 [class.out-of-stock]="product.quantity <= 0"
                 (click)="addToCart(product)">
         <mat-card-content>
-          <mat-icon class="product-icon">inventory_2</mat-icon>
+          <div *ngIf="product.imageUrl" class="product-tile-image-wrap">
+            <img [src]="product.imageUrl | productImageUrl" [alt]="product.name" class="product-tile-image">
+          </div>
+          <mat-icon *ngIf="!product.imageUrl" class="product-icon">inventory_2</mat-icon>
           <div class="product-name">
             {{ product.name }}
             <ng-container *ngIf="product.size || product.color">
               — <span class="variant-text">{{ product.size }}<ng-container *ngIf="product.size && product.color"> / </ng-container>{{ product.color }}</span>
             </ng-container>
           </div>
-          <div class="product-price">{{ product.price | currency:currencyCode }}</div>
-          <div class="product-stock" [class.low]="product.quantity > 0 && product.quantity <= 10" [class.out]="product.quantity <= 0">
+          <div *ngIf="!product.imageUrl" class="product-price">{{ product.price | currency:currencyCode }}</div>
+          <div *ngIf="!product.imageUrl" class="product-stock" [class.low]="product.quantity > 0 && product.quantity <= 10" [class.out]="product.quantity <= 0">
             Stock: {{ product.quantity }}
           </div>
         </mat-card-content>
@@ -139,18 +143,22 @@
     <div class="product-grid product-grid-scan" *ngIf="!productsLoading">
       <mat-card *ngFor="let product of products"
                 class="product-tile"
+                [class.product-tile-with-image]="product.imageUrl"
                 [class.out-of-stock]="product.quantity <= 0"
                 (click)="addToCart(product)">
         <mat-card-content>
-          <mat-icon class="product-icon">inventory_2</mat-icon>
+          <div *ngIf="product.imageUrl" class="product-tile-image-wrap">
+            <img [src]="product.imageUrl | productImageUrl" [alt]="product.name" class="product-tile-image">
+          </div>
+          <mat-icon *ngIf="!product.imageUrl" class="product-icon">inventory_2</mat-icon>
           <div class="product-name">
             {{ product.name }}
             <ng-container *ngIf="product.size || product.color">
               — <span class="variant-text">{{ product.size }}<ng-container *ngIf="product.size && product.color"> / </ng-container>{{ product.color }}</span>
             </ng-container>
           </div>
-          <div class="product-price">{{ product.price | currency:currencyCode }}</div>
-          <div class="product-stock" [class.low]="product.quantity > 0 && product.quantity <= 10" [class.out]="product.quantity <= 0">
+          <div *ngIf="!product.imageUrl" class="product-price">{{ product.price | currency:currencyCode }}</div>
+          <div *ngIf="!product.imageUrl" class="product-stock" [class.low]="product.quantity > 0 && product.quantity <= 10" [class.out]="product.quantity <= 0">
             Stock: {{ product.quantity }}
           </div>
         </mat-card-content>

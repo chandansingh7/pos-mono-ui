@@ -85,5 +85,24 @@ mat-dialog-actions {
 
 .toggle-hint { font-size: 11px; color: #757575; }
 
+/* ── No changes message (inside modal) ──────────────────────────────────────── */
+.no-changes-msg {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 8px;
+  font-size: 14px;
+  color: #616161;
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: #757575;
+  }
+}
+
 /* ── Spinner ─────────────────────────────────────────────────────────────── */
 .btn-spinner { display: inline-block; margin-right: 6px; vertical-align: middle; }

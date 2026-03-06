@@ -18,6 +18,8 @@ export interface EditUserDialogData {
 export class EditUserDialogComponent implements OnInit {
   form!: FormGroup;
   loading = false;
+  /** Shown inside modal when user clicks Save with no changes. */
+  noChangesMessage = false;
 
   roles: { value: Role; label: string }[] = [
     { value: 'ADMIN',   label: 'Admin'   },
@@ -47,11 +49,19 @@ export class EditUserDialogComponent implements OnInit {
         active: [u.active],
       } : {})
     });
+    this.form.valueChanges.subscribe(() => {
+      if (this.form.dirty) this.noChangesMessage = false;
+    });
   }
 
   submit(): void {
+    this.noChangesMessage = false;
     this.form.markAllAsTouched();
     if (this.form.invalid) return;
+    if (this.form.pristine) {
+      this.noChangesMessage = true;
+      return;
+    }
 
     this.loading = true;
     const v = this.form.value;

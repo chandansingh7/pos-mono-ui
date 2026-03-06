@@ -120,6 +120,7 @@ export class SettingsComponent implements OnInit {
             posLayout: 'grid'
           });
         }
+        this.form.markAsPristine();
       },
       error: () => { this.loading = false; }
     });
@@ -127,6 +128,10 @@ export class SettingsComponent implements OnInit {
 
   save(): void {
     if (this.form.invalid) return;
+    if (this.form.pristine) {
+      this.snackBar.open('No changes to save.', 'Close', { duration: 3000 });
+      return;
+    }
     this.saving = true;
     const payload = {
       ...this.form.value,
@@ -136,6 +141,7 @@ export class SettingsComponent implements OnInit {
     this.companyService.update(payload).subscribe({
       next: () => {
         this.saving = false;
+        this.form.markAsPristine();
         this.snackBar.open('Settings saved', 'Close', { duration: 3000 });
       },
       error: () => {

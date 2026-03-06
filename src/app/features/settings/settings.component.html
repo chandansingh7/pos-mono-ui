@@ -1,7 +1,7 @@
 <div class="page-header">
   <h2>Company & Receipt Settings</h2>
   <div class="header-actions">
-    <button mat-raised-button color="primary" (click)="save()" [disabled]="form.invalid || saving">
+    <button mat-raised-button color="primary" (click)="save()" [disabled]="form.invalid || form.pristine || saving">
       <mat-icon>save</mat-icon> {{ saving ? 'Saving...' : 'Save' }}
     </button>
   </div>

@@ -84,11 +84,15 @@
     </div>
 
   </form>
+
+  <p class="no-changes-msg" *ngIf="noChangesMessage" role="alert">
+    <mat-icon>info</mat-icon> No changes to save.
+  </p>
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
   <button mat-stroked-button mat-dialog-close [disabled]="loading">Cancel</button>
-  <button mat-raised-button color="primary" (click)="submit()" [disabled]="loading">
+  <button mat-raised-button color="primary" (click)="submit()" [disabled]="loading || form.pristine">
     <mat-spinner diameter="16" *ngIf="loading" class="btn-spinner"></mat-spinner>
     <mat-icon *ngIf="!loading">save</mat-icon>
     {{ loading ? 'Saving...' : 'Save Changes' }}

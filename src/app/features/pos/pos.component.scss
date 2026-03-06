@@ -96,8 +96,30 @@
   }
 }
 
+.product-tile-image-wrap {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: t.$radius-md;
+  overflow: hidden;
+  background: #f5f5f5;
+  flex-shrink: 0;
+}
+
+.product-tile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .product-icon  { font-size: 36px; width: 36px; height: 36px; color: t.$color-primary-light; }
 .product-name  { font-size: t.$font-size-sm; font-weight: t.$font-weight-semibold; line-height: t.$line-height-tight; }
+.product-tile-with-image .product-name {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .product-price { font-size: t.$font-size-md; font-weight: t.$font-weight-bold; color: t.$color-success; }
 .product-stock { font-size: t.$font-size-xs; color: t.$color-success; &.low { color: t.$color-warn; } &.out { color: t.$color-danger-light; } }
 
@@ -113,22 +135,23 @@
   min-height: 0;
 }
 
+/* Compact “last added” banner; auto-hides after a few seconds */
 .current-product-scan {
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  gap: t.$space-md;
-  padding: t.$space-sm t.$space-md;
-  margin-bottom: t.$space-sm;
+  gap: t.$space-sm;
+  padding: t.$space-xs t.$space-sm;
+  margin-bottom: t.$space-xs;
   background: rgba(129, 199, 132, 0.08);
   border: 1px solid rgba(129, 199, 132, 0.25);
   border-radius: t.$radius-md;
 }
 
 .current-product-image-wrap {
-  width: 56px;
-  height: 56px;
-  border-radius: t.$radius-md;
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
   overflow: hidden;
   background: #f5f5f5;
   display: flex;
@@ -144,33 +167,35 @@
 }
 
 .current-product-icon {
-  font-size: 32px;
-  width: 32px;
-  height: 32px;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
   color: t.$color-primary-light;
 }
 
 .current-product-info {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 0;
   min-width: 0;
 }
 
 .current-product-name {
-  font-size: t.$font-size-sm;
+  font-size: t.$font-size-xs;
   font-weight: t.$font-weight-semibold;
   color: t.$color-text-primary;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  line-height: 1.25;
 }
 
 .current-product-price {
-  font-size: t.$font-size-md;
+  font-size: t.$font-size-sm;
   font-weight: t.$font-weight-bold;
   color: t.$color-primary;
   font-variant-numeric: tabular-nums;
+  line-height: 1.2;
 }
 
 /* Scan layout: product grid (same tile style as grid layout) */
@@ -187,7 +212,7 @@
   padding-bottom: t.$space-xs;
 }
 
-/* HCI: 16px input font (WCAG, avoids iOS zoom); centered text for kiosk-style search */
+/* HCI: 16px input font (WCAG); left-aligned text; vertical alignment so text is centered in 44px box */
 .search-key-in-field {
   max-width: 100%;
   ::ng-deep .mat-mdc-text-field-wrapper {
@@ -201,6 +226,7 @@
   ::ng-deep .mat-mdc-form-field-infix {
     padding-top: 0;
     padding-bottom: 0;
+    min-height: 44px;
     display: flex;
     align-items: center;
   }
@@ -210,9 +236,9 @@
   }
   ::ng-deep .mat-mdc-input-element,
   ::ng-deep input::placeholder {
-    text-align: center;
+    text-align: left;
     font-size: 16px;
-    line-height: 1.25;
+    line-height: 44px;
   }
 }
 
