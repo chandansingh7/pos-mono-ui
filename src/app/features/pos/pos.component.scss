@@ -212,33 +212,37 @@
   padding-bottom: t.$space-xs;
 }
 
-/* HCI: 16px input font (WCAG); left-aligned text; vertical alignment so text is centered in 44px box */
+/* Scan layout search: compact height, centered text, readable size */
 .search-key-in-field {
   max-width: 100%;
   ::ng-deep .mat-mdc-text-field-wrapper {
-    height: 44px;
+    height: 40px;
     padding-top: 0;
     padding-bottom: 0;
     background: rgba(129, 199, 132, 0.12);
     border-radius: t.$radius-md;
   }
   ::ng-deep .mat-mdc-form-field-subscript-wrapper { display: none; }
+  ::ng-deep .mat-mdc-form-field-flex {
+    height: 40px;
+    align-items: center;
+  }
   ::ng-deep .mat-mdc-form-field-infix {
-    padding-top: 0;
-    padding-bottom: 0;
-    min-height: 44px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    min-height: 40px;
     display: flex;
     align-items: center;
   }
   ::ng-deep .mat-mdc-form-field-icon-prefix {
     padding-right: 8px;
-    .mat-icon { font-size: 20px; width: 20px; height: 20px; color: #757575; }
+    .mat-icon { font-size: 17px; width: 17px; height: 17px; color: #757575; }
   }
   ::ng-deep .mat-mdc-input-element,
   ::ng-deep input::placeholder {
     text-align: left;
-    font-size: 16px;
-    line-height: 44px;
+    font-size: 14px;
+    line-height: 20px;
   }
 }
 
