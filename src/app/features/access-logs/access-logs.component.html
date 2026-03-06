@@ -1,5 +1,10 @@
 <div class="page-header">
   <h2>Access logs</h2>
+  <div class="header-actions" *ngIf="viewMode === 'raw' && hasActiveRawFilters">
+    <button mat-stroked-button (click)="clearRawFilters()" class="clear-btn">
+      <mat-icon>filter_alt_off</mat-icon> Clear filters
+    </button>
+  </div>
 </div>
 
 <mat-card class="card">
@@ -37,11 +42,25 @@
           <table mat-table [dataSource]="summaryRows" class="full-width" *ngIf="viewMode === 'summary'">
 
             <ng-container matColumnDef="username">
-              <th mat-header-cell *matHeaderCellDef>Username</th>
+              <th mat-header-cell *matHeaderCellDef class="col-th">
+                <div class="filter-sort-row">
+                  <span class="col-label-only">Username</span>
+                  <button mat-icon-button class="sort-btn" (click)="sortBySummary('username')" matTooltip="Sort">
+                    <mat-icon [class.sort-active]="summarySortCol==='username'">{{ summarySortIcon('username') }}</mat-icon>
+                  </button>
+                </div>
+              </th>
               <td mat-cell *matCellDef="let row">{{ row.username }}</td>
             </ng-container>
             <ng-container matColumnDef="ipAddress">
-              <th mat-header-cell *matHeaderCellDef>IP address</th>
+              <th mat-header-cell *matHeaderCellDef class="col-th">
+                <div class="filter-sort-row">
+                  <span class="col-label-only">IP address</span>
+                  <button mat-icon-button class="sort-btn" (click)="sortBySummary('ipAddress')" matTooltip="Sort">
+                    <mat-icon [class.sort-active]="summarySortCol==='ipAddress'">{{ summarySortIcon('ipAddress') }}</mat-icon>
+                  </button>
+                </div>
+              </th>
               <td mat-cell *matCellDef="let row">{{ row.ipAddress }}</td>
             </ng-container>
             <ng-container matColumnDef="country">
@@ -49,7 +68,14 @@
               <td mat-cell *matCellDef="let row">{{ row.country || '—' }}</td>
             </ng-container>
             <ng-container matColumnDef="requestCount">
-              <th mat-header-cell *matHeaderCellDef>Requests</th>
+              <th mat-header-cell *matHeaderCellDef class="col-th">
+                <div class="filter-sort-row">
+                  <span class="col-label-only">Requests</span>
+                  <button mat-icon-button class="sort-btn" (click)="sortBySummary('requestCount')" matTooltip="Sort">
+                    <mat-icon [class.sort-active]="summarySortCol==='requestCount'">{{ summarySortIcon('requestCount') }}</mat-icon>
+                  </button>
+                </div>
+              </th>
               <td mat-cell *matCellDef="let row">{{ row.requestCount }}</td>
             </ng-container>
             <ng-container matColumnDef="lastAction">
@@ -57,7 +83,14 @@
               <td mat-cell *matCellDef="let row">{{ row.lastAction || row.lastPath || '—' }}</td>
             </ng-container>
             <ng-container matColumnDef="lastWhen">
-              <th mat-header-cell *matHeaderCellDef>When</th>
+              <th mat-header-cell *matHeaderCellDef class="col-th">
+                <div class="filter-sort-row">
+                  <span class="col-label-only">When</span>
+                  <button mat-icon-button class="sort-btn" (click)="sortBySummary('lastWhen')" matTooltip="Sort">
+                    <mat-icon [class.sort-active]="summarySortCol==='lastWhen'">{{ summarySortIcon('lastWhen') }}</mat-icon>
+                  </button>
+                </div>
+              </th>
               <td mat-cell *matCellDef="let row">{{ row.lastWhen | date:'short' }}</td>
             </ng-container>
 
@@ -73,51 +106,99 @@
             </tr>
           </table>
 
-          <!-- Raw: every log line (same IP with different ports = many rows) -->
-          <table mat-table [dataSource]="logs" class="full-width" *ngIf="viewMode === 'raw'">
+          <!-- Raw: every log line with column filters and sort (like Products) -->
+          <div class="table-wrap" *ngIf="viewMode === 'raw'" [formGroup]="rawFilters">
+            <table mat-table [dataSource]="rawLogsDataSource" class="full-width">
 
-            <ng-container matColumnDef="username">
-              <th mat-header-cell *matHeaderCellDef>Username</th>
-              <td mat-cell *matCellDef="let row">{{ row.username }}</td>
-            </ng-container>
-            <ng-container matColumnDef="ipAddress">
-              <th mat-header-cell *matHeaderCellDef>IP address</th>
-              <td mat-cell *matCellDef="let row">{{ row.ipAddress }}</td>
-            </ng-container>
-            <ng-container matColumnDef="country">
-              <th mat-header-cell *matHeaderCellDef>Country</th>
-              <td mat-cell *matCellDef="let row">{{ row.country || '—' }}</td>
-            </ng-container>
-            <ng-container matColumnDef="action">
-              <th mat-header-cell *matHeaderCellDef>Action</th>
-              <td mat-cell *matCellDef="let row">{{ row.action || (row.path + ' ' ) }}</td>
-            </ng-container>
-            <ng-container matColumnDef="path">
-              <th mat-header-cell *matHeaderCellDef>Path</th>
-              <td mat-cell *matCellDef="let row">{{ row.path }}</td>
-            </ng-container>
-            <ng-container matColumnDef="createdAt">
-              <th mat-header-cell *matHeaderCellDef>When</th>
-              <td mat-cell *matCellDef="let row">{{ row.createdAt | date:'short' }}</td>
-            </ng-container>
+              <ng-container matColumnDef="username">
+                <th mat-header-cell *matHeaderCellDef class="col-th">
+                  <div class="filter-sort-row">
+                    <mat-form-field class="filter-field" appearance="outline" subscriptSizing="dynamic">
+                      <input matInput formControlName="username" placeholder="Username">
+                    </mat-form-field>
+                    <button mat-icon-button class="sort-btn" (click)="sortBy('username')" matTooltip="Sort">
+                      <mat-icon [class.sort-active]="sortCol==='username'">{{ sortIcon('username') }}</mat-icon>
+                    </button>
+                  </div>
+                </th>
+                <td mat-cell *matCellDef="let row">{{ row.username }}</td>
+              </ng-container>
+              <ng-container matColumnDef="ipAddress">
+                <th mat-header-cell *matHeaderCellDef class="col-th">
+                  <div class="filter-sort-row">
+                    <mat-form-field class="filter-field" appearance="outline" subscriptSizing="dynamic">
+                      <input matInput formControlName="ipAddress" placeholder="IP address">
+                    </mat-form-field>
+                    <button mat-icon-button class="sort-btn" (click)="sortBy('ipAddress')" matTooltip="Sort">
+                      <mat-icon [class.sort-active]="sortCol==='ipAddress'">{{ sortIcon('ipAddress') }}</mat-icon>
+                    </button>
+                  </div>
+                </th>
+                <td mat-cell *matCellDef="let row">{{ row.ipAddress }}</td>
+              </ng-container>
+              <ng-container matColumnDef="country">
+                <th mat-header-cell *matHeaderCellDef>Country</th>
+                <td mat-cell *matCellDef="let row">{{ row.country || '—' }}</td>
+              </ng-container>
+              <ng-container matColumnDef="action">
+                <th mat-header-cell *matHeaderCellDef class="col-th">
+                  <div class="filter-sort-row">
+                    <mat-form-field class="filter-field" appearance="outline" subscriptSizing="dynamic">
+                      <input matInput formControlName="action" placeholder="Action">
+                    </mat-form-field>
+                    <button mat-icon-button class="sort-btn" (click)="sortBy('action')" matTooltip="Sort">
+                      <mat-icon [class.sort-active]="sortCol==='action'">{{ sortIcon('action') }}</mat-icon>
+                    </button>
+                  </div>
+                </th>
+                <td mat-cell *matCellDef="let row">{{ row.action || (row.path + ' ' ) }}</td>
+              </ng-container>
+              <ng-container matColumnDef="path">
+                <th mat-header-cell *matHeaderCellDef class="col-th">
+                  <div class="filter-sort-row">
+                    <mat-form-field class="filter-field" appearance="outline" subscriptSizing="dynamic">
+                      <input matInput formControlName="path" placeholder="Path">
+                    </mat-form-field>
+                    <button mat-icon-button class="sort-btn" (click)="sortBy('path')" matTooltip="Sort">
+                      <mat-icon [class.sort-active]="sortCol==='path'">{{ sortIcon('path') }}</mat-icon>
+                    </button>
+                  </div>
+                </th>
+                <td mat-cell *matCellDef="let row">{{ row.path }}</td>
+              </ng-container>
+              <ng-container matColumnDef="createdAt">
+                <th mat-header-cell *matHeaderCellDef class="col-th">
+                  <div class="filter-sort-row">
+                    <mat-form-field class="filter-field" appearance="outline" subscriptSizing="dynamic">
+                      <input matInput formControlName="createdAt" placeholder="When">
+                    </mat-form-field>
+                    <button mat-icon-button class="sort-btn" (click)="sortBy('createdAt')" matTooltip="Sort">
+                      <mat-icon [class.sort-active]="sortCol==='createdAt'">{{ sortIcon('createdAt') }}</mat-icon>
+                    </button>
+                  </div>
+                </th>
+                <td mat-cell *matCellDef="let row">{{ row.createdAt | date:'short' }}</td>
+              </ng-container>
 
-            <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
-            <tr
-              mat-row
-              *matRowDef="let row; columns: displayedColumns;"
-              (click)="onRowClicked(row)"
-              [class.row-selected]="row.username === selectedUsernameForIps"
-            ></tr>
-            <tr class="mat-row" *matNoDataRow>
-              <td class="mat-cell" [attr.colspan]="displayedColumns.length">No access logs yet.</td>
-            </tr>
-          </table>
+              <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+              <tr
+                mat-row
+                *matRowDef="let row; columns: displayedColumns;"
+                (click)="onRowClicked(row)"
+                [class.row-selected]="row.username === selectedUsernameForIps"
+              ></tr>
+              <tr class="mat-row" *matNoDataRow>
+                <td class="mat-cell text-center" [attr.colspan]="displayedColumns.length">No access logs match the current filters.</td>
+              </tr>
+            </table>
+          </div>
         </div>
         <mat-paginator
           [length]="totalElements"
           [pageSize]="size"
           [pageSizeOptions]="[10, 20, 50]"
-          (page)="onPageChange($event)">
+          (page)="onPageChange($event)"
+          showFirstLastButtons>
         </mat-paginator>
       </div>
 

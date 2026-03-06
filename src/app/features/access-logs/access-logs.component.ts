@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core';
+import { FormControl, FormGroup } from '@angular/forms';
 import { PageEvent } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatTableDataSource } from '@angular/material/table';
+import { debounceTime } from 'rxjs/operators';
 import { AccessLogService } from '../../core/services/access-log.service';
 import { AllowedIpService } from '../../core/services/allowed-ip.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -16,6 +19,7 @@ export type AccessLogViewMode = 'summary' | 'raw';
 })
 export class AccessLogsComponent implements OnInit {
   logs: AccessLogResponse[] = [];
+  rawLogsDataSource = new MatTableDataSource<AccessLogResponse>([]);
   summaryRows: AccessLogSummaryResponse[] = [];
   ips: UserIpUsageResponse[] = [];
   allowedIps: string[] = [];
@@ -32,6 +36,19 @@ export class AccessLogsComponent implements OnInit {
   selectedUsernameForIps = '';
   viewMode: AccessLogViewMode = 'summary';
 
+  rawFilters = new FormGroup({
+    username: new FormControl(''),
+    ipAddress: new FormControl(''),
+    path: new FormControl(''),
+    action: new FormControl(''),
+    createdAt: new FormControl('')
+  });
+
+  sortCol = 'createdAt';
+  sortDir: 'asc' | 'desc' = 'desc';
+  summarySortCol = 'lastWhen';
+  summarySortDir: 'asc' | 'desc' = 'desc';
+
   displayedColumns = ['username', 'ipAddress', 'country', 'action', 'path', 'createdAt'];
   summaryColumns = ['username', 'ipAddress', 'country', 'requestCount', 'lastAction', 'lastWhen'];
 
@@ -44,18 +61,76 @@ export class AccessLogsComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.setupRawFilterPredicate();
+    this.rawFilters.valueChanges.pipe(debounceTime(200)).subscribe(() => this.applyRawFilters());
+    this.fetchCurrentClientIp();
     this.loadView();
+  }
+
+  private fetchCurrentClientIp(): void {
+    this.authService.getClientIp().subscribe({
+      next: res => { this.currentClientIp = res.data ?? null; },
+      error: () => { this.currentClientIp = null; }
+    });
+  }
+
+  get sortParam(): string {
+    return this.sortCol ? `${this.sortCol},${this.sortDir}` : '';
+  }
+
+  get summarySortParam(): string {
+    return this.summarySortCol ? `${this.summarySortCol},${this.summarySortDir}` : '';
+  }
+
+  get hasActiveRawFilters(): boolean {
+    const v = this.rawFilters.value;
+    return !!(v.username?.trim() || v.ipAddress?.trim() || v.path?.trim() || v.action?.trim() || v.createdAt?.trim());
+  }
+
+  clearRawFilters(): void {
+    this.rawFilters.reset({ username: '', ipAddress: '', path: '', action: '', createdAt: '' });
+    this.applyRawFilters();
+  }
+
+  private setupRawFilterPredicate(): void {
+    this.rawLogsDataSource.filterPredicate = (row: AccessLogResponse, filter: string) => {
+      const f = JSON.parse(filter);
+      return this.contains(row.username, f.username)
+        && this.contains(row.ipAddress, f.ipAddress)
+        && this.contains(row.path, f.path)
+        && this.contains(row.action, f.action)
+        && this.contains(row.createdAt, f.createdAt);
+    };
+  }
+
+  private contains(value: string | null | undefined, filter: string): boolean {
+    if (!filter || !filter.trim()) return true;
+    return (value ?? '').toString().toLowerCase().includes(filter.toLowerCase().trim());
+  }
+
+  private applyRawFilters(): void {
+    const v = this.rawFilters.value;
+    this.rawLogsDataSource.filter = JSON.stringify({
+      username: v.username ?? '',
+      ipAddress: v.ipAddress ?? '',
+      path: v.path ?? '',
+      action: v.action ?? '',
+      createdAt: v.createdAt ?? ''
+    });
   }
 
   load(page: number = this.page): void {
     this.loading = true;
     this.page = page;
-    this.accessLogService.getAll(this.page, this.size, this.usernameFilter).subscribe({
+    const sort = this.sortParam || undefined;
+    this.accessLogService.getAll(this.page, this.size, this.usernameFilter, sort).subscribe({
       next: res => {
         const data = res.data;
         this.logs = data?.content ?? [];
+        this.rawLogsDataSource.data = this.logs;
         this.totalElements = data?.totalElements ?? 0;
         this.loading = false;
+        this.applyRawFilters();
       },
       error: () => { this.loading = false; }
     });
@@ -64,7 +139,8 @@ export class AccessLogsComponent implements OnInit {
   loadSummary(page: number = this.page): void {
     this.loading = true;
     this.page = page;
-    this.accessLogService.getSummary(this.page, this.size, this.usernameFilter).subscribe({
+    const sort = this.summarySortParam || undefined;
+    this.accessLogService.getSummary(this.page, this.size, this.usernameFilter, sort).subscribe({
       next: res => {
         const data = res.data;
         this.summaryRows = data?.content ?? [];
@@ -73,6 +149,28 @@ export class AccessLogsComponent implements OnInit {
       },
       error: () => { this.loading = false; }
     });
+  }
+
+  sortBy(col: string): void {
+    this.sortDir = this.sortCol === col && this.sortDir === 'asc' ? 'desc' : 'asc';
+    this.sortCol = col;
+    this.load(0);
+  }
+
+  sortBySummary(col: string): void {
+    this.summarySortDir = this.summarySortCol === col && this.summarySortDir === 'asc' ? 'desc' : 'asc';
+    this.summarySortCol = col;
+    this.loadSummary(0);
+  }
+
+  sortIcon(col: string): string {
+    if (this.sortCol !== col) return 'swap_vert';
+    return this.sortDir === 'asc' ? 'arrow_upward' : 'arrow_downward';
+  }
+
+  summarySortIcon(col: string): string {
+    if (this.summarySortCol !== col) return 'swap_vert';
+    return this.summarySortDir === 'asc' ? 'arrow_upward' : 'arrow_downward';
   }
 
   loadView(page: number = this.page): void {
@@ -121,10 +219,9 @@ export class AccessLogsComponent implements OnInit {
     this.viewIps(row.username);
   }
 
-  /** True if this IP is the current user's own client IP (cannot block it). */
+  /** True if this IP is the current user's own client IP — never show "Block" for your own IP (avoids self-lockout or confusion). */
   isOwnCurrentIp(ipAddress: string): boolean {
-    const currentUsername = this.authService.getUsername();
-    if (!currentUsername || this.selectedUsernameForIps !== currentUsername || !this.currentClientIp) return false;
+    if (!this.currentClientIp) return false;
     return this.normalizeIp(ipAddress) === this.normalizeIp(this.currentClientIp);
   }
 
@@ -134,7 +231,6 @@ export class AccessLogsComponent implements OnInit {
     this.ips = [];
     this.allowedIps = [];
     this.blockedIps = [];
-    this.currentClientIp = null;
     this.authService.getClientIp().subscribe({
       next: res => { this.currentClientIp = res.data ?? null; },
       error: () => { this.currentClientIp = null; }

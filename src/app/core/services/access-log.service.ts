@@ -11,18 +11,24 @@ export class AccessLogService {
 
   constructor(private http: HttpClient) {}
 
-  getAll(page = 0, size = 20, username?: string): Observable<ApiResponse<PageResponse<AccessLogResponse>>> {
+  getAll(page = 0, size = 20, username?: string, sort?: string): Observable<ApiResponse<PageResponse<AccessLogResponse>>> {
     let params = new HttpParams().set('page', page).set('size', size);
     if (username && username.trim()) {
       params = params.set('username', username.trim());
     }
+    if (sort && sort.trim()) {
+      params = params.set('sort', sort.trim());
+    }
     return this.http.get<ApiResponse<PageResponse<AccessLogResponse>>>(this.url, { params });
   }
 
-  getSummary(page = 0, size = 20, username?: string): Observable<ApiResponse<PageResponse<AccessLogSummaryResponse>>> {
+  getSummary(page = 0, size = 20, username?: string, sort?: string): Observable<ApiResponse<PageResponse<AccessLogSummaryResponse>>> {
     let params = new HttpParams().set('page', page).set('size', size);
     if (username && username.trim()) {
       params = params.set('username', username.trim());
+    }
+    if (sort && sort.trim()) {
+      params = params.set('sort', sort.trim());
     }
     return this.http.get<ApiResponse<PageResponse<AccessLogSummaryResponse>>>(`${this.url}/summary`, { params });
   }
