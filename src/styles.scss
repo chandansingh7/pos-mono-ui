@@ -26,24 +26,90 @@ html, body {
   background: v.$color-background;
 }
 
-// ─── Global HCI sizing for form controls & buttons ──────────────────────────
-// Inputs (including date pickers) use a compact 40px outline height by default.
-// Buttons use a consistent 40px min-height for comfortable touch targets.
+// ─── Global compact controls (32px) — decoupled, single source of truth ─────
+// Reference: Access logs filter, Products table filters. All inputs, buttons,
+// selects, paginator use this compact size for consistency.
 
-// All outlined mat-form-fields (text, number, date, select) — 40px container.
+$compact-control-height: 32px;
+
+// All mat-form-fields — compact 32px container
 .mat-mdc-form-field {
-  --mdc-outlined-text-field-container-height: 40px;
+  --mdc-outlined-text-field-container-height: #{$compact-control-height};
+  font-size: v.$font-size-xs; // 11px — matches filter fields
+
+  .mat-mdc-form-field-infix {
+    padding-top: 2px !important;
+    padding-bottom: 2px !important;
+    min-height: 24px !important;
+    font-size: v.$font-size-xs !important;
+  }
+  .mat-mdc-text-field-wrapper {
+    padding: 0 6px !important;
+  }
+  .mat-mdc-floating-label {
+    font-size: v.$font-size-xs !important;
+  }
 }
 
-// Normalize common button types to a single comfortable height.
-.mat-mdc-raised-button,
-.mat-mdc-outlined-button,
-.mat-mdc-stroked-button,
-.mat-mdc-button-base {
-  min-height: 40px;
-  padding: 0 16px;
-  font-size: v.$font-size-base;
+// Buttons — compact 32px to match inputs (exclude icon-button, FAB)
+.mat-mdc-raised-button:not(.mat-mdc-icon-button):not(.mat-mdc-fab),
+.mat-mdc-outlined-button:not(.mat-mdc-icon-button):not(.mat-mdc-fab),
+.mat-mdc-stroked-button:not(.mat-mdc-icon-button):not(.mat-mdc-fab),
+.mat-mdc-button:not(.mat-mdc-icon-button):not(.mat-mdc-fab) {
+  min-height: $compact-control-height !important;
+  height: $compact-control-height !important;
+  padding: 0 12px !important;
+  font-size: v.$font-size-xs !important;
   font-weight: v.$font-weight-medium;
+  line-height: $compact-control-height !important;
+
+  .mat-icon {
+    font-size: 18px !important;
+    width: 18px !important;
+    height: 18px !important;
+    margin: 0 2px;
+  }
+}
+
+// Icon-only buttons — 32px touch target
+.mat-mdc-icon-button {
+  width: $compact-control-height !important;
+  height: $compact-control-height !important;
+  padding: 0 !important;
+
+  .mat-icon {
+    font-size: 20px !important;
+    width: 20px !important;
+    height: 20px !important;
+  }
+}
+
+// Paginator — compact row and dropdown
+.mat-mdc-paginator {
+  min-height: $compact-control-height !important;
+
+  .mat-mdc-paginator-container {
+    min-height: $compact-control-height !important;
+    padding-top: 4px !important;
+    padding-bottom: 4px !important;
+  }
+  .mat-mdc-paginator-page-size {
+    align-items: center;
+
+    .mat-mdc-form-field {
+      margin: 0 8px;
+    }
+    .mat-mdc-select {
+      font-size: v.$font-size-xs !important;
+    }
+  }
+  .mat-mdc-paginator-navigation-previous,
+  .mat-mdc-paginator-navigation-next,
+  .mat-mdc-paginator-navigation-first,
+  .mat-mdc-paginator-navigation-last {
+    width: $compact-control-height !important;
+    height: $compact-control-height !important;
+  }
 }
 
 // ─── Global Layout Helpers ───────────────────────────────────────────────────

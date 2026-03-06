@@ -28,7 +28,7 @@
             </mat-card-header>
             <mat-card-content>
               <ul>
-                <li *ngFor="let bullet of section.bullets">{{ bullet }}</li>
+                <li *ngFor="let bullet of section.bullets">{{ processText(bullet) }}</li>
               </ul>
             </mat-card-content>
           </mat-card>
@@ -46,7 +46,7 @@
               <mat-card-title>{{ item.title }}</mat-card-title>
             </mat-card-header>
             <mat-card-content>
-              <p>{{ item.content }}</p>
+              <p [innerHTML]="processText(item.content)"></p>
             </mat-card-content>
           </mat-card>
         </div>
@@ -63,7 +63,7 @@
               <mat-card-title>{{ faq.question }}</mat-card-title>
             </mat-card-header>
             <mat-card-content>
-              <p>{{ faq.answer }}</p>
+              <p [innerHTML]="processText(faq.answer)"></p>
             </mat-card-content>
           </mat-card>
         </div>

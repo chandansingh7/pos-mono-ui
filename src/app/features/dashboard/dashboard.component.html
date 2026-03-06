@@ -31,7 +31,7 @@
     <mat-card class="stat-card success-card">
       <mat-card-content>
         <mat-icon>payments</mat-icon>
-        <div class="stat-value">${{ (dailyReport?.totalRevenue || 0) | number:'1.0-0' }}</div>
+        <div class="stat-value">{{ (dailyReport?.totalRevenue || 0) | currency:currencyCode:'symbol':'1.0-0' }}</div>
         <div class="stat-label">Today's Revenue</div>
         <div class="stat-sub">{{ today | date:'d MMM' }}</div>
       </mat-card-content>
@@ -40,7 +40,7 @@
     <mat-card class="stat-card accent-card">
       <mat-card-content>
         <mat-icon>trending_up</mat-icon>
-        <div class="stat-value">${{ (dailyReport?.averageOrderValue || 0) | number:'1.2-2' }}</div>
+        <div class="stat-value">{{ (dailyReport?.averageOrderValue || 0) | currency:currencyCode }}</div>
         <div class="stat-label">Avg. Order Value</div>
         <div class="stat-sub">Today</div>
       </mat-card-content>
@@ -58,7 +58,7 @@
     <mat-card class="stat-card monthly-revenue-card">
       <mat-card-content>
         <mat-icon>bar_chart</mat-icon>
-        <div class="stat-value">${{ (monthlyReport?.totalRevenue || 0) | number:'1.0-0' }}</div>
+        <div class="stat-value">{{ (monthlyReport?.totalRevenue || 0) | currency:currencyCode:'symbol':'1.0-0' }}</div>
         <div class="stat-label">Monthly Revenue</div>
         <div class="stat-sub">{{ currentMonth }}</div>
       </mat-card-content>
@@ -193,7 +193,7 @@
 
           <ng-container matColumnDef="total">
             <th mat-header-cell *matHeaderCellDef class="num-cell">Total</th>
-            <td mat-cell *matCellDef="let o" class="num-cell price-cell">${{ o.total | number:'1.2-2' }}</td>
+            <td mat-cell *matCellDef="let o" class="num-cell price-cell">{{ o.total | currency:currencyCode }}</td>
           </ng-container>
 
           <ng-container matColumnDef="payment">

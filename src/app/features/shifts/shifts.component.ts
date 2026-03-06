@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ShiftService } from '../../core/services/shift.service';
 import { AuthService } from '../../core/services/auth.service';
+import { CompanyService } from '../../core/services/company.service';
 import { ShiftResponse } from '../../core/models/shift.models';
 import { MatDialog } from '@angular/material/dialog';
 import {
@@ -31,6 +32,7 @@ export class ShiftsComponent implements OnInit {
     private fb: FormBuilder,
     private shiftService: ShiftService,
     private authService: AuthService,
+    private companyService: CompanyService,
     private snackBar: MatSnackBar,
     private dialog: MatDialog
   ) {
@@ -44,6 +46,10 @@ export class ShiftsComponent implements OnInit {
 
   get isManagerPlus(): boolean {
     return this.authService.isAdminOrManager();
+  }
+
+  get currencyCode(): string {
+    return this.companyService.getCached()?.displayCurrency || 'USD';
   }
 
   ngOnInit(): void {

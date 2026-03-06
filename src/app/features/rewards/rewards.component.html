@@ -5,7 +5,7 @@
 <mat-card class="config-card" *ngIf="config">
   <mat-card-title>How it works</mat-card-title>
   <mat-card-content>
-    <p>Earn <strong>{{ config.pointsPerDollar }} point</strong> per $1 spent. Redeem at checkout: <strong>{{ config.redemptionRate }} points = $1</strong> discount.</p>
+    <p>Earn <strong>{{ config.pointsPerDollar }} point</strong> per {{ 1 | currency:currencyCode }} spent. Redeem at checkout: <strong>{{ config.redemptionRate }} points = {{ 1 | currency:currencyCode }}</strong> discount.</p>
   </mat-card-content>
 </mat-card>
 

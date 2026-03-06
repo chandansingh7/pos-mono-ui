@@ -4,6 +4,7 @@ import { catchError } from 'rxjs/operators';
 import { ReportService } from '../../core/services/report.service';
 import { InventoryService } from '../../core/services/inventory.service';
 import { OrderService } from '../../core/services/order.service';
+import { CompanyService } from '../../core/services/company.service';
 import { SalesReportResponse } from '../../core/models/report.models';
 import { InventoryResponse } from '../../core/models/inventory.models';
 import { OrderResponse } from '../../core/models/order.models';
@@ -28,8 +29,13 @@ export class DashboardComponent implements OnInit {
   constructor(
     private reportService: ReportService,
     private inventoryService: InventoryService,
-    private orderService: OrderService
+    private orderService: OrderService,
+    private companyService: CompanyService
   ) {}
+
+  get currencyCode(): string {
+    return this.companyService.getCached()?.displayCurrency || 'USD';
+  }
 
   ngOnInit(): void {
     forkJoin({

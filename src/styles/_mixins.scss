@@ -138,6 +138,19 @@
   align-items: flex-start;
 }
 
+// ─── Compact control (32px) — use when global styles don't apply ─────────────
+// Global styles.scss applies compact controls. Use this mixin for scoped overrides.
+@mixin compact-control {
+  --mdc-outlined-text-field-container-height: 32px;
+  .mat-mdc-form-field-infix {
+    padding-top: 2px !important;
+    padding-bottom: 2px !important;
+    min-height: 24px !important;
+    font-size: v.$font-size-xs !important;
+  }
+  .mat-mdc-text-field-wrapper { padding: 0 6px !important; }
+}
+
 // ─── Alert Banner ────────────────────────────────────────────────────────────
 @mixin alert-banner($text-color: v.$color-warn, $bg: v.$color-warn-bg, $border: v.$color-warn-border) {
   @include flex-row(v.$space-md);

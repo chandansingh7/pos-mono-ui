@@ -4,32 +4,40 @@
 
 <div class="tab-bar">
   <button mat-button [class.active-tab]="activeTab === 'daily'" (click)="switchTab('daily')">
-    <mat-icon>today</mat-icon> Daily Report
+    <mat-icon>today</mat-icon> Daily
   </button>
   <button mat-button [class.active-tab]="activeTab === 'monthly'" (click)="switchTab('monthly')">
-    <mat-icon>calendar_month</mat-icon> Monthly Report
+    <mat-icon>calendar_month</mat-icon> Monthly
   </button>
 </div>
 
+<!-- Daily: fixed periods Today | Yesterday -->
 <div *ngIf="activeTab === 'daily'">
-  <div class="filter-bar">
-    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="date-field">
-      <mat-label>Date</mat-label>
-      <input matInput [matDatepicker]="picker" [formControl]="dateControl">
-      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-      <mat-datepicker #picker></mat-datepicker>
-    </mat-form-field>
-    <button mat-raised-button color="primary" (click)="loadDaily()">
-      <mat-icon>search</mat-icon> Load Report
-    </button>
-    <button mat-stroked-button (click)="downloadDailyExcel()" [disabled]="loadingDaily">
-      <mat-icon>download</mat-icon> Download Excel
+  <div class="period-bar">
+    <div class="period-segment" role="group" aria-label="Select daily period">
+      <button mat-stroked-button
+              [class.period-selected]="dailyPeriod === 'today'"
+              (click)="selectDailyPeriod('today')"
+              matTooltip="Sales for today">
+        Today
+      </button>
+      <button mat-stroked-button
+              [class.period-selected]="dailyPeriod === 'yesterday'"
+              (click)="selectDailyPeriod('yesterday')"
+              matTooltip="Sales for yesterday">
+        Yesterday
+      </button>
+    </div>
+    <button mat-stroked-button (click)="downloadDailyExcel()" [disabled]="loadingDaily"
+            matTooltip="Download report as Excel">
+      <mat-icon>download</mat-icon> Export Excel
     </button>
   </div>
 
   <div *ngIf="loadingDaily" class="loading-center"><mat-spinner diameter="48"></mat-spinner></div>
 
   <ng-container *ngIf="!loadingDaily && dailyReport">
+    <p class="period-label">{{ dailyReport.period }}</p>
     <div class="stats-grid">
       <mat-card class="stat-card primary-card">
         <mat-card-content>
@@ -55,7 +63,7 @@
     </div>
 
     <mat-card class="card mt-16" *ngIf="dailyReport.topProducts?.length">
-      <mat-card-header><mat-card-title>Top Products — {{ dailyReport.period }}</mat-card-title></mat-card-header>
+      <mat-card-header><mat-card-title>Top Products</mat-card-title></mat-card-header>
       <mat-card-content>
         <table mat-table [dataSource]="dailyReport.topProducts" class="full-width">
           <ng-container matColumnDef="rank"><th mat-header-cell *matHeaderCellDef>#</th><td mat-cell *matCellDef="let r; let i = index">{{ i+1 }}</td></ng-container>
@@ -67,34 +75,38 @@
       </mat-card-content>
     </mat-card>
     <div *ngIf="!dailyReport.topProducts?.length" class="empty-state">
-      <mat-icon>bar_chart</mat-icon><p>No sales data for this date.</p>
+      <mat-icon>bar_chart</mat-icon><p>No sales data for this period.</p>
     </div>
   </ng-container>
 </div>
 
+<!-- Monthly: fixed periods This month | Last month -->
 <div *ngIf="activeTab === 'monthly'">
-  <div class="filter-bar">
-    <mat-form-field appearance="outline">
-      <mat-label>Year</mat-label>
-      <input matInput type="number" [formControl]="yearControl" min="2020">
-    </mat-form-field>
-    <mat-form-field appearance="outline">
-      <mat-label>Month</mat-label>
-      <mat-select [formControl]="monthControl">
-        <mat-option *ngFor="let m of months" [value]="m.value">{{ m.label }}</mat-option>
-      </mat-select>
-    </mat-form-field>
-    <button mat-raised-button color="primary" (click)="loadMonthly()">
-      <mat-icon>search</mat-icon> Load Report
-    </button>
-    <button mat-stroked-button (click)="downloadMonthlyExcel()" [disabled]="loadingMonthly">
-      <mat-icon>download</mat-icon> Download Excel
+  <div class="period-bar">
+    <div class="period-segment" role="group" aria-label="Select monthly period">
+      <button mat-stroked-button
+              [class.period-selected]="monthlyPeriod === 'this_month'"
+              (click)="selectMonthlyPeriod('this_month')"
+              matTooltip="Sales for current month">
+        This month
+      </button>
+      <button mat-stroked-button
+              [class.period-selected]="monthlyPeriod === 'last_month'"
+              (click)="selectMonthlyPeriod('last_month')"
+              matTooltip="Sales for previous month">
+        Last month
+      </button>
+    </div>
+    <button mat-stroked-button (click)="downloadMonthlyExcel()" [disabled]="loadingMonthly"
+            matTooltip="Download report as Excel">
+      <mat-icon>download</mat-icon> Export Excel
     </button>
   </div>
 
   <div *ngIf="loadingMonthly" class="loading-center"><mat-spinner diameter="48"></mat-spinner></div>
 
   <ng-container *ngIf="!loadingMonthly && monthlyReport">
+    <p class="period-label">{{ monthlyReport.period }}</p>
     <div class="stats-grid">
       <mat-card class="stat-card primary-card">
         <mat-card-content>
@@ -120,7 +132,7 @@
     </div>
 
     <mat-card class="card mt-16" *ngIf="monthlyReport.topProducts?.length">
-      <mat-card-header><mat-card-title>Top Products — {{ monthlyReport.period }}</mat-card-title></mat-card-header>
+      <mat-card-header><mat-card-title>Top Products</mat-card-title></mat-card-header>
       <mat-card-content>
         <table mat-table [dataSource]="monthlyReport.topProducts" class="full-width">
           <ng-container matColumnDef="rank"><th mat-header-cell *matHeaderCellDef>#</th><td mat-cell *matCellDef="let r; let i = index">{{ i+1 }}</td></ng-container>
@@ -131,5 +143,8 @@
         </table>
       </mat-card-content>
     </mat-card>
+    <div *ngIf="!monthlyReport.topProducts?.length" class="empty-state">
+      <mat-icon>bar_chart</mat-icon><p>No sales data for this period.</p>
+    </div>
   </ng-container>
 </div>

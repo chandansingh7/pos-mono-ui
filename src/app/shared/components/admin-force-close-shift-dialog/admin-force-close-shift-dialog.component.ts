@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ShiftService } from '../../../core/services/shift.service';
+import { CompanyService } from '../../../core/services/company.service';
 import { ShiftResponse } from '../../../core/models/shift.models';
 
 export interface AdminForceCloseShiftDialogData {
@@ -17,7 +18,7 @@ export interface AdminForceCloseShiftDialogData {
       <p class="body-text">
         Cashier: <strong>{{ data.shift.cashierUsername }}</strong><br>
         Opened at: <strong>{{ data.shift.openedAt | date:'short' }}</strong><br>
-        Opening float: <strong>{{ data.shift.openingFloat | number:'1.2-2' }}</strong>
+        Opening float: <strong>{{ data.shift.openingFloat | currency:currencyCode }}</strong>
       </p>
       <p class="body-text small">
         Expected cash and over/short will be computed from cash orders between the
@@ -63,9 +64,14 @@ export class AdminForceCloseShiftDialogComponent {
   form: FormGroup;
   loading = false;
 
+  get currencyCode(): string {
+    return this.companyService.getCached()?.displayCurrency || 'USD';
+  }
+
   constructor(
     private fb: FormBuilder,
     private shiftService: ShiftService,
+    private companyService: CompanyService,
     private snackBar: MatSnackBar,
     public dialogRef: MatDialogRef<AdminForceCloseShiftDialogComponent, boolean>,
     @Inject(MAT_DIALOG_DATA) public data: AdminForceCloseShiftDialogData

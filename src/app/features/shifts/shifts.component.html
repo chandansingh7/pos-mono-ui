@@ -40,15 +40,15 @@
     <div class="shift-summary">
       <div class="summary-row">
         <span>Opening float</span>
-        <span>{{ currentShift.openingFloat | number:'1.2-2' }}</span>
+        <span>{{ currentShift.openingFloat | currency:currencyCode }}</span>
       </div>
       <div class="summary-row">
         <span>Cash sales (from orders)</span>
-        <span>{{ currentShift.cashSales || 0 | number:'1.2-2' }}</span>
+        <span>{{ (currentShift.cashSales || 0) | currency:currencyCode }}</span>
       </div>
       <div class="summary-row">
         <span>Expected cash</span>
-        <span>{{ currentShift.expectedCash || (currentShift.openingFloat + (currentShift.cashSales || 0)) | number:'1.2-2' }}</span>
+        <span>{{ (currentShift.expectedCash ?? (currentShift.openingFloat + (currentShift.cashSales || 0))) | currency:currencyCode }}</span>
       </div>
     </div>
 
@@ -65,7 +65,7 @@
     <div *ngIf="currentShift.closedAt" class="result">
       <h3>Reconciliation result</h3>
       <p>Closed at: {{ currentShift.closedAt | date:'short' }}</p>
-      <p>Difference (counted - expected): <strong>{{ currentShift.difference | number:'1.2-2' }}</strong></p>
+      <p>Difference (counted - expected): <strong>{{ currentShift.difference | currency:currencyCode }}</strong></p>
     </div>
   </mat-card-content>
 </mat-card>
@@ -96,23 +96,23 @@
         </ng-container>
         <ng-container matColumnDef="openingFloat">
           <th mat-header-cell *matHeaderCellDef>Opening</th>
-          <td mat-cell *matCellDef="let row">{{ row.openingFloat | number:'1.2-2' }}</td>
+          <td mat-cell *matCellDef="let row">{{ row.openingFloat | currency:currencyCode }}</td>
         </ng-container>
         <ng-container matColumnDef="cashSales">
           <th mat-header-cell *matHeaderCellDef>Cash sales</th>
-          <td mat-cell *matCellDef="let row">{{ (row.cashSales ?? 0) | number:'1.2-2' }}</td>
+          <td mat-cell *matCellDef="let row">{{ (row.cashSales ?? 0) | currency:currencyCode }}</td>
         </ng-container>
         <ng-container matColumnDef="expectedCash">
           <th mat-header-cell *matHeaderCellDef>Expected</th>
-          <td mat-cell *matCellDef="let row">{{ (row.expectedCash ?? row.openingFloat) | number:'1.2-2' }}</td>
+          <td mat-cell *matCellDef="let row">{{ (row.expectedCash ?? row.openingFloat) | currency:currencyCode }}</td>
         </ng-container>
         <ng-container matColumnDef="countedCash">
           <th mat-header-cell *matHeaderCellDef>Counted</th>
-          <td mat-cell *matCellDef="let row">{{ (row.countedCash ?? 0) | number:'1.2-2' }}</td>
+          <td mat-cell *matCellDef="let row">{{ (row.countedCash ?? 0) | currency:currencyCode }}</td>
         </ng-container>
         <ng-container matColumnDef="difference">
           <th mat-header-cell *matHeaderCellDef>Over/Short</th>
-          <td mat-cell *matCellDef="let row">{{ (row.difference ?? 0) | number:'1.2-2' }}</td>
+          <td mat-cell *matCellDef="let row">{{ (row.difference ?? 0) | currency:currencyCode }}</td>
         </ng-container>
         <ng-container matColumnDef="status">
           <th mat-header-cell *matHeaderCellDef>Status</th>

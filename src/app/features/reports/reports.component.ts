@@ -1,8 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { FormControl } from '@angular/forms';
 import { ReportService } from '../../core/services/report.service';
 import { CompanyService } from '../../core/services/company.service';
 import { SalesReportResponse } from '../../core/models/report.models';
+
+/** Fixed period types — no custom date range or period comparison (HCI best practice). */
+export type DailyPeriod = 'today' | 'yesterday';
+export type MonthlyPeriod = 'this_month' | 'last_month';
 
 @Component({
   selector: 'app-reports',
@@ -11,23 +14,15 @@ import { SalesReportResponse } from '../../core/models/report.models';
 })
 export class ReportsComponent implements OnInit {
   activeTab: 'daily' | 'monthly' = 'daily';
+  dailyPeriod: DailyPeriod = 'today';
+  monthlyPeriod: MonthlyPeriod = 'this_month';
+
   dailyReport: SalesReportResponse | null = null;
   monthlyReport: SalesReportResponse | null = null;
   loadingDaily = false;
   loadingMonthly = false;
 
-  dateControl = new FormControl(new Date());
-  yearControl = new FormControl(new Date().getFullYear());
-  monthControl = new FormControl(new Date().getMonth() + 1);
-
   topProductsColumns = ['rank', 'productName', 'unitsSold'];
-
-  months = [
-    { value: 1, label: 'January' }, { value: 2, label: 'February' }, { value: 3, label: 'March' },
-    { value: 4, label: 'April' }, { value: 5, label: 'May' }, { value: 6, label: 'June' },
-    { value: 7, label: 'July' }, { value: 8, label: 'August' }, { value: 9, label: 'September' },
-    { value: 10, label: 'October' }, { value: 11, label: 'November' }, { value: 12, label: 'December' }
-  ];
 
   constructor(
     private reportService: ReportService,
@@ -38,12 +33,43 @@ export class ReportsComponent implements OnInit {
     return this.companyService.getCached()?.displayCurrency || 'USD';
   }
 
-  ngOnInit(): void { this.loadDaily(); }
+  ngOnInit(): void {
+    this.loadDaily();
+  }
+
+  /** Returns ISO date string for the selected daily period. */
+  getDailyDate(): string {
+    const d = new Date();
+    if (this.dailyPeriod === 'yesterday') {
+      d.setDate(d.getDate() - 1);
+    }
+    return d.toISOString().split('T')[0];
+  }
+
+  /** Returns { year, month } for the selected monthly period. */
+  getMonthlyYearMonth(): { year: number; month: number } {
+    const d = new Date();
+    if (this.monthlyPeriod === 'last_month') {
+      d.setMonth(d.getMonth() - 1);
+    }
+    return { year: d.getFullYear(), month: d.getMonth() + 1 };
+  }
+
+  selectDailyPeriod(period: DailyPeriod): void {
+    if (this.dailyPeriod === period) return;
+    this.dailyPeriod = period;
+    this.loadDaily();
+  }
+
+  selectMonthlyPeriod(period: MonthlyPeriod): void {
+    if (this.monthlyPeriod === period) return;
+    this.monthlyPeriod = period;
+    this.loadMonthly();
+  }
 
   loadDaily(): void {
     this.loadingDaily = true;
-    const date = this.dateControl.value;
-    const dateStr = date ? date.toISOString().split('T')[0] : undefined;
+    const dateStr = this.getDailyDate();
     this.reportService.getDailyReport(dateStr).subscribe({
       next: res => { this.dailyReport = res.data; this.loadingDaily = false; },
       error: () => { this.loadingDaily = false; }
@@ -52,10 +78,8 @@ export class ReportsComponent implements OnInit {
 
   loadMonthly(): void {
     this.loadingMonthly = true;
-    this.reportService.getMonthlyReport(
-      this.yearControl.value ?? undefined,
-      this.monthControl.value ?? undefined
-    ).subscribe({
+    const { year, month } = this.getMonthlyYearMonth();
+    this.reportService.getMonthlyReport(year, month).subscribe({
       next: res => { this.monthlyReport = res.data; this.loadingMonthly = false; },
       error: () => { this.loadingMonthly = false; }
     });
@@ -67,14 +91,13 @@ export class ReportsComponent implements OnInit {
   }
 
   downloadDailyExcel(): void {
-    const date = this.dateControl.value;
-    const dateStr = date ? date.toISOString().split('T')[0] : undefined;
+    const dateStr = this.getDailyDate();
     this.reportService.downloadDailyExcel(dateStr).subscribe({
       next: blob => {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `sales-daily-${dateStr || new Date().toISOString().split('T')[0]}.xlsx`;
+        a.download = `sales-daily-${dateStr}.xlsx`;
         a.click();
         URL.revokeObjectURL(url);
       },
@@ -83,8 +106,7 @@ export class ReportsComponent implements OnInit {
   }
 
   downloadMonthlyExcel(): void {
-    const year = this.yearControl.value ?? new Date().getFullYear();
-    const month = this.monthControl.value ?? new Date().getMonth() + 1;
+    const { year, month } = this.getMonthlyYearMonth();
     this.reportService.downloadMonthlyExcel(year, month).subscribe({
       next: blob => {
         const url = URL.createObjectURL(blob);

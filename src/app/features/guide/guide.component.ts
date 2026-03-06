@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { CompanyService } from '../../core/services/company.service';
+import { formatCurrency } from '../../core/utils/currency.util';
 
 export interface GuideSection {
   title: string;
@@ -22,6 +24,18 @@ export interface FaqItem {
 })
 export class GuideComponent {
   searchQuery = '';
+
+  constructor(private companyService: CompanyService) {}
+
+  get currencyCode(): string {
+    return this.companyService.getCached()?.displayCurrency || 'USD';
+  }
+
+  /** Replaces {{CURRENCY_1}} placeholder with formatted 1 in display currency. */
+  processText(text: string): string {
+    const formatted = formatCurrency(1, this.currencyCode, this.companyService.getCached()?.locale);
+    return text.replace(/\{\{CURRENCY_1\}\}/g, formatted);
+  }
 
   readonly guideSections: GuideSection[] = [
     {
@@ -79,7 +93,7 @@ export class GuideComponent {
     {
       title: '7. Member rewards',
       bullets: [
-        'Customers earn points on every order (configurable: e.g. 1 point per $1 spent).',
+        'Customers earn points on every order (configurable: e.g. 1 point per {{CURRENCY_1}} spent).',
         'Create a member card (Customers or Member Rewards → Create card): the card has a unique barcode. Print it for the member.',
         'At POS, scan the member card barcode (or select customer manually) to attach the sale to the member and use their points balance and redemption.',
         'Use the Member Rewards page to view how the program works, see points balances, and create or reprint cards.'
@@ -151,7 +165,7 @@ export class GuideComponent {
     },
     {
       question: 'How do member reward points work?',
-      answer: 'Customers earn points when they are selected at checkout and an order is completed. They can redeem points at POS: select the customer, enter points to redeem, and the discount is applied (e.g. 100 points = $1 off). View balances on the Member Rewards page.'
+      answer: 'Customers earn points when they are selected at checkout and an order is completed. They can redeem points at POS: select the customer, enter points to redeem, and the discount is applied (e.g. 100 points = {{CURRENCY_1}} off). View balances on the Member Rewards page.'
     }
   ];
 

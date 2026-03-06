@@ -14,36 +14,38 @@
   }
 }
 
-.filter-bar {
+/* HCI: Fixed-period segment control — recognition over recall, minimal cognitive load */
+.period-bar {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: t.$space-md;
   margin-bottom: t.$space-lg;
 }
 
-/* HCI: compact, consistent date field height with buttons */
-.date-field {
-  --mdc-outlined-text-field-container-height: 40px;
-  min-width: 200px;
+.period-segment {
+  display: inline-flex;
+  border-radius: t.$radius-md;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px t.$color-border;
 
-  ::ng-deep .mat-mdc-text-field-wrapper {
-    height: 40px;
-    padding: 0 10px;
+  button {
+    min-width: 100px;
+    border-radius: 0;
+    margin: 0;
+
+    &.period-selected {
+      background: t.$color-primary-muted;
+      color: t.$color-primary;
+      font-weight: t.$font-weight-semibold;
+    }
   }
-  ::ng-deep .mat-mdc-form-field-infix {
-    padding-top: 8px;
-    padding-bottom: 8px;
-    min-height: 24px;
-    box-sizing: border-box;
-  }
-  ::ng-deep .mat-mdc-floating-label {
-    font-size: 11px;
-    top: 52%;
-  }
-  ::ng-deep .mat-mdc-form-field-icon-suffix .mat-datepicker-toggle-default-icon {
-    width: 18px;
-    height: 18px;
-  }
+}
+
+.period-label {
+  font-size: t.$font-size-sm;
+  color: t.$color-text-muted;
+  margin: 0 0 t.$space-sm 0;
 }
 
 .stats-grid {
@@ -71,3 +73,5 @@
 .loading-center { @include t.loading-center(t.$space-xxl + 32px); }
 
 .empty-state { @include t.empty-state; }
+
+.mt-16 { margin-top: t.$space-md; }

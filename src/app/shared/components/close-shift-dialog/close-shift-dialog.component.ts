@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ShiftService } from '../../../core/services/shift.service';
+import { CompanyService } from '../../../core/services/company.service';
 import { ShiftResponse } from '../../../core/models/shift.models';
 
 @Component({
@@ -12,9 +13,9 @@ import { ShiftResponse } from '../../../core/models/shift.models';
     <mat-dialog-content [formGroup]="form" class="dialog-body">
       <ng-container *ngIf="currentShift; else loadingTpl">
         <p class="body-text">
-          Opening float: <strong>{{ currentShift.openingFloat | number:'1.2-2' }}</strong><br>
-          Cash sales: <strong>{{ currentShift.cashSales || 0 | number:'1.2-2' }}</strong><br>
-          Expected cash: <strong>{{ currentShift.expectedCash || 0 | number:'1.2-2' }}</strong>
+          Opening float: <strong>{{ currentShift.openingFloat | currency:currencyCode }}</strong><br>
+          Cash sales: <strong>{{ (currentShift.cashSales || 0) | currency:currencyCode }}</strong><br>
+          Expected cash: <strong>{{ (currentShift.expectedCash || 0) | currency:currencyCode }}</strong>
         </p>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="full-width">
           <mat-label>Counted cash in drawer</mat-label>
@@ -57,9 +58,14 @@ export class CloseShiftDialogComponent implements OnInit {
   loading = false;
   currentShift: ShiftResponse | null = null;
 
+  get currencyCode(): string {
+    return this.companyService.getCached()?.displayCurrency || 'USD';
+  }
+
   constructor(
     private fb: FormBuilder,
     private shiftService: ShiftService,
+    private companyService: CompanyService,
     private snackBar: MatSnackBar,
     public dialogRef: MatDialogRef<CloseShiftDialogComponent, ShiftResponse | null>
   ) {
