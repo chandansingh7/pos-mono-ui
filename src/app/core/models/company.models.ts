@@ -18,6 +18,8 @@ export interface CompanyResponse {
   updatedAt?: string;
   /** Whether quick shift open/close controls are enabled on POS / Cashier. */
   posQuickShiftControls?: boolean;
+  /** POS layout: 'grid' (product grid) or 'scan' (list + search/key-in; barcode adds to cart). */
+  posLayout?: string;
   /** Shift rule: max allowed cash difference when closing a shift. */
   shiftMaxDifferenceAbsolute?: number;
   /** Shift rule: minimum open minutes before close is allowed. */
@@ -43,11 +45,18 @@ export interface CompanyRequest {
   displayCurrency?: string;
   locale?: string;
   posQuickShiftControls?: boolean;
+  posLayout?: string | null;
   shiftMaxDifferenceAbsolute?: number | null;
   shiftMinOpenMinutes?: number | null;
   shiftMaxOpenHours?: number | null;
   shiftRequireSameDay?: boolean | null;
 }
+
+/** POS layout options for Settings and POS component. */
+export const POS_LAYOUTS = [
+  { value: 'grid', label: 'Product grid', description: 'Product grid with separate search and barcode fields' },
+  { value: 'scan', label: 'Search / scan', description: 'Product list at top, single "Search or key in item" field; barcode adds directly to cart' }
+] as const;
 
 export const RECEIPT_PAPER_SIZES = [
   { value: '58mm', label: '58 mm (thermal)' },

@@ -75,6 +75,8 @@
   </div>
 
   <div *ngIf="!completedOrder" class="pos-layout">
+  <!-- Grid layout: product grid + separate search and barcode -->
+  <ng-container *ngIf="!isScanLayout">
   <div class="product-panel">
     <div class="search-controls">
       <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
@@ -116,10 +118,50 @@
       </div>
     </div>
   </div>
+  </ng-container>
 
-  <div class="cart-panel">
+  <!-- Scan layout: product list at top + single "Search or key in item" at bottom; barcode adds to cart -->
+  <ng-container *ngIf="isScanLayout">
+  <div class="product-panel scan-layout-panel">
+    <div class="product-list-scan">
+      <div *ngIf="productsLoading" class="loading-center">
+        <mat-spinner diameter="36"></mat-spinner>
+      </div>
+      <div class="product-list-scroll" *ngIf="!productsLoading">
+        <button *ngFor="let product of products"
+                type="button"
+                class="product-list-row"
+                [class.out-of-stock]="product.quantity <= 0"
+                [disabled]="product.quantity <= 0"
+                (click)="addToCart(product)">
+          <span class="product-list-name">{{ product.name }}</span>
+          <span class="product-list-price">{{ product.price | currency:currencyCode }}</span>
+        </button>
+        <div *ngIf="!products.length" class="no-products-inlist">
+          <mat-icon>inventory_2</mat-icon>
+          <p>No products found. Search or scan to add.</p>
+        </div>
+      </div>
+    </div>
+    <div class="search-scan-bottom">
+      <mat-form-field appearance="outline" class="full-width search-key-in-field" subscriptSizing="dynamic">
+        <input matInput [formControl]="barcodeControl" placeholder="Search or Key in Item.">
+        <mat-icon matPrefix>search</mat-icon>
+      </mat-form-field>
+    </div>
+  </div>
+  </ng-container>
+
+  <div class="cart-panel" [class.scan-cart]="isScanLayout">
     <div class="cart-header">
-      <h3>Cart</h3>
+      <h3 *ngIf="!isScanLayout">Cart</h3>
+      <div *ngIf="isScanLayout" class="cart-header-scan">
+        <mat-icon class="cart-icon-scan">shopping_cart</mat-icon>
+        <span class="cart-count-scan">{{ cart.length }} items</span>
+      </div>
+      <button *ngIf="isScanLayout" mat-stroked-button class="edit-cart-btn" matTooltip="Cart items listed below">
+        Edit Cart
+      </button>
       <button mat-icon-button color="warn" (click)="clearCart()" [disabled]="!cart.length" matTooltip="Clear cart">
         <mat-icon>delete_sweep</mat-icon>
       </button>
@@ -192,7 +234,7 @@
           <mat-icon matPrefix>payment</mat-icon>
         </mat-form-field>
         <mat-form-field appearance="outline" class="compact-field discount-field" subscriptSizing="dynamic">
-          <mat-label>Discount</mat-label>
+          <mat-label>Discount ($)</mat-label>
           <input matInput type="number" [(ngModel)]="discount" min="0" step="0.01" placeholder="0">
           <mat-icon matPrefix>discount</mat-icon>
         </mat-form-field>
@@ -212,7 +254,7 @@
               (click)="placeOrder()">
         <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
         <mat-icon *ngIf="!loading">point_of_sale</mat-icon>
-        <span>{{ loading ? 'Processing...' : 'Place Order' }}</span>
+        <span>{{ loading ? 'Processing...' : (isScanLayout ? ('Pay ' + (total | currency:currencyCode) + ' >') : 'Place Order') }}</span>
       </button>
     </div>
   </div>

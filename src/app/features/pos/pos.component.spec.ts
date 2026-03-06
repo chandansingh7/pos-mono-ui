@@ -91,5 +91,36 @@ describe('PosComponent', () => {
     expect(orderService.create).not.toHaveBeenCalled();
     expect(snackBar.open).toHaveBeenCalled();
   });
+
+  it('isScanLayout returns true when company posLayout is scan', () => {
+    component.company = null;
+    expect(component.isScanLayout).toBe(false);
+
+    component.company = { posLayout: 'grid' } as any;
+    expect(component.isScanLayout).toBe(false);
+
+    component.company = { posLayout: 'scan' } as any;
+    expect(component.isScanLayout).toBe(true);
+  });
+
+  it('scanInputValue with short string loads products', () => {
+    const productSvc = TestBed.inject(ProductService) as jasmine.SpyObj<ProductService>;
+    component.company = { posLayout: 'scan' } as any;
+
+    component.scanInputValue('a');
+    expect(productSvc.getAll).toHaveBeenCalledWith('a', undefined, 0, 30);
+  });
+
+  it('scanInputValue with barcode match adds to cart and clears control', () => {
+    const productSvc = TestBed.inject(ProductService) as jasmine.SpyObj<ProductService>;
+    const product = { id: 1, name: 'Scanned', price: 5, quantity: 10 } as any;
+    productSvc.getByBarcode.and.returnValue(of({ success: true, data: product, message: null, errorCode: null }));
+    component.company = { posLayout: 'scan' } as any;
+
+    component.scanInputValue('12345678');
+    expect(component.cart.length).toBe(1);
+    expect(component.cart[0].product).toBe(product);
+    expect(component.barcodeControl.value).toBe('');
+  });
 });
 

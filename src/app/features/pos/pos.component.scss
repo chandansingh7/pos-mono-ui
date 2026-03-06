@@ -82,6 +82,123 @@
   @include t.empty-state;
 }
 
+// ── Scan layout: product list at top + single search at bottom ─────────────────
+.scan-layout-panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.product-list-scan {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.product-list-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-right: 4px;
+}
+
+.product-list-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border: none;
+  border-radius: t.$radius-md;
+  background: #fff;
+  cursor: pointer;
+  text-align: left;
+  font-size: t.$font-size-sm;
+  transition: background 0.15s;
+  min-height: 44px;
+
+  &:hover:not(.out-of-stock):not(:disabled) {
+    background: #f5f7fa;
+  }
+
+  &.out-of-stock {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .product-list-name {
+    font-weight: t.$font-weight-medium;
+    color: t.$color-text-primary;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .product-list-price {
+    font-weight: t.$font-weight-semibold;
+    color: t.$color-primary;
+    margin-left: t.$space-sm;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.no-products-inlist {
+  @include t.flex-column;
+  align-items: center;
+  justify-content: center;
+  padding: t.$space-xl;
+  color: t.$color-text-muted;
+  mat-icon { font-size: 40px; width: 40px; height: 40px; color: t.$color-border; }
+  p { margin: t.$space-sm 0 0; font-size: t.$font-size-sm; }
+}
+
+.search-scan-bottom {
+  flex-shrink: 0;
+  padding-top: t.$space-md;
+  padding-bottom: t.$space-xs;
+}
+
+.search-key-in-field {
+  max-width: 100%;
+  ::ng-deep .mat-mdc-text-field-wrapper {
+    background: rgba(129, 199, 132, 0.12);
+    border-radius: t.$radius-md;
+  }
+}
+
+.cart-header-scan {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  .cart-icon-scan {
+    font-size: 22px;
+    width: 22px;
+    height: 22px;
+    color: t.$color-text-secondary;
+  }
+  .cart-count-scan {
+    font-size: t.$font-size-md;
+    font-weight: t.$font-weight-semibold;
+    color: t.$color-text-primary;
+  }
+}
+
+.edit-cart-btn {
+  margin-left: auto;
+  margin-right: 8px;
+}
+
+.cart-panel.scan-cart .cart-header {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 .cart-panel {
   background: t.$color-surface;
   border-radius: t.$radius-lg;

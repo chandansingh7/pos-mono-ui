@@ -4,7 +4,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CompanyService } from '../../core/services/company.service';
 import { AuthService } from '../../core/services/auth.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { CompanyResponse, RECEIPT_PAPER_SIZES, DISPLAY_CURRENCIES, DISPLAY_LOCALES } from '../../core/models/company.models';
+import { CompanyResponse, RECEIPT_PAPER_SIZES, DISPLAY_CURRENCIES, DISPLAY_LOCALES, POS_LAYOUTS } from '../../core/models/company.models';
 import { resolveProductImageUrl } from '../../core/utils/product-image.util';
 
 @Component({
@@ -20,6 +20,7 @@ export class SettingsComponent implements OnInit {
   receiptPaperSizes = RECEIPT_PAPER_SIZES;
   displayCurrencies = DISPLAY_CURRENCIES;
   displayLocales = DISPLAY_LOCALES;
+  posLayouts = POS_LAYOUTS;
   logoLoadError = false;
   faviconLoadError = false;
 
@@ -46,7 +47,8 @@ export class SettingsComponent implements OnInit {
       shiftMaxDifferenceAbsolute: [null],
       shiftMinOpenMinutes: [null],
       shiftMaxOpenHours: [null],
-      shiftRequireSameDay: [false]
+      shiftRequireSameDay: [false],
+      posLayout: ['grid']
     });
   }
 
@@ -101,7 +103,8 @@ export class SettingsComponent implements OnInit {
             shiftMaxDifferenceAbsolute: this.company.shiftMaxDifferenceAbsolute ?? null,
             shiftMinOpenMinutes: this.company.shiftMinOpenMinutes ?? null,
             shiftMaxOpenHours: this.company.shiftMaxOpenHours ?? null,
-            shiftRequireSameDay: this.company.shiftRequireSameDay ?? false
+            shiftRequireSameDay: this.company.shiftRequireSameDay ?? false,
+            posLayout: this.company.posLayout ?? 'grid'
           });
         } else {
           this.form.patchValue({
@@ -113,7 +116,8 @@ export class SettingsComponent implements OnInit {
             shiftMaxDifferenceAbsolute: null,
             shiftMinOpenMinutes: null,
             shiftMaxOpenHours: null,
-            shiftRequireSameDay: false
+            shiftRequireSameDay: false,
+            posLayout: 'grid'
           });
         }
       },

@@ -90,12 +90,25 @@ export class PosComponent implements OnInit, OnDestroy {
       debounceTime(300),
       distinctUntilChanged()
     ).subscribe(barcode => {
-      if (barcode && barcode.length > 3) this.lookupBarcode(barcode);
+      if (this.company?.posLayout === 'scan') {
+        if (!barcode || !(barcode as string).trim()) {
+          this.loadProducts('');
+        } else {
+          this.scanInputValue(barcode as string);
+        }
+      } else if (barcode && (barcode as string).length > 3) {
+        this.lookupBarcode(barcode as string);
+      }
     });
   }
 
   get showShiftControls(): boolean {
     return !!this.company?.posQuickShiftControls;
+  }
+
+  /** True when company uses the scan layout (product list + single search/key-in; barcode adds to cart). */
+  get isScanLayout(): boolean {
+    return this.company?.posLayout === 'scan';
   }
 
   private checkShift(): void {
@@ -183,6 +196,46 @@ export class PosComponent implements OnInit, OnDestroy {
         }
       },
       error: () => tryMemberCard()
+    });
+  }
+
+  /**
+   * Scan layout: one field for search or barcode. Try barcode first; if not found, try member card; else filter product list.
+   */
+  scanInputValue(value: string): void {
+    const trimmed = (value || '').trim();
+    if (trimmed.length < 2) {
+      this.loadProducts(trimmed);
+      return;
+    }
+    this.productService.getByBarcode(trimmed).subscribe({
+      next: res => {
+        if (res.data) {
+          this.addToCart(res.data);
+          this.barcodeControl.setValue('', { emitEvent: false });
+        } else {
+          this.tryMemberCardThenSearch(trimmed);
+        }
+      },
+      error: () => this.tryMemberCardThenSearch(trimmed)
+    });
+  }
+
+  private tryMemberCardThenSearch(value: string): void {
+    this.customerService.getByMemberCard(value).subscribe({
+      next: res => {
+        if (res.data) {
+          this.selectedCustomer = res.data;
+          if (!this.customers.find(c => c.id === res.data!.id)) {
+            this.customers = [...this.customers, res.data];
+          }
+          this.barcodeControl.setValue('', { emitEvent: false });
+          this.snackBar.open('Member: ' + res.data.name + ' (' + (res.data.rewardPoints ?? 0) + ' pts)', 'Close', { duration: 3000 });
+        } else {
+          this.loadProducts(value);
+        }
+      },
+      error: () => this.loadProducts(value)
     });
   }
 
