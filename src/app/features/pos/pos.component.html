@@ -51,7 +51,7 @@
           <div *ngIf="company.email" class="receipt-company-detail">{{ company.email }}</div>
         </div>
         <div class="receipt-row" *ngFor="let item of completedOrder.items">
-          <span>{{ item.productName }} x{{ item.quantity }}</span>
+          <span>{{ item.productName }} x{{ item.quantity | number:'1.0-4' }}</span>
           <span>{{ item.subtotal | currency:currencyCode }}</span>
         </div>
         <mat-divider></mat-divider>
@@ -110,7 +110,7 @@
               — <span class="variant-text">{{ product.size }}<ng-container *ngIf="product.size && product.color"> / </ng-container>{{ product.color }}</span>
             </ng-container>
           </div>
-          <div *ngIf="!product.imageUrl" class="product-price">{{ product.price | currency:currencyCode }}</div>
+          <div *ngIf="!product.imageUrl" class="product-price">{{ product.price | currency:currencyCode }} {{ unitLabel(product.saleUnit) === 'each' ? '' : ('per ' + unitLabel(product.saleUnit)) }}</div>
           <div *ngIf="!product.imageUrl" class="product-stock" [class.low]="product.quantity > 0 && product.quantity <= 10" [class.out]="product.quantity <= 0">
             Stock: {{ product.quantity }}
           </div>
@@ -157,7 +157,7 @@
               — <span class="variant-text">{{ product.size }}<ng-container *ngIf="product.size && product.color"> / </ng-container>{{ product.color }}</span>
             </ng-container>
           </div>
-          <div *ngIf="!product.imageUrl" class="product-price">{{ product.price | currency:currencyCode }}</div>
+          <div *ngIf="!product.imageUrl" class="product-price">{{ product.price | currency:currencyCode }} {{ unitLabel(product.saleUnit) === 'each' ? '' : ('per ' + unitLabel(product.saleUnit)) }}</div>
           <div *ngIf="!product.imageUrl" class="product-stock" [class.low]="product.quantity > 0 && product.quantity <= 10" [class.out]="product.quantity <= 0">
             Stock: {{ product.quantity }}
           </div>
@@ -202,11 +202,11 @@
               — <span class="variant-text">{{ item.product.size }}<ng-container *ngIf="item.product.size && item.product.color"> / </ng-container>{{ item.product.color }}</span>
             </ng-container>
           </span>
-          <span class="item-unit-price">{{ item.product.price | currency:currencyCode }} each</span>
+          <span class="item-unit-price">{{ item.product.price | currency:currencyCode }} {{ unitLabel(item.product.saleUnit) === 'each' ? 'each' : 'per ' + unitLabel(item.product.saleUnit) }}</span>
         </div>
 
         <div class="item-right-group">
-          <div class="item-stepper">
+          <div class="item-stepper" *ngIf="!isDecimalQty(item.product)">
             <button class="step-btn" (click)="updateQty(item, item.quantity - 1)">
               <mat-icon>remove</mat-icon>
             </button>
@@ -214,6 +214,11 @@
             <button class="step-btn" (click)="updateQty(item, item.quantity + 1)">
               <mat-icon>add</mat-icon>
             </button>
+          </div>
+          <div class="item-qty-input" *ngIf="isDecimalQty(item.product)">
+            <input type="number" [value]="item.quantity" (change)="onQtyInputChange(item, $event)"
+                   min="0.001" step="0.01" placeholder="Qty" class="qty-input">
+            <span class="qty-unit">{{ unitLabel(item.product.saleUnit) }}</span>
           </div>
           <span class="item-subtotal">{{ item.subtotal | currency:currencyCode }}</span>
           <button class="item-remove" (click)="removeFromCart(item)" matTooltip="Remove">

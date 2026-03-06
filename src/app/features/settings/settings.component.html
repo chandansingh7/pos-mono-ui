@@ -67,11 +67,11 @@
         <mat-label>Email</mat-label>
         <input matInput type="email" formControlName="email" placeholder="store@example.com">
       </mat-form-field>
-      <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+      <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic" floatLabel="always">
         <mat-label>Tax ID</mat-label>
         <input matInput formControlName="taxId" placeholder="Optional">
       </mat-form-field>
-      <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+      <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic" floatLabel="always">
         <mat-label>Website</mat-label>
         <input matInput formControlName="website" placeholder="https://...">
       </mat-form-field>
@@ -93,11 +93,11 @@
         </mat-select>
         <mat-hint>58mm / 80mm for thermal printers, A4 for standard</mat-hint>
       </mat-form-field>
-      <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+      <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic" floatLabel="always">
         <mat-label>Receipt header text</mat-label>
         <input matInput formControlName="receiptHeaderText" placeholder="Optional line above company name">
       </mat-form-field>
-      <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+      <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic" floatLabel="always">
         <mat-label>Receipt footer text</mat-label>
         <input matInput formControlName="receiptFooterText" placeholder="e.g. Thank you for your purchase!">
       </mat-form-field>
@@ -126,6 +126,30 @@
         </mat-select>
         <mat-hint>Affects number and date formatting across the app</mat-hint>
       </mat-form-field>
+      <div class="localisation-row">
+        <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+          <mat-label>Country</mat-label>
+          <mat-select formControlName="countryCode" (selectionChange)="onCountryChange($event.value)">
+            <mat-option [value]="null">— None —</mat-option>
+            <mat-option *ngFor="let c of countries" [value]="c.code">{{ c.name }}</mat-option>
+          </mat-select>
+          <mat-hint>Used to pre-select weight unit for products and receipts</mat-hint>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+          <mat-label>Weight unit</mat-label>
+          <mat-select formControlName="weightUnit">
+            <mat-option *ngFor="let opt of weightUnits" [value]="opt.value">{{ opt.label }}</mat-option>
+          </mat-select>
+          <mat-hint>Pre-selected by country (e.g. US → lb, India → kg)</mat-hint>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+          <mat-label>Volume unit</mat-label>
+          <mat-select formControlName="volumeUnit">
+            <mat-option *ngFor="let opt of volumeUnits" [value]="opt.value">{{ opt.label }}</mat-option>
+          </mat-select>
+          <mat-hint>Pre-selected by country (e.g. US → gal, others → L)</mat-hint>
+        </mat-form-field>
+      </div>
     </form>
   </mat-card-content>
 </mat-card>

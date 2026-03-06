@@ -4,7 +4,8 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CompanyService } from '../../core/services/company.service';
 import { AuthService } from '../../core/services/auth.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { CompanyResponse, RECEIPT_PAPER_SIZES, DISPLAY_CURRENCIES, DISPLAY_LOCALES, POS_LAYOUTS } from '../../core/models/company.models';
+import { CompanyResponse, RECEIPT_PAPER_SIZES, DISPLAY_CURRENCIES, DISPLAY_LOCALES, POS_LAYOUTS, WEIGHT_UNITS, VOLUME_UNITS } from '../../core/models/company.models';
+import { COUNTRIES, getDefaultWeightUnitForCountry, getDefaultVolumeUnitForCountry } from '../../core/data/countries.data';
 import { resolveProductImageUrl } from '../../core/utils/product-image.util';
 
 @Component({
@@ -21,6 +22,9 @@ export class SettingsComponent implements OnInit {
   displayCurrencies = DISPLAY_CURRENCIES;
   displayLocales = DISPLAY_LOCALES;
   posLayouts = POS_LAYOUTS;
+  weightUnits = WEIGHT_UNITS;
+  volumeUnits = VOLUME_UNITS;
+  countries = COUNTRIES;
   logoLoadError = false;
   faviconLoadError = false;
 
@@ -43,6 +47,9 @@ export class SettingsComponent implements OnInit {
       receiptPaperSize: ['80mm'],
       displayCurrency: ['USD'],
       locale: ['en-US'],
+      countryCode: [null as string | null],
+      weightUnit: ['kg'],
+      volumeUnit: ['L'],
       posQuickShiftControls: [false],
       shiftMaxDifferenceAbsolute: [null],
       shiftMinOpenMinutes: [null],
@@ -58,6 +65,14 @@ export class SettingsComponent implements OnInit {
       return;
     }
     this.load();
+  }
+
+  /** When user selects a country, pre-select weight and volume units used in that country. */
+  onCountryChange(countryCode: string | null): void {
+    this.form.patchValue({
+      weightUnit: getDefaultWeightUnitForCountry(countryCode),
+      volumeUnit: getDefaultVolumeUnitForCountry(countryCode)
+    }, { emitEvent: false });
   }
 
   /** Resolved logo URL so images load from API when app is on a different origin. */
@@ -99,6 +114,9 @@ export class SettingsComponent implements OnInit {
             receiptPaperSize: this.company.receiptPaperSize ?? '80mm',
             displayCurrency: this.company.displayCurrency ?? 'USD',
             locale: this.company.locale ?? 'en-US',
+            countryCode: this.company.countryCode ?? null,
+            weightUnit: this.company.weightUnit ?? 'kg',
+            volumeUnit: this.company.volumeUnit ?? 'L',
             posQuickShiftControls: this.company.posQuickShiftControls ?? false,
             shiftMaxDifferenceAbsolute: this.company.shiftMaxDifferenceAbsolute ?? null,
             shiftMinOpenMinutes: this.company.shiftMinOpenMinutes ?? null,
@@ -112,6 +130,9 @@ export class SettingsComponent implements OnInit {
             receiptPaperSize: '80mm',
             displayCurrency: 'USD',
             locale: 'en-US',
+            countryCode: null,
+            weightUnit: 'kg',
+            volumeUnit: 'L',
             posQuickShiftControls: false,
             shiftMaxDifferenceAbsolute: null,
             shiftMinOpenMinutes: null,

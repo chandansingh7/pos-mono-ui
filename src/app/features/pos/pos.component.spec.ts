@@ -135,5 +135,39 @@ describe('PosComponent', () => {
     expect(component.lastAddedProduct).toBeNull();
     expect(component.cart.length).toBe(0);
   });
+
+  it('isDecimalQty returns true for WEIGHT and VOLUME products', () => {
+    expect(component.isDecimalQty({ saleUnitType: 'WEIGHT' } as any)).toBe(true);
+    expect(component.isDecimalQty({ saleUnitType: 'VOLUME' } as any)).toBe(true);
+    expect(component.isDecimalQty({ saleUnitType: 'weight' } as any)).toBe(true);
+    expect(component.isDecimalQty({ saleUnitType: 'volume' } as any)).toBe(true);
+  });
+
+  it('isDecimalQty returns false for PIECE or missing saleUnitType', () => {
+    expect(component.isDecimalQty({ saleUnitType: 'PIECE' } as any)).toBe(false);
+    expect(component.isDecimalQty({ saleUnitType: undefined } as any)).toBe(false);
+    expect(component.isDecimalQty({} as any)).toBe(false);
+  });
+
+  it('onQtyInputChange updates quantity for valid decimal input', () => {
+    const product = { id: 1, name: 'Rice', price: 5, quantity: 10, saleUnitType: 'WEIGHT' } as any;
+    const item = { product, quantity: 1, subtotal: 5 };
+    component.cart = [item];
+
+    component.onQtyInputChange(item, { target: { value: '0.3' } } as any);
+
+    expect(item.quantity).toBe(0.3);
+    expect(item.subtotal).toBe(1.5);
+  });
+
+  it('onQtyInputChange removes item when quantity below 0.001', () => {
+    const product = { id: 1, name: 'Rice', price: 5, quantity: 10, saleUnitType: 'WEIGHT' } as any;
+    const item = { product, quantity: 1, subtotal: 5 };
+    component.cart = [item];
+
+    component.onQtyInputChange(item, { target: { value: '0' } } as any);
+
+    expect(component.cart.length).toBe(0);
+  });
 });
 

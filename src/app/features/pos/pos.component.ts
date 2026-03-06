@@ -9,7 +9,7 @@ import { CustomerService } from '../../core/services/customer.service';
 import { OrderService } from '../../core/services/order.service';
 import { CompanyService } from '../../core/services/company.service';
 import { RewardService } from '../../core/services/reward.service';
-import { ProductResponse } from '../../core/models/product.models';
+import { ProductResponse, getUnitLabel } from '../../core/models/product.models';
 import { CustomerResponse } from '../../core/models/customer.models';
 import { OrderResponse, PaymentMethod } from '../../core/models/order.models';
 import { CompanyResponse } from '../../core/models/company.models';
@@ -331,6 +331,29 @@ export class PosComponent implements OnInit, OnDestroy {
 
   get total(): number {
     return this.subtotal + this.tax - (this.discount || 0) - this.redemptionDiscount;
+  }
+
+  /** For cart/receipt: show "each" or "per kg", "per L", etc. */
+  unitLabel(unit: string | null | undefined): string {
+    return getUnitLabel(unit);
+  }
+
+  /** True when product is sold by weight or volume (allows decimal quantity). */
+  isDecimalQty(product: ProductResponse): boolean {
+    const t = product.saleUnitType?.toUpperCase();
+    return t === 'WEIGHT' || t === 'VOLUME';
+  }
+
+  /** Handle quantity input change for weight/volume products. */
+  onQtyInputChange(item: CartItem, event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const raw = input?.value?.trim();
+    const qty = raw ? parseFloat(raw) : 0;
+    if (isNaN(qty) || qty < 0.001) {
+      this.removeFromCart(item);
+      return;
+    }
+    this.updateQty(item, qty);
   }
 
   get maxRedeemPoints(): number {

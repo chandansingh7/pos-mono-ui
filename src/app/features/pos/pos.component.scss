@@ -343,8 +343,9 @@
   line-height: 1.2;
 }
 
-// Stepper, subtotal, and remove: same 24px height so − number + $ × align on one line
+// Stepper, qty input, subtotal, and remove: same 24px height so − number + $ × align on one line
 .cart-item .item-stepper,
+.cart-item .item-qty-input,
 .cart-item .item-subtotal,
 .cart-item .item-remove {
   flex-shrink: 0;
@@ -397,6 +398,33 @@
   justify-content: center;
   line-height: 1;
   color: t.$color-text-primary;
+}
+
+.item-qty-input {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #f0f2f5;
+  border-radius: 6px;
+  padding: 0 6px;
+  height: 24px;
+
+  .qty-input {
+    width: 48px;
+    height: 20px;
+    border: none;
+    background: transparent;
+    font-size: 12px;
+    font-weight: t.$font-weight-semibold;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+
+    &:focus { outline: none; }
+  }
+  .qty-unit {
+    font-size: 11px;
+    color: t.$color-text-muted;
+  }
 }
 
 .item-subtotal {

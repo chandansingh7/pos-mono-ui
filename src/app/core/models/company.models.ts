@@ -15,6 +15,12 @@ export interface CompanyResponse {
   displayCurrency?: string;
   /** Locale for number/date formatting (e.g. en-US, hi-IN). */
   locale?: string;
+  /** ISO 3166-1 alpha-2 country code (e.g. US, IN). Used to pre-select weight unit. */
+  countryCode?: string;
+  /** Weight unit for products: kg or lb. */
+  weightUnit?: string;
+  /** Volume unit for products: L or gal. */
+  volumeUnit?: string;
   updatedAt?: string;
   /** Whether quick shift open/close controls are enabled on POS / Cashier. */
   posQuickShiftControls?: boolean;
@@ -44,6 +50,9 @@ export interface CompanyRequest {
   receiptPaperSize?: string;
   displayCurrency?: string;
   locale?: string;
+  countryCode?: string | null;
+  weightUnit?: string | null;
+  volumeUnit?: string | null;
   posQuickShiftControls?: boolean;
   posLayout?: string | null;
   shiftMaxDifferenceAbsolute?: number | null;
@@ -74,6 +83,20 @@ export const DISPLAY_CURRENCIES = [
   { value: 'CAD', label: 'CAD - Canadian Dollar' },
   { value: 'JPY', label: 'JPY - Japanese Yen' },
   { value: 'MXN', label: 'MXN - Mexican Peso' }
+] as const;
+
+/** Weight unit options for products and receipts (by country). */
+export const WEIGHT_UNITS = [
+  { value: 'kg', label: 'Kilograms (kg)' },
+  { value: 'lb', label: 'Pounds (lb)' }
+] as const;
+
+/** Volume unit options for products (liquid). */
+export const VOLUME_UNITS = [
+  { value: 'L', label: 'Liters (L)' },
+  { value: 'ml', label: 'Milliliters (ml)' },
+  { value: 'gal', label: 'US Gallon (gal)' },
+  { value: 'fl_oz', label: 'US Fluid ounce (fl oz)' }
 ] as const;
 
 /** Common locales for number/date formatting. */

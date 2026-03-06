@@ -2,7 +2,7 @@ import { Component, Inject, OnInit, OnDestroy, ViewChild, ElementRef } from '@an
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { CategoryResponse } from '../../core/models/category.models';
-import { ProductResponse } from '../../core/models/product.models';
+import { ProductResponse, SALE_UNIT_TYPES, SALE_UNITS, getUnitLabel } from '../../core/models/product.models';
 import { resolveProductImageUrl } from '../../core/utils/product-image.util';
 
 export interface ProductDialogData {
@@ -84,7 +84,22 @@ export interface ProductDialogData {
 
         <div class="row-2">
           <mat-form-field appearance="outline">
-            <mat-label>Price *</mat-label>
+            <mat-label>Sold by</mat-label>
+            <mat-select formControlName="saleUnitType">
+              <mat-option *ngFor="let t of saleUnitTypes" [value]="t.value">{{ t.label }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Unit</mat-label>
+            <mat-select formControlName="saleUnit">
+              <mat-option *ngFor="let u of saleUnitsForType" [value]="u.value">{{ u.label }}</mat-option>
+            </mat-select>
+            <mat-hint>Price is per this unit</mat-hint>
+          </mat-form-field>
+        </div>
+        <div class="row-2">
+          <mat-form-field appearance="outline">
+            <mat-label>Price per {{ pricePerUnitLabel }} *</mat-label>
             <input matInput type="number" formControlName="price" min="0.01">
             <span matPrefix>$&nbsp;</span>
             <mat-error>Valid price required</mat-error>
@@ -176,8 +191,19 @@ export class ProductDialogComponent implements OnInit, OnDestroy {
   selectedFile: File | null = null;
   previewUrl: string | null = null;
   private objectUrl: string | null = null;
+  saleUnitTypes = SALE_UNIT_TYPES;
 
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
+
+  get saleUnitsForType(): { value: string; label: string }[] {
+    const t = this.form?.get('saleUnitType')?.value || 'PIECE';
+    return SALE_UNITS[t] ?? SALE_UNITS['PIECE'];
+  }
+
+  get pricePerUnitLabel(): string {
+    const unit = this.form?.get('saleUnit')?.value || 'each';
+    return getUnitLabel(unit);
+  }
 
   constructor(
     private fb: FormBuilder,
@@ -194,11 +220,18 @@ export class ProductDialogComponent implements OnInit, OnDestroy {
       size:              [p?.size || ''],
       color:             [p?.color || ''],
       price:             [p?.price || '', [Validators.required, Validators.min(0.01)]],
+      saleUnitType:      [p?.saleUnitType || 'PIECE'],
+      saleUnit:          [p?.saleUnit || 'each'],
       categoryId:        [p?.categoryId || null],
       imageUrl:          [p?.imageUrl || ''],
       active:            [p?.active !== undefined ? p.active : true],
       initialStock:      [p?.quantity || 0, Validators.min(0)],
       lowStockThreshold: [10, Validators.min(0)]
+    });
+    this.form.get('saleUnitType')?.valueChanges.subscribe(() => {
+      const units = SALE_UNITS[this.form.get('saleUnitType')?.value || 'PIECE'];
+      const first = units?.[0]?.value ?? 'each';
+      this.form.patchValue({ saleUnit: first }, { emitEvent: false });
     });
 
     if (p?.imageUrl) {
