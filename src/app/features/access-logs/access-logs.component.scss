@@ -10,6 +10,14 @@
   gap: t.$space-md;
   margin-bottom: t.$space-md;
   flex-wrap: wrap;
+
+  /* Match button height to textbox (40px) so they align */
+  button.mat-mdc-button,
+  button.mat-mdc-stroked-button {
+    min-height: 40px;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
 }
 
 .view-toggle {
@@ -40,13 +48,25 @@
   min-width: 180px;
 }
 
-/* UI standard: 40px height so input aligns with Apply / By user & IP / Raw logs buttons */
+/* UI standard: 40px height, text/placeholder left-aligned */
 .filter-field-standard {
   ::ng-deep .mat-mdc-text-field-wrapper {
     height: 40px;
+    padding-top: 0;
+    padding-bottom: 0;
   }
   ::ng-deep .mat-mdc-form-field-subscript-wrapper {
     display: none;
+  }
+  ::ng-deep .mat-mdc-form-field-infix {
+    padding-top: 0;
+    padding-bottom: 0;
+    display: flex;
+    align-items: center;
+  }
+  ::ng-deep .mat-mdc-input-element,
+  ::ng-deep input::placeholder {
+    text-align: left;
   }
 }
 
@@ -72,20 +92,46 @@
 .filter-sort-row {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 4px;
+
+  /* Table header filter: 32px height to match sort button; placeholder = column name */
+  .filter-field {
+    flex: 1;
+    min-width: 0;
+    ::ng-deep .mat-mdc-text-field-wrapper {
+      height: 32px;
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+    ::ng-deep .mat-mdc-form-field-subscript-wrapper { display: none; }
+    ::ng-deep .mat-mdc-form-field-infix {
+      padding-top: 0;
+      padding-bottom: 0;
+      display: flex;
+      align-items: center;
+    }
+    ::ng-deep .mat-mdc-input-element,
+    ::ng-deep input::placeholder {
+      text-align: left;
+      font-size: 11px;
+    }
+  }
 }
 
+/* Sort button same height as table filter (32px) so they align */
 .sort-btn {
   flex-shrink: 0;
-  width: 22px !important;
-  height: 22px !important;
-  line-height: 22px !important;
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  min-height: 32px !important;
   padding: 0 !important;
+  line-height: 1 !important;
 
   mat-icon, .mat-icon {
-    font-size: 15px !important;
-    width: 15px !important;
-    height: 15px !important;
+    font-size: 18px !important;
+    width: 18px !important;
+    height: 18px !important;
     color: #bdbdbd;
     transition: color 0.2s;
   }

@@ -25,13 +25,17 @@ describe('ReportsComponent', () => {
     reportService = jasmine.createSpyObj('ReportService', [
       'getDailyReport',
       'getMonthlyReport',
+      'getRangeReport',
       'downloadDailyExcel',
-      'downloadMonthlyExcel'
+      'downloadMonthlyExcel',
+      'downloadRangeExcel'
     ]);
     reportService.getDailyReport.and.returnValue(of({ success: true, data: mockReport, message: null, errorCode: null }));
     reportService.getMonthlyReport.and.returnValue(of({ success: true, data: { ...mockReport, period: 'Monthly: 2026-02' }, message: null, errorCode: null }));
+    reportService.getRangeReport.and.returnValue(of({ success: true, data: { ...mockReport, period: 'Range: 2026-01-01 to 2026-01-07' }, message: null, errorCode: null }));
     reportService.downloadDailyExcel.and.returnValue(of(new Blob()));
     reportService.downloadMonthlyExcel.and.returnValue(of(new Blob()));
+    reportService.downloadRangeExcel.and.returnValue(of(new Blob()));
 
     companyService = jasmine.createSpyObj('CompanyService', ['getCached']);
     companyService.getCached.and.returnValue({ id: 1, name: 'Test Store', displayCurrency: 'USD' } as any);
@@ -111,5 +115,22 @@ describe('ReportsComponent', () => {
     const today = new Date().toISOString().split('T')[0];
     component.downloadDailyExcel();
     expect(reportService.downloadDailyExcel).toHaveBeenCalledWith(today);
+  });
+
+  it('compareCompareDisabled returns true when custom period A has invalid range', () => {
+    component.comparePeriodA = 'custom';
+    component.compareCustomFromA = '2026-01-10';
+    component.compareCustomToA = '2026-01-01';
+    expect(component.compareCompareDisabled()).toBe(true);
+    component.compareCustomToA = '2026-01-15';
+    expect(component.compareCompareDisabled()).toBe(false);
+  });
+
+  it('loadWeekly calls getRangeReport with week range', () => {
+    fixture.detectChanges();
+    reportService.getRangeReport.calls.reset();
+    component.switchTab('weekly');
+    expect(reportService.getRangeReport).toHaveBeenCalled();
+    expect(component.weeklyReport?.period).toBeDefined();
   });
 });

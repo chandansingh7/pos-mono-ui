@@ -6,72 +6,72 @@
 <mat-dialog-content>
   <form [formGroup]="form" autocomplete="off" class="edit-form">
 
-    <!-- Row 1: Username + Role -->
+    <!-- Row 1: Username + Role (floatLabel=always so label stays above, not below) -->
     <div class="two-col">
-      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" floatLabel="always">
         <mat-label>Username</mat-label>
-        <input matInput [value]="data.user.username" readonly>
         <mat-icon matPrefix>badge</mat-icon>
+        <input matInput [value]="data.user.username" readonly>
       </mat-form-field>
 
-      <mat-form-field appearance="outline" subscriptSizing="dynamic" *ngIf="data.adminMode">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" floatLabel="always" *ngIf="data.adminMode">
         <mat-label>Role</mat-label>
+        <mat-icon matPrefix>security</mat-icon>
         <mat-select formControlName="role">
           <mat-option *ngFor="let r of roles" [value]="r.value">{{ r.label }}</mat-option>
         </mat-select>
-        <mat-icon matPrefix>security</mat-icon>
       </mat-form-field>
 
-      <mat-form-field appearance="outline" subscriptSizing="dynamic" *ngIf="!data.adminMode">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" floatLabel="always" *ngIf="!data.adminMode">
         <mat-label>Role</mat-label>
-        <input matInput [value]="data.user.role | titlecase" readonly>
         <mat-icon matPrefix>security</mat-icon>
+        <input matInput [value]="data.user.role | titlecase" readonly>
       </mat-form-field>
     </div>
 
     <!-- Row 2: First Name + Last Name -->
     <div class="two-col">
-      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" floatLabel="always">
         <mat-label>First Name</mat-label>
-        <input matInput formControlName="firstName">
         <mat-icon matPrefix>person</mat-icon>
+        <input matInput formControlName="firstName">
       </mat-form-field>
 
-      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" floatLabel="always">
         <mat-label>Last Name</mat-label>
-        <input matInput formControlName="lastName">
         <mat-icon matPrefix>person_outline</mat-icon>
+        <input matInput formControlName="lastName">
       </mat-form-field>
     </div>
 
     <!-- Row 3: Email + Phone -->
     <div class="two-col">
-      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" floatLabel="always">
         <mat-label>Email *</mat-label>
-        <input matInput formControlName="email" type="email">
         <mat-icon matPrefix>email</mat-icon>
+        <input matInput formControlName="email" type="email">
         <mat-error>{{ getError('email', 'Email') }}</mat-error>
       </mat-form-field>
 
-      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" floatLabel="always">
         <mat-label>Phone</mat-label>
-        <input matInput formControlName="phone">
         <mat-icon matPrefix>phone</mat-icon>
+        <input matInput formControlName="phone">
       </mat-form-field>
     </div>
 
-    <!-- Row 4: Address + Delivery Address (single-line inputs — compact) -->
+    <!-- Row 4: Address + Delivery Address -->
     <div class="two-col">
-      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" floatLabel="always">
         <mat-label>Address</mat-label>
-        <input matInput formControlName="address">
         <mat-icon matPrefix>location_on</mat-icon>
+        <input matInput formControlName="address">
       </mat-form-field>
 
-      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" floatLabel="always">
         <mat-label>Delivery Address</mat-label>
-        <input matInput formControlName="deliveryAddress">
         <mat-icon matPrefix>local_shipping</mat-icon>
+        <input matInput formControlName="deliveryAddress">
       </mat-form-field>
     </div>
 

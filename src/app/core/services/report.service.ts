@@ -27,6 +27,12 @@ export class ReportService {
     return this.http.get<ApiResponse<SalesReportResponse>>(`${this.url}/sales/monthly`, { params, headers });
   }
 
+  getRangeReport(from: string, to: string, silent = false): Observable<ApiResponse<SalesReportResponse>> {
+    const params = new HttpParams().set('from', from).set('to', to);
+    const headers = silent ? new HttpHeaders({ [SILENT_ERROR_HEADER]: '1' }) : undefined;
+    return this.http.get<ApiResponse<SalesReportResponse>>(`${this.url}/sales/range`, { params, headers });
+  }
+
   downloadDailyExcel(date?: string): Observable<Blob> {
     let params = new HttpParams();
     if (date) params = params.set('date', date);
@@ -38,5 +44,10 @@ export class ReportService {
     if (year != null) params = params.set('year', year);
     if (month != null) params = params.set('month', month);
     return this.http.get(`${this.url}/sales/monthly/export`, { params, responseType: 'blob' });
+  }
+
+  downloadRangeExcel(from: string, to: string): Observable<Blob> {
+    const params = new HttpParams().set('from', from).set('to', to);
+    return this.http.get(`${this.url}/sales/range/export`, { params, responseType: 'blob' });
   }
 }

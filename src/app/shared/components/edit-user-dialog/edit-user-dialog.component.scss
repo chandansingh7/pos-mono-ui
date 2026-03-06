@@ -39,19 +39,37 @@ mat-dialog-actions {
   mat-form-field { width: 100%; }
 }
 
-/* ── Prefix icon size only — no height/label hacks ──────────────────────── */
+/* ── Labels above input (floatLabel=always), 40px height, text left-aligned ── */
 ::ng-deep .edit-form {
-  .mat-mdc-form-field-icon-prefix mat-icon {
-    font-size: 18px;
-    height: 18px;
-    width: 18px;
-    padding: 0 4px 0 6px;
-    color: #757575;
+  .mat-mdc-form-field-icon-prefix {
+    padding-right: 8px;
+    mat-icon {
+      font-size: 17px;
+      height: 17px;
+      width: 17px;
+      color: #757575;
+    }
   }
 
-  // Subscript — zero-height until an error actually shows
+  .mat-mdc-text-field-wrapper {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+  .mat-mdc-form-field-infix {
+    padding-top: 0;
+    padding-bottom: 0;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+  }
+  .mat-mdc-input-element,
+  .mat-mdc-select-value-text,
+  input::placeholder {
+    text-align: left;
+  }
+
+  /* Subscript: only show when mat-error has content */
   .mat-mdc-form-field-subscript-wrapper {
-    height: 0;
     overflow: visible;
   }
 }

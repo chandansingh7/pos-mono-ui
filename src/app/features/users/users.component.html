@@ -123,25 +123,25 @@
     <mat-card-content>
       <form [formGroup]="createForm" (ngSubmit)="submit()" class="register-form">
 
-        <mat-form-field appearance="outline" class="full-width">
+        <mat-form-field appearance="outline" class="full-width user-form-field" subscriptSizing="dynamic" floatLabel="always">
           <mat-label>Username</mat-label>
-          <input matInput formControlName="username" autocomplete="off">
           <mat-icon matPrefix>badge</mat-icon>
+          <input matInput formControlName="username" autocomplete="off">
           <mat-hint>3–50 characters, used to log in</mat-hint>
           <mat-error>{{ getError('username') }}</mat-error>
         </mat-form-field>
 
-        <mat-form-field appearance="outline" class="full-width">
+        <mat-form-field appearance="outline" class="full-width user-form-field" subscriptSizing="dynamic" floatLabel="always">
           <mat-label>Email</mat-label>
-          <input matInput formControlName="email" type="email" autocomplete="off">
           <mat-icon matPrefix>email</mat-icon>
+          <input matInput formControlName="email" type="email" autocomplete="off">
           <mat-error>{{ getError('email') }}</mat-error>
         </mat-form-field>
 
-        <mat-form-field appearance="outline" class="full-width">
+        <mat-form-field appearance="outline" class="full-width user-form-field" subscriptSizing="dynamic" floatLabel="always">
           <mat-label>Password</mat-label>
-          <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password" autocomplete="new-password">
           <mat-icon matPrefix>lock</mat-icon>
+          <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password" autocomplete="new-password">
           <button mat-icon-button matSuffix type="button" (click)="hidePassword = !hidePassword">
             <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
           </button>

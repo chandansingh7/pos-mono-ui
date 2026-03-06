@@ -21,6 +21,15 @@
   align-items: center;
   gap: t.$space-md;
   margin-bottom: t.$space-lg;
+
+  /* Align action buttons with 40px inputs */
+  button.mat-mdc-button,
+  button.mat-mdc-stroked-button,
+  button.mat-mdc-raised-button {
+    min-height: 40px;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
 }
 
 .period-segment {
@@ -75,3 +84,87 @@
 .empty-state { @include t.empty-state; }
 
 .mt-16 { margin-top: t.$space-md; }
+
+.date-field {
+  max-width: 160px;
+}
+
+.custom-range-bar {
+  flex-wrap: wrap;
+  .date-field { margin: 0; }
+}
+
+.compare-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: t.$space-lg;
+  margin-bottom: t.$space-lg;
+}
+
+.compare-period {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: t.$space-sm;
+
+  .compare-label {
+    font-size: t.$font-size-sm;
+    font-weight: t.$font-weight-semibold;
+    color: t.$color-text-secondary;
+    width: 100%;
+    margin-bottom: t.$space-xs;
+  }
+
+  .period-select { min-width: 140px; margin: 0; }
+  .date-field { margin: 0; }
+}
+
+.compare-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: t.$space-lg;
+  margin-bottom: t.$space-lg;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.compare-card {
+  .stats-grid { margin-top: t.$space-sm; }
+}
+
+.compare-delta-card {
+  margin-bottom: t.$space-lg;
+}
+
+.delta-grid {
+  display: flex;
+  flex-direction: column;
+  gap: t.$space-sm;
+}
+
+.delta-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: t.$space-md;
+  font-size: t.$font-size-base;
+
+  .delta-label { color: t.$color-text-secondary; }
+  .delta-value { font-weight: t.$font-weight-semibold; text-align: right; }
+  .delta-pct {
+    min-width: 4em;
+    text-align: right;
+    font-weight: t.$font-weight-semibold;
+    &.positive { color: t.$color-success; }
+    &.negative { color: t.$color-warn; }
+  }
+}
+
+.hint {
+  font-size: t.$font-size-sm;
+  color: t.$color-text-muted;
+  margin: t.$space-md 0;
+}
