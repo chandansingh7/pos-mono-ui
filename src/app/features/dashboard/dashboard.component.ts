@@ -38,7 +38,7 @@ export class DashboardComponent implements OnInit {
     'Single-company per deployment; no multi-store or stock transfers yet.',
     'No offline mode / PWA sync for poor connectivity.',
     'Fixed tax rate; no configurable or per-product tax rules.',
-    'Label printing uses a fixed A4 template (8 labels per page).'
+    'No full label template designer (A4 templates and a basic custom layout are supported).'
   ];
 
   constructor(

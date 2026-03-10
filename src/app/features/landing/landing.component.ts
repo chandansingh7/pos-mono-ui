@@ -56,7 +56,7 @@ export class LandingComponent {
     'No email receipt option for customers.',
     'Reports use fixed periods; no custom date range or period comparison.',
     'No accounting or e-commerce integrations (e.g. QuickBooks, Xero).',
-    'Label printing uses a fixed A4 template (8 labels per page) without a template designer.',
+    'No full label template designer (you can choose A4 templates or a basic custom layout).',
   ];
 
   constructor(private authService: AuthService, private router: Router) {

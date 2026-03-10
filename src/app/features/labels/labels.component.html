@@ -18,7 +18,7 @@
 <mat-tab-group (selectedIndexChange)="onTabChange($event)" class="labels-tabs">
   <mat-tab label="From Products">
     <p class="tab-description">
-      Select existing products to print price labels. Labels are laid out 8 per A4 page (2×4 grid).
+      Select existing products to print price labels. Choose a label template (A4 layouts or custom) before printing.
     </p>
     <mat-card class="card">
       <div class="filters-row">
@@ -32,6 +32,34 @@
             <mat-option [value]="null">All</mat-option>
             <mat-option *ngFor="let c of categories" [value]="c.id">{{ c.name }}</mat-option>
           </mat-select>
+        </mat-form-field>
+        <mat-form-field class="template-field standard-input-height" appearance="outline" subscriptSizing="dynamic" floatLabel="always">
+          <mat-label>Label template</mat-label>
+          <mat-select [value]="printTemplateId" (selectionChange)="onPrintTemplateChange($event.value)">
+            <mat-option *ngFor="let t of printTemplates" [value]="t.id">{{ t.name }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="custom-template-row" *ngIf="printTemplateId === 'CUSTOM'">
+        <mat-form-field class="custom-field standard-input-height" appearance="outline" subscriptSizing="dynamic" floatLabel="always">
+          <mat-label>Columns</mat-label>
+          <input matInput type="number" min="1" max="4" [formControl]="customColumnsControl">
+        </mat-form-field>
+        <mat-form-field class="custom-field standard-input-height" appearance="outline" subscriptSizing="dynamic" floatLabel="always">
+          <mat-label>Rows</mat-label>
+          <input matInput type="number" min="1" max="10" [formControl]="customRowsControl">
+        </mat-form-field>
+        <mat-form-field class="custom-field standard-input-height" appearance="outline" subscriptSizing="dynamic" floatLabel="always">
+          <mat-label>Gap (mm)</mat-label>
+          <input matInput type="number" min="0" max="12" [formControl]="customGapMmControl">
+        </mat-form-field>
+        <mat-form-field class="custom-field standard-input-height" appearance="outline" subscriptSizing="dynamic" floatLabel="always">
+          <mat-label>Page padding (mm)</mat-label>
+          <input matInput type="number" min="0" max="20" [formControl]="customPagePaddingMmControl">
+        </mat-form-field>
+        <mat-form-field class="custom-field standard-input-height" appearance="outline" subscriptSizing="dynamic" floatLabel="always">
+          <mat-label>Label padding (mm)</mat-label>
+          <input matInput type="number" min="0" max="12" [formControl]="customLabelPaddingMmControl">
         </mat-form-field>
       </div>
 
@@ -107,6 +135,34 @@
             <mat-option [value]="null">All</mat-option>
             <mat-option *ngFor="let c of categories" [value]="c.id">{{ c.name }}</mat-option>
           </mat-select>
+        </mat-form-field>
+        <mat-form-field class="template-field standard-input-height" appearance="outline" subscriptSizing="dynamic" floatLabel="always">
+          <mat-label>Label template</mat-label>
+          <mat-select [value]="printTemplateId" (selectionChange)="onPrintTemplateChange($event.value)">
+            <mat-option *ngFor="let t of printTemplates" [value]="t.id">{{ t.name }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="custom-template-row" *ngIf="printTemplateId === 'CUSTOM'">
+        <mat-form-field class="custom-field standard-input-height" appearance="outline" subscriptSizing="dynamic" floatLabel="always">
+          <mat-label>Columns</mat-label>
+          <input matInput type="number" min="1" max="4" [formControl]="customColumnsControl">
+        </mat-form-field>
+        <mat-form-field class="custom-field standard-input-height" appearance="outline" subscriptSizing="dynamic" floatLabel="always">
+          <mat-label>Rows</mat-label>
+          <input matInput type="number" min="1" max="10" [formControl]="customRowsControl">
+        </mat-form-field>
+        <mat-form-field class="custom-field standard-input-height" appearance="outline" subscriptSizing="dynamic" floatLabel="always">
+          <mat-label>Gap (mm)</mat-label>
+          <input matInput type="number" min="0" max="12" [formControl]="customGapMmControl">
+        </mat-form-field>
+        <mat-form-field class="custom-field standard-input-height" appearance="outline" subscriptSizing="dynamic" floatLabel="always">
+          <mat-label>Page padding (mm)</mat-label>
+          <input matInput type="number" min="0" max="20" [formControl]="customPagePaddingMmControl">
+        </mat-form-field>
+        <mat-form-field class="custom-field standard-input-height" appearance="outline" subscriptSizing="dynamic" floatLabel="always">
+          <mat-label>Label padding (mm)</mat-label>
+          <input matInput type="number" min="0" max="12" [formControl]="customLabelPaddingMmControl">
         </mat-form-field>
       </div>
 

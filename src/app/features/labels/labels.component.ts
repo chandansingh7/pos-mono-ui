@@ -19,7 +19,6 @@ import { AddAsProductDialogComponent } from './add-as-product-dialog.component';
 import { PrintLabelsBulkDialogComponent, PrintableItemWithCount } from './print-labels-bulk-dialog.component';
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
 
-const LABELS_PER_PAGE = 8;
 const JSBARCODE_CDN = 'https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js';
 
 interface PrintableLabel {
@@ -28,6 +27,20 @@ interface PrintableLabel {
   sku?: string | null;
   barcode?: string;
   id?: number;
+}
+
+type LabelPrintTemplateId = 'A4_2x4' | 'A4_2x5' | 'A4_3x4' | 'CUSTOM';
+
+interface LabelPrintTemplate {
+  id: LabelPrintTemplateId;
+  name: string;
+  pageWidthMm: number;
+  pageHeightMm: number;
+  columns: number;
+  rows: number;
+  gapMm: number;
+  pagePaddingMm: number;
+  labelPaddingMm: number;
 }
 
 @Component({
@@ -57,6 +70,20 @@ export class LabelsComponent implements OnInit {
   searchControl = new FormControl('');
   categoryFilter = new FormControl<number | null>(null);
 
+  readonly printTemplates: LabelPrintTemplate[] = [
+    { id: 'A4_2x4', name: 'A4 — 2×4 (8 per page)', pageWidthMm: 210, pageHeightMm: 297, columns: 2, rows: 4, gapMm: 6, pagePaddingMm: 8, labelPaddingMm: 4 },
+    { id: 'A4_2x5', name: 'A4 — 2×5 (10 per page)', pageWidthMm: 210, pageHeightMm: 297, columns: 2, rows: 5, gapMm: 5, pagePaddingMm: 8, labelPaddingMm: 4 },
+    { id: 'A4_3x4', name: 'A4 — 3×4 (12 per page)', pageWidthMm: 210, pageHeightMm: 297, columns: 3, rows: 4, gapMm: 4, pagePaddingMm: 8, labelPaddingMm: 4 },
+    { id: 'CUSTOM', name: 'Custom (basic layout)', pageWidthMm: 210, pageHeightMm: 297, columns: 2, rows: 4, gapMm: 6, pagePaddingMm: 8, labelPaddingMm: 4 },
+  ];
+
+  printTemplateId: LabelPrintTemplateId = this.loadPrintTemplateId();
+  customColumnsControl = new FormControl<number>(2);
+  customRowsControl = new FormControl<number>(4);
+  customGapMmControl = new FormControl<number>(6);
+  customPagePaddingMmControl = new FormControl<number>(8);
+  customLabelPaddingMmControl = new FormControl<number>(4);
+
   displayedColumns = ['select', 'name', 'sku', 'barcode', 'category', 'price'];
   labelDisplayedColumns = ['select', 'name', 'sku', 'barcode', 'category', 'price', 'actions'];
 
@@ -78,6 +105,7 @@ export class LabelsComponent implements OnInit {
     this.loadCategories();
     this.loadProducts(0);
     this.loadLabels(0);
+    this.loadCustomTemplate();
     this.searchControl.valueChanges
       .pipe(debounceTime(350), distinctUntilChanged())
       .subscribe(() => {
@@ -88,6 +116,75 @@ export class LabelsComponent implements OnInit {
       if (this.activeTab === 0) this.loadProducts(0);
       else this.loadLabels(0);
     });
+
+    // Persist custom template changes (basic layout designer).
+    this.customColumnsControl.valueChanges.subscribe(() => this.persistCustomTemplate());
+    this.customRowsControl.valueChanges.subscribe(() => this.persistCustomTemplate());
+    this.customGapMmControl.valueChanges.subscribe(() => this.persistCustomTemplate());
+    this.customPagePaddingMmControl.valueChanges.subscribe(() => this.persistCustomTemplate());
+    this.customLabelPaddingMmControl.valueChanges.subscribe(() => this.persistCustomTemplate());
+  }
+
+  onPrintTemplateChange(id: LabelPrintTemplateId): void {
+    this.printTemplateId = id;
+    try {
+      localStorage.setItem('labels.printTemplateId', id);
+    } catch {}
+  }
+
+  private loadPrintTemplateId(): LabelPrintTemplateId {
+    try {
+      const raw = localStorage.getItem('labels.printTemplateId') as LabelPrintTemplateId | null;
+      const allowed: LabelPrintTemplateId[] = ['A4_2x4', 'A4_2x5', 'A4_3x4', 'CUSTOM'];
+      return raw && allowed.includes(raw) ? raw : 'A4_2x4';
+    } catch {
+      return 'A4_2x4';
+    }
+  }
+
+  private loadCustomTemplate(): void {
+    try {
+      const raw = localStorage.getItem('labels.printTemplateCustom');
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as Partial<{ columns: number; rows: number; gapMm: number; pagePaddingMm: number; labelPaddingMm: number }>;
+      if (typeof parsed.columns === 'number') this.customColumnsControl.setValue(parsed.columns, { emitEvent: false });
+      if (typeof parsed.rows === 'number') this.customRowsControl.setValue(parsed.rows, { emitEvent: false });
+      if (typeof parsed.gapMm === 'number') this.customGapMmControl.setValue(parsed.gapMm, { emitEvent: false });
+      if (typeof parsed.pagePaddingMm === 'number') this.customPagePaddingMmControl.setValue(parsed.pagePaddingMm, { emitEvent: false });
+      if (typeof parsed.labelPaddingMm === 'number') this.customLabelPaddingMmControl.setValue(parsed.labelPaddingMm, { emitEvent: false });
+    } catch {
+      // ignore invalid local storage
+    }
+  }
+
+  private persistCustomTemplate(): void {
+    try {
+      localStorage.setItem('labels.printTemplateCustom', JSON.stringify({
+        columns: this.customColumnsControl.value,
+        rows: this.customRowsControl.value,
+        gapMm: this.customGapMmControl.value,
+        pagePaddingMm: this.customPagePaddingMmControl.value,
+        labelPaddingMm: this.customLabelPaddingMmControl.value,
+      }));
+    } catch {}
+  }
+
+  private clamp(n: number, min: number, max: number): number {
+    if (isNaN(n)) return min;
+    return Math.min(max, Math.max(min, n));
+  }
+
+  private getActivePrintTemplate(): LabelPrintTemplate {
+    const base = this.printTemplates.find(t => t.id === this.printTemplateId) ?? this.printTemplates[0];
+    if (this.printTemplateId !== 'CUSTOM') return base;
+    return {
+      ...base,
+      columns: this.clamp(Number(this.customColumnsControl.value ?? 2), 1, 4),
+      rows: this.clamp(Number(this.customRowsControl.value ?? 4), 1, 10),
+      gapMm: this.clamp(Number(this.customGapMmControl.value ?? 6), 0, 12),
+      pagePaddingMm: this.clamp(Number(this.customPagePaddingMmControl.value ?? 8), 0, 20),
+      labelPaddingMm: this.clamp(Number(this.customLabelPaddingMmControl.value ?? 4), 0, 12),
+    };
   }
 
   onTabChange(idx: number): void {
@@ -470,9 +567,11 @@ export class LabelsComponent implements OnInit {
   }
 
   private buildPrintHtml(items: PrintableLabel[]): string {
+    const tpl = this.getActivePrintTemplate();
+    const labelsPerPage = Math.max(1, tpl.columns * tpl.rows);
     const pages: PrintableLabel[][] = [];
-    for (let i = 0; i < items.length; i += LABELS_PER_PAGE) {
-      pages.push(items.slice(i, i + LABELS_PER_PAGE));
+    for (let i = 0; i < items.length; i += labelsPerPage) {
+      pages.push(items.slice(i, i + labelsPerPage));
     }
     const c = this.companyService.getCached();
     const curr = c?.displayCurrency || 'USD';
@@ -494,7 +593,7 @@ export class LabelsComponent implements OnInit {
     `;
 
     const pagesContent = pages
-      .map((page, i) => pageHtml(page, i * LABELS_PER_PAGE))
+      .map((page, i) => pageHtml(page, i * labelsPerPage))
       .join('');
 
     return `
@@ -505,21 +604,21 @@ export class LabelsComponent implements OnInit {
   <title>Product Labels</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Roboto', sans-serif; padding: 12mm; }
+    body { font-family: 'Roboto', sans-serif; padding: 0; }
     .label-page {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      grid-template-rows: repeat(4, 1fr);
-      gap: 6mm;
-      width: 210mm;
-      min-height: 297mm;
-      padding: 8mm;
+      grid-template-columns: repeat(${tpl.columns}, 1fr);
+      grid-template-rows: repeat(${tpl.rows}, 1fr);
+      gap: ${tpl.gapMm}mm;
+      width: ${tpl.pageWidthMm}mm;
+      min-height: ${tpl.pageHeightMm}mm;
+      padding: ${tpl.pagePaddingMm}mm;
       page-break-after: always;
     }
     .label-page:last-child { page-break-after: auto; }
     .label {
       border: 1px dashed #e0e0e0;
-      padding: 4mm;
+      padding: ${tpl.labelPaddingMm}mm;
       display: flex;
       flex-direction: column;
       align-items: center;

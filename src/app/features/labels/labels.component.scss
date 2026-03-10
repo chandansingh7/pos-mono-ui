@@ -25,6 +25,7 @@
 
   .search-field { flex: 1; max-width: 280px; }
   .category-field { min-width: 160px; }
+  .template-field { min-width: 220px; }
 
   /* UI standard: 40px height, placeholder inside field, text left-aligned */
   .standard-input-height {
@@ -54,6 +55,22 @@
       text-align: left;
     }
   }
+}
+
+.custom-template-row {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(120px, 1fr));
+  gap: t.$space-md;
+  margin-top: -4px;
+  margin-bottom: t.$space-md;
+
+  @media (max-width: 1000px) { grid-template-columns: repeat(3, minmax(120px, 1fr)); }
+  @media (max-width: 700px) { grid-template-columns: repeat(2, minmax(120px, 1fr)); }
+  @media (max-width: 520px) { grid-template-columns: 1fr; }
+}
+
+.custom-field {
+  min-width: 0;
 }
 
 .selected-count {
