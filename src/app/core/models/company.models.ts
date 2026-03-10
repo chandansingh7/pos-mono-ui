@@ -34,6 +34,19 @@ export interface CompanyResponse {
   shiftMaxOpenHours?: number;
   /** Shift rule: require same-day close. */
   shiftRequireSameDay?: boolean;
+
+  /** Default label layout template for price labels (A4_2x4, A4_2x5, A4_3x4, CUSTOM). */
+  labelTemplateId?: string;
+  /** Custom layout: columns for CUSTOM template. */
+  labelTemplateColumns?: number;
+  /** Custom layout: rows for CUSTOM template. */
+  labelTemplateRows?: number;
+  /** Custom layout: gap (mm) between labels for CUSTOM template. */
+  labelTemplateGapMm?: number;
+  /** Custom layout: page padding (mm) for CUSTOM template. */
+  labelTemplatePagePaddingMm?: number;
+  /** Custom layout: label padding (mm) for CUSTOM template. */
+  labelTemplateLabelPaddingMm?: number;
 }
 
 export interface CompanyRequest {
@@ -59,6 +72,19 @@ export interface CompanyRequest {
   shiftMinOpenMinutes?: number | null;
   shiftMaxOpenHours?: number | null;
   shiftRequireSameDay?: boolean | null;
+
+  /** Default label layout template for price labels (A4_2x4, A4_2x5, A4_3x4, CUSTOM). */
+  labelTemplateId?: string | null;
+  /** Custom layout: columns for CUSTOM template. */
+  labelTemplateColumns?: number | null;
+  /** Custom layout: rows for CUSTOM template. */
+  labelTemplateRows?: number | null;
+  /** Custom layout: gap (mm) between labels for CUSTOM template. */
+  labelTemplateGapMm?: number | null;
+  /** Custom layout: page padding (mm) for CUSTOM template. */
+  labelTemplatePagePaddingMm?: number | null;
+  /** Custom layout: label padding (mm) for CUSTOM template. */
+  labelTemplateLabelPaddingMm?: number | null;
 }
 
 /** POS layout options for Settings and POS component. */

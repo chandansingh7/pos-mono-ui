@@ -7,6 +7,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { CompanyResponse, RECEIPT_PAPER_SIZES, DISPLAY_CURRENCIES, DISPLAY_LOCALES, POS_LAYOUTS, WEIGHT_UNITS, VOLUME_UNITS } from '../../core/models/company.models';
 import { COUNTRIES, getDefaultWeightUnitForCountry, getDefaultVolumeUnitForCountry } from '../../core/data/countries.data';
 import { resolveProductImageUrl } from '../../core/utils/product-image.util';
+import { LabelPrintTemplate, LabelPrintTemplateId, resolveLabelPrintTemplate } from '../labels/label-print-template.util';
 
 @Component({
   selector: 'app-settings',
@@ -27,6 +28,13 @@ export class SettingsComponent implements OnInit {
   countries = COUNTRIES;
   logoLoadError = false;
   faviconLoadError = false;
+
+  labelTemplates: LabelPrintTemplate[] = [
+    { id: 'A4_2x4', name: 'A4 — 2×4 (8 per page)', pageWidthMm: 210, pageHeightMm: 297, columns: 2, rows: 4, gapMm: 6, pagePaddingMm: 8, labelPaddingMm: 4 },
+    { id: 'A4_2x5', name: 'A4 — 2×5 (10 per page)', pageWidthMm: 210, pageHeightMm: 297, columns: 2, rows: 5, gapMm: 5, pagePaddingMm: 8, labelPaddingMm: 4 },
+    { id: 'A4_3x4', name: 'A4 — 3×4 (12 per page)', pageWidthMm: 210, pageHeightMm: 297, columns: 3, rows: 4, gapMm: 4, pagePaddingMm: 8, labelPaddingMm: 4 },
+    { id: 'CUSTOM', name: 'Custom (basic layout)', pageWidthMm: 210, pageHeightMm: 297, columns: 2, rows: 4, gapMm: 6, pagePaddingMm: 8, labelPaddingMm: 4 },
+  ];
 
   constructor(
     private fb: FormBuilder,
@@ -55,7 +63,13 @@ export class SettingsComponent implements OnInit {
       shiftMinOpenMinutes: [null],
       shiftMaxOpenHours: [null],
       shiftRequireSameDay: [false],
-      posLayout: ['grid']
+      posLayout: ['grid'],
+      labelTemplateId: ['A4_2x4'],
+      labelTemplateColumns: [2],
+      labelTemplateRows: [4],
+      labelTemplateGapMm: [6],
+      labelTemplatePagePaddingMm: [8],
+      labelTemplateLabelPaddingMm: [4]
     });
   }
 
@@ -122,7 +136,13 @@ export class SettingsComponent implements OnInit {
             shiftMinOpenMinutes: this.company.shiftMinOpenMinutes ?? null,
             shiftMaxOpenHours: this.company.shiftMaxOpenHours ?? null,
             shiftRequireSameDay: this.company.shiftRequireSameDay ?? false,
-            posLayout: this.company.posLayout ?? 'grid'
+            posLayout: this.company.posLayout ?? 'grid',
+            labelTemplateId: this.company.labelTemplateId ?? 'A4_2x4',
+            labelTemplateColumns: this.company.labelTemplateColumns ?? 2,
+            labelTemplateRows: this.company.labelTemplateRows ?? 4,
+            labelTemplateGapMm: this.company.labelTemplateGapMm ?? 6,
+            labelTemplatePagePaddingMm: this.company.labelTemplatePagePaddingMm ?? 8,
+            labelTemplateLabelPaddingMm: this.company.labelTemplateLabelPaddingMm ?? 4
           });
         } else {
           this.form.patchValue({
@@ -138,7 +158,13 @@ export class SettingsComponent implements OnInit {
             shiftMinOpenMinutes: null,
             shiftMaxOpenHours: null,
             shiftRequireSameDay: false,
-            posLayout: 'grid'
+            posLayout: 'grid',
+            labelTemplateId: 'A4_2x4',
+            labelTemplateColumns: 2,
+            labelTemplateRows: 4,
+            labelTemplateGapMm: 6,
+            labelTemplatePagePaddingMm: 8,
+            labelTemplateLabelPaddingMm: 4
           });
         }
         this.form.markAsPristine();
@@ -218,5 +244,28 @@ export class SettingsComponent implements OnInit {
         this.snackBar.open(err.error?.message || 'Favicon upload failed', 'Close', { duration: 4000 });
       }
     });
+  }
+
+  get labelTemplateId(): LabelPrintTemplateId {
+    const raw = this.form.get('labelTemplateId')?.value as LabelPrintTemplateId | null;
+    const allowed: LabelPrintTemplateId[] = ['A4_2x4', 'A4_2x5', 'A4_3x4', 'CUSTOM'];
+    return raw && allowed.includes(raw) ? raw : 'A4_2x4';
+  }
+
+  get labelLayoutPreview(): LabelPrintTemplate {
+    const tpl = resolveLabelPrintTemplate(this.labelTemplates, this.labelTemplateId, {
+      columns: this.form.get('labelTemplateColumns')?.value,
+      rows: this.form.get('labelTemplateRows')?.value,
+      gapMm: this.form.get('labelTemplateGapMm')?.value,
+      pagePaddingMm: this.form.get('labelTemplatePagePaddingMm')?.value,
+      labelPaddingMm: this.form.get('labelTemplateLabelPaddingMm')?.value
+    });
+    return tpl;
+  }
+
+  get labelPreviewBoxes(): number[] {
+    const tpl = this.labelLayoutPreview;
+    const count = Math.max(1, tpl.columns * tpl.rows);
+    return Array.from({ length: count }, (_, i) => i);
   }
 }

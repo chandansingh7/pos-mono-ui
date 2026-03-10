@@ -67,7 +67,7 @@ export class LabelsComponent implements OnInit {
     { id: 'CUSTOM', name: 'Custom (basic layout)', pageWidthMm: 210, pageHeightMm: 297, columns: 2, rows: 4, gapMm: 6, pagePaddingMm: 8, labelPaddingMm: 4 },
   ];
 
-  printTemplateId: LabelPrintTemplateId = this.loadPrintTemplateId();
+  printTemplateId: LabelPrintTemplateId = 'A4_2x4';
   customColumnsControl = new FormControl<number>(2);
   customRowsControl = new FormControl<number>(4);
   customGapMmControl = new FormControl<number>(6);
@@ -95,7 +95,8 @@ export class LabelsComponent implements OnInit {
     this.loadCategories();
     this.loadProducts(0);
     this.loadLabels(0);
-    this.loadCustomTemplate();
+    this.applyLabelTemplateFromCompany(this.companyService.getCached());
+    this.companyService.company$.subscribe(c => this.applyLabelTemplateFromCompany(c));
     this.loadLabelFieldSettings();
     this.searchControl.valueChanges
       .pipe(debounceTime(350), distinctUntilChanged())
@@ -107,57 +108,28 @@ export class LabelsComponent implements OnInit {
       if (this.activeTab === 0) this.loadProducts(0);
       else this.loadLabels(0);
     });
-
-    // Persist custom template changes (basic layout designer).
-    this.customColumnsControl.valueChanges.subscribe(() => this.persistCustomTemplate());
-    this.customRowsControl.valueChanges.subscribe(() => this.persistCustomTemplate());
-    this.customGapMmControl.valueChanges.subscribe(() => this.persistCustomTemplate());
-    this.customPagePaddingMmControl.valueChanges.subscribe(() => this.persistCustomTemplate());
-    this.customLabelPaddingMmControl.valueChanges.subscribe(() => this.persistCustomTemplate());
   }
 
-  onPrintTemplateChange(id: LabelPrintTemplateId): void {
-    this.printTemplateId = id;
-    try {
-      localStorage.setItem('labels.printTemplateId', id);
-    } catch {}
-  }
-
-  private loadPrintTemplateId(): LabelPrintTemplateId {
-    try {
-      const raw = localStorage.getItem('labels.printTemplateId') as LabelPrintTemplateId | null;
-      const allowed: LabelPrintTemplateId[] = ['A4_2x4', 'A4_2x5', 'A4_3x4', 'CUSTOM'];
-      return raw && allowed.includes(raw) ? raw : 'A4_2x4';
-    } catch {
-      return 'A4_2x4';
+  private applyLabelTemplateFromCompany(company: { labelTemplateId?: string | null; labelTemplateColumns?: number | null; labelTemplateRows?: number | null; labelTemplateGapMm?: number | null; labelTemplatePagePaddingMm?: number | null; labelTemplateLabelPaddingMm?: number | null } | null): void {
+    if (!company) return;
+    const allowed: LabelPrintTemplateId[] = ['A4_2x4', 'A4_2x5', 'A4_3x4', 'CUSTOM'];
+    const rawId = company.labelTemplateId as LabelPrintTemplateId | null | undefined;
+    this.printTemplateId = rawId && allowed.includes(rawId) ? rawId : 'A4_2x4';
+    if (typeof company.labelTemplateColumns === 'number') {
+      this.customColumnsControl.setValue(company.labelTemplateColumns, { emitEvent: false });
     }
-  }
-
-  private loadCustomTemplate(): void {
-    try {
-      const raw = localStorage.getItem('labels.printTemplateCustom');
-      if (!raw) return;
-      const parsed = JSON.parse(raw) as Partial<{ columns: number; rows: number; gapMm: number; pagePaddingMm: number; labelPaddingMm: number }>;
-      if (typeof parsed.columns === 'number') this.customColumnsControl.setValue(parsed.columns, { emitEvent: false });
-      if (typeof parsed.rows === 'number') this.customRowsControl.setValue(parsed.rows, { emitEvent: false });
-      if (typeof parsed.gapMm === 'number') this.customGapMmControl.setValue(parsed.gapMm, { emitEvent: false });
-      if (typeof parsed.pagePaddingMm === 'number') this.customPagePaddingMmControl.setValue(parsed.pagePaddingMm, { emitEvent: false });
-      if (typeof parsed.labelPaddingMm === 'number') this.customLabelPaddingMmControl.setValue(parsed.labelPaddingMm, { emitEvent: false });
-    } catch {
-      // ignore invalid local storage
+    if (typeof company.labelTemplateRows === 'number') {
+      this.customRowsControl.setValue(company.labelTemplateRows, { emitEvent: false });
     }
-  }
-
-  private persistCustomTemplate(): void {
-    try {
-      localStorage.setItem('labels.printTemplateCustom', JSON.stringify({
-        columns: this.customColumnsControl.value,
-        rows: this.customRowsControl.value,
-        gapMm: this.customGapMmControl.value,
-        pagePaddingMm: this.customPagePaddingMmControl.value,
-        labelPaddingMm: this.customLabelPaddingMmControl.value,
-      }));
-    } catch {}
+    if (typeof company.labelTemplateGapMm === 'number') {
+      this.customGapMmControl.setValue(company.labelTemplateGapMm, { emitEvent: false });
+    }
+    if (typeof company.labelTemplatePagePaddingMm === 'number') {
+      this.customPagePaddingMmControl.setValue(company.labelTemplatePagePaddingMm, { emitEvent: false });
+    }
+    if (typeof company.labelTemplateLabelPaddingMm === 'number') {
+      this.customLabelPaddingMmControl.setValue(company.labelTemplateLabelPaddingMm, { emitEvent: false });
+    }
   }
 
   private getActivePrintTemplate(): LabelPrintTemplate {

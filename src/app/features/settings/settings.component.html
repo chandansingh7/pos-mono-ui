@@ -81,6 +81,78 @@
 
 <mat-card class="card" *ngIf="!loading">
   <mat-card-header>
+    <mat-card-title>Label layout</mat-card-title>
+    <mat-card-subtitle>Default A4 layout used when printing price labels</mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
+    <form [formGroup]="form" class="settings-form">
+      <div class="label-layout-grid">
+        <div class="label-layout-controls">
+          <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic" floatLabel="always">
+            <mat-label>Label template</mat-label>
+            <mat-select formControlName="labelTemplateId">
+              <mat-option *ngFor="let t of labelTemplates" [value]="t.id">{{ t.name }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <div class="label-custom-row" *ngIf="form.get('labelTemplateId')?.value === 'CUSTOM'">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" floatLabel="always">
+              <mat-label>Columns</mat-label>
+              <input matInput type="number" min="1" max="4" formControlName="labelTemplateColumns">
+            </mat-form-field>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" floatLabel="always">
+              <mat-label>Rows</mat-label>
+              <input matInput type="number" min="1" max="10" formControlName="labelTemplateRows">
+            </mat-form-field>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" floatLabel="always">
+              <mat-label>Gap (mm)</mat-label>
+              <input matInput type="number" min="0" max="12" formControlName="labelTemplateGapMm">
+            </mat-form-field>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" floatLabel="always">
+              <mat-label>Page padding (mm)</mat-label>
+              <input matInput type="number" min="0" max="20" formControlName="labelTemplatePagePaddingMm">
+            </mat-form-field>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" floatLabel="always">
+              <mat-label>Label padding (mm)</mat-label>
+              <input matInput type="number" min="0" max="12" formControlName="labelTemplateLabelPaddingMm">
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="label-layout-preview">
+          <div class="label-layout-preview-header">
+            <div class="label-layout-preview-title">Visual preview</div>
+            <div class="label-layout-preview-subtitle">
+              A4 page with {{ labelLayoutPreview.columns }} × {{ labelLayoutPreview.rows }} labels
+            </div>
+          </div>
+
+          <div
+            class="label-layout-preview-page"
+            [style.--columns]="labelLayoutPreview.columns"
+            [style.--rows]="labelLayoutPreview.rows"
+            [style.--gap-mm]="labelLayoutPreview.gapMm"
+            [style.--page-padding-mm]="labelLayoutPreview.pagePaddingMm"
+            [style.--label-padding-mm]="labelLayoutPreview.labelPaddingMm"
+          >
+            <div class="label-layout-preview-label" *ngFor="let idx of labelPreviewBoxes">
+              <div class="barcode-placeholder"></div>
+              <div class="label-line name">Product name</div>
+              <div class="label-line price">123.45</div>
+              <div class="label-line sku">SKU-000001</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="helper-text">
+        This layout is shared by all users when printing from the Labels page and is included in company backups.
+      </p>
+    </form>
+  </mat-card-content>
+</mat-card>
+
+<mat-card class="card" *ngIf="!loading">
+  <mat-card-header>
     <mat-card-title>Receipt / Bill settings</mat-card-title>
     <mat-card-subtitle>Paper size and text on printed receipts</mat-card-subtitle>
   </mat-card-header>
