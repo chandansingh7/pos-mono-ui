@@ -116,6 +116,14 @@
               <mat-label>Label padding (mm)</mat-label>
               <input matInput type="number" min="0" max="12" formControlName="labelTemplateLabelPaddingMm">
             </mat-form-field>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" floatLabel="always">
+              <mat-label>Page width (mm)</mat-label>
+              <input matInput type="number" min="20" max="300" formControlName="labelPageWidthMm">
+            </mat-form-field>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" floatLabel="always">
+              <mat-label>Page height (mm)</mat-label>
+              <input matInput type="number" min="20" max="300" formControlName="labelPageHeightMm">
+            </mat-form-field>
           </div>
 
           <div class="field-settings">

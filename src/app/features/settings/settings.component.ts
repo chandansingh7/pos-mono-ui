@@ -33,6 +33,8 @@ export class SettingsComponent implements OnInit {
     { id: 'A4_2x4', name: 'A4 — 2×4 (8 per page)', pageWidthMm: 210, pageHeightMm: 297, columns: 2, rows: 4, gapMm: 6, pagePaddingMm: 8, labelPaddingMm: 4 },
     { id: 'A4_2x5', name: 'A4 — 2×5 (10 per page)', pageWidthMm: 210, pageHeightMm: 297, columns: 2, rows: 5, gapMm: 5, pagePaddingMm: 8, labelPaddingMm: 4 },
     { id: 'A4_3x4', name: 'A4 — 3×4 (12 per page)', pageWidthMm: 210, pageHeightMm: 297, columns: 3, rows: 4, gapMm: 4, pagePaddingMm: 8, labelPaddingMm: 4 },
+    { id: 'THERMAL_58x40', name: 'Thermal — 58×40 mm (1 per label)', pageWidthMm: 58, pageHeightMm: 40, columns: 1, rows: 1, gapMm: 0, pagePaddingMm: 2, labelPaddingMm: 2 },
+    { id: 'THERMAL_80x50', name: 'Thermal — 80×50 mm (1 per label)', pageWidthMm: 80, pageHeightMm: 50, columns: 1, rows: 1, gapMm: 0, pagePaddingMm: 2, labelPaddingMm: 2 },
     { id: 'CUSTOM', name: 'Custom (basic layout)', pageWidthMm: 210, pageHeightMm: 297, columns: 2, rows: 4, gapMm: 6, pagePaddingMm: 8, labelPaddingMm: 4 },
   ];
 
@@ -72,7 +74,9 @@ export class SettingsComponent implements OnInit {
       labelTemplateRows: [4],
       labelTemplateGapMm: [6],
       labelTemplatePagePaddingMm: [8],
-      labelTemplateLabelPaddingMm: [4]
+      labelTemplateLabelPaddingMm: [4],
+      labelPageWidthMm: [58],
+      labelPageHeightMm: [40]
     });
   }
 
@@ -148,7 +152,9 @@ export class SettingsComponent implements OnInit {
             labelTemplateRows: this.company.labelTemplateRows ?? 4,
             labelTemplateGapMm: this.company.labelTemplateGapMm ?? 6,
             labelTemplatePagePaddingMm: this.company.labelTemplatePagePaddingMm ?? 8,
-            labelTemplateLabelPaddingMm: this.company.labelTemplateLabelPaddingMm ?? 4
+            labelTemplateLabelPaddingMm: this.company.labelTemplateLabelPaddingMm ?? 4,
+            labelPageWidthMm: this.company.labelPageWidthMm ?? 58,
+            labelPageHeightMm: this.company.labelPageHeightMm ?? 40
           });
         } else {
           this.form.patchValue({
@@ -173,7 +179,9 @@ export class SettingsComponent implements OnInit {
             labelTemplateRows: 4,
             labelTemplateGapMm: 6,
             labelTemplatePagePaddingMm: 8,
-            labelTemplateLabelPaddingMm: 4
+            labelTemplateLabelPaddingMm: 4,
+            labelPageWidthMm: 58,
+            labelPageHeightMm: 40
           });
         }
         this.form.markAsPristine();
@@ -257,7 +265,7 @@ export class SettingsComponent implements OnInit {
 
   get labelTemplateId(): LabelPrintTemplateId {
     const raw = this.form.get('labelTemplateId')?.value as LabelPrintTemplateId | null;
-    const allowed: LabelPrintTemplateId[] = ['A4_2x4', 'A4_2x5', 'A4_3x4', 'CUSTOM'];
+    const allowed: LabelPrintTemplateId[] = ['A4_2x4', 'A4_2x5', 'A4_3x4', 'THERMAL_58x40', 'THERMAL_80x50', 'CUSTOM'];
     return raw && allowed.includes(raw) ? raw : 'A4_2x4';
   }
 
@@ -267,7 +275,9 @@ export class SettingsComponent implements OnInit {
       rows: this.form.get('labelTemplateRows')?.value,
       gapMm: this.form.get('labelTemplateGapMm')?.value,
       pagePaddingMm: this.form.get('labelTemplatePagePaddingMm')?.value,
-      labelPaddingMm: this.form.get('labelTemplateLabelPaddingMm')?.value
+      labelPaddingMm: this.form.get('labelTemplateLabelPaddingMm')?.value,
+      pageWidthMm: this.form.get('labelPageWidthMm')?.value,
+      pageHeightMm: this.form.get('labelPageHeightMm')?.value
     });
     return tpl;
   }

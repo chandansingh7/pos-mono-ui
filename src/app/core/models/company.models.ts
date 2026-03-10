@@ -52,6 +52,12 @@ export interface CompanyResponse {
   labelTemplatePagePaddingMm?: number;
   /** Custom layout: label padding (mm) for CUSTOM template. */
   labelTemplateLabelPaddingMm?: number;
+
+  /** Optional custom page width (mm) for CUSTOM label template. */
+  labelPageWidthMm?: number;
+
+  /** Optional custom page height (mm) for CUSTOM label template. */
+  labelPageHeightMm?: number;
 }
 
 export interface CompanyRequest {
@@ -95,6 +101,12 @@ export interface CompanyRequest {
   labelTemplatePagePaddingMm?: number | null;
   /** Custom layout: label padding (mm) for CUSTOM template. */
   labelTemplateLabelPaddingMm?: number | null;
+
+  /** Optional custom page width (mm) for CUSTOM label template. */
+  labelPageWidthMm?: number | null;
+
+  /** Optional custom page height (mm) for CUSTOM label template. */
+  labelPageHeightMm?: number | null;
 }
 
 /** POS layout options for Settings and POS component. */

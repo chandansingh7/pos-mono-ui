@@ -73,6 +73,8 @@ export class LabelsComponent implements OnInit {
     { id: 'A4_2x4', name: 'A4 — 2×4 (8 per page)', pageWidthMm: 210, pageHeightMm: 297, columns: 2, rows: 4, gapMm: 6, pagePaddingMm: 8, labelPaddingMm: 4 },
     { id: 'A4_2x5', name: 'A4 — 2×5 (10 per page)', pageWidthMm: 210, pageHeightMm: 297, columns: 2, rows: 5, gapMm: 5, pagePaddingMm: 8, labelPaddingMm: 4 },
     { id: 'A4_3x4', name: 'A4 — 3×4 (12 per page)', pageWidthMm: 210, pageHeightMm: 297, columns: 3, rows: 4, gapMm: 4, pagePaddingMm: 8, labelPaddingMm: 4 },
+    { id: 'THERMAL_58x40', name: 'Thermal — 58×40 mm (1 per label)', pageWidthMm: 58, pageHeightMm: 40, columns: 1, rows: 1, gapMm: 0, pagePaddingMm: 2, labelPaddingMm: 2 },
+    { id: 'THERMAL_80x50', name: 'Thermal — 80×50 mm (1 per label)', pageWidthMm: 80, pageHeightMm: 50, columns: 1, rows: 1, gapMm: 0, pagePaddingMm: 2, labelPaddingMm: 2 },
     { id: 'CUSTOM', name: 'Custom (basic layout)', pageWidthMm: 210, pageHeightMm: 297, columns: 2, rows: 4, gapMm: 6, pagePaddingMm: 8, labelPaddingMm: 4 },
   ];
 
@@ -175,6 +177,8 @@ export class LabelsComponent implements OnInit {
       gapMm: this.customGapMmControl.value,
       pagePaddingMm: this.customPagePaddingMmControl.value,
       labelPaddingMm: this.customLabelPaddingMmControl.value,
+      pageWidthMm: this.companyService.getCached()?.labelPageWidthMm ?? undefined,
+      pageHeightMm: this.companyService.getCached()?.labelPageHeightMm ?? undefined,
     });
   }
 

@@ -1,4 +1,10 @@
-export type LabelPrintTemplateId = 'A4_2x4' | 'A4_2x5' | 'A4_3x4' | 'CUSTOM';
+export type LabelPrintTemplateId =
+  | 'A4_2x4'
+  | 'A4_2x5'
+  | 'A4_3x4'
+  | 'THERMAL_58x40'
+  | 'THERMAL_80x50'
+  | 'CUSTOM';
 
 export interface LabelPrintTemplate {
   id: LabelPrintTemplateId;
@@ -18,6 +24,10 @@ export interface LabelPrintCustomOptions {
   gapMm?: number | null;
   pagePaddingMm?: number | null;
   labelPaddingMm?: number | null;
+  /** Optional override for page width in mm (used for CUSTOM). */
+  pageWidthMm?: number | null;
+  /** Optional override for page height in mm (used for CUSTOM). */
+  pageHeightMm?: number | null;
 }
 
 export function clampNumber(value: unknown, min: number, max: number, fallback: number = min): number {
@@ -47,10 +57,14 @@ export function resolveLabelPrintTemplate(
     };
   }
 
+  // Non-custom templates use their predefined dimensions.
   if (selectedId !== 'CUSTOM') return base;
 
+  // CUSTOM template: allow overriding grid and page size.
   return {
     ...base,
+    pageWidthMm: clampNumber(custom.pageWidthMm, 20, 300, base.pageWidthMm),
+    pageHeightMm: clampNumber(custom.pageHeightMm, 20, 300, base.pageHeightMm),
     columns: clampNumber(custom.columns, 1, 4, base.columns),
     rows: clampNumber(custom.rows, 1, 10, base.rows),
     gapMm: clampNumber(custom.gapMm, 0, 12, base.gapMm),
