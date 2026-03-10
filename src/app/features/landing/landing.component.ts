@@ -20,11 +20,13 @@ export class LandingComponent {
   /** Current product strengths — what’s included today. */
   strengths = [
     'Full product & category management with barcode support and bulk Excel upload.',
+    'Unit-aware products: sold by piece, weight, or volume (each, kg, lb, L, etc.).',
+    'Decimal quantities for weight/volume items at POS (e.g. 0.3 kg) with correct totals and stock updates.',
     'Inventory tracking with low-stock alerts and manual adjustments.',
     'Complete order lifecycle: create, cancel; multiple payment method labels (Cash, Card, etc.).',
     'Customer management with member cards (scannable barcode at checkout) and reward points.',
     'Member rewards: earn points per sale, redeem at checkout; configurable rates.',
-    'Label printing: product labels and standalone labels with barcodes; attach labels to products.',
+    'Label printing: print from products or standalone labels with barcodes; attach labels to products.',
     'Daily and monthly sales reports with top products and Excel export.',
     'Shift and cash-drawer management with opening float, close & reconcile, and over/short checks.',
     'Admin tools for resolving stuck shifts, including force-close with full reconciliation details.',
@@ -35,24 +37,26 @@ export class LandingComponent {
     'Per-user IP allow list (whitelist): restrict login and API access to specific IPs from Access Logs.',
     'In-app Guide, Support and FAQ with search.',
     'JWT authentication, role-based API security, and centralised error handling.',
+    'One global UI control standard: inputs, dropdowns, and buttons are consistent across the app.',
     'Deployed on Azure with CI/CD (GitHub Actions).',
   ];
 
   /** Current limitations — planned improvements (transparent roadmap). */
   limitations = [
+    'Monolith backend today; microservice split is planned in the roadmap.',
+    'Single-company per deployment; no multi-store or stock transfers yet.',
+    'Web-only; no offline mode or PWA sync for poor connectivity.',
     'No integrated card payment processing (e.g. Stripe/Square); payment method is recorded only.',
     'No refund workflow (full or partial) or refund receipts.',
     'Fixed tax rate; no configurable or per-product tax rules.',
     'No promotions engine (percentage off, BOGO, coupon codes) beyond manual discount.',
-    'Single-location only; no multi-store or stock transfers.',
-    'Web-only; no offline mode or PWA sync for poor connectivity.',
-    'No dedicated mobile or tablet-optimised layout.',
     'No audit trail for price or inventory changes (access logs do not yet track field-level changes).',
     'Billing is receipt configuration only; no formal invoicing (numbered invoices, PDF, due dates).',
     'Customer order history view is not yet implemented.',
     'No email receipt option for customers.',
     'Reports use fixed periods; no custom date range or period comparison.',
     'No accounting or e-commerce integrations (e.g. QuickBooks, Xero).',
+    'Label printing uses a fixed A4 template (8 labels per page) without a template designer.',
   ];
 
   constructor(private authService: AuthService, private router: Router) {

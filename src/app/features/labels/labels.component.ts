@@ -16,6 +16,7 @@ import { LabelDialogComponent } from './label-dialog.component';
 import { LabelAttachProductDialogComponent } from './label-attach-product-dialog.component';
 import { LabelBulkDialogComponent } from './label-bulk-dialog.component';
 import { AddAsProductDialogComponent } from './add-as-product-dialog.component';
+import { PrintLabelsBulkDialogComponent, PrintableItemWithCount } from './print-labels-bulk-dialog.component';
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
 
 const LABELS_PER_PAGE = 8;
@@ -371,6 +372,38 @@ export class LabelsComponent implements OnInit {
     return this.activeTab === 0 ? this.selectedIds.size : this.selectedLabelIds.size;
   }
 
+  /** Open bulk print dialog for selected products (From Products tab). */
+  openPrintLabelsBulkDialog(products?: ProductResponse[]): void {
+    const toUse = products ?? Array.from(this.selectedProductsMap.values());
+    if (toUse.length === 0) {
+      this.snackBar.open('Select at least one product', 'Close', { duration: 3000 });
+      return;
+    }
+    this.dialog
+      .open(PrintLabelsBulkDialogComponent, {
+        data: { products: toUse },
+        width: '520px',
+        maxHeight: '90vh',
+        disableClose: false
+      })
+      .afterClosed()
+      .subscribe((result: PrintableItemWithCount[] | null) => {
+        if (!result || result.length === 0) return;
+        const items: PrintableLabel[] = [];
+        result.forEach(({ product, count }) => {
+          const pl: PrintableLabel = {
+            name: product.name,
+            price: product.price,
+            sku: product.sku,
+            barcode: product.barcode,
+            id: product.id
+          };
+          for (let i = 0; i < count; i++) items.push(pl);
+        });
+        this.doPrintLabels(items);
+      });
+  }
+
   openPrintPreview(): void {
     const items: PrintableLabel[] =
       this.activeTab === 0
@@ -386,6 +419,15 @@ export class LabelsComponent implements OnInit {
       return;
     }
 
+    if (this.activeTab === 0) {
+      this.openPrintLabelsBulkDialog(Array.from(this.selectedProductsMap.values()));
+      return;
+    }
+
+    this.doPrintLabels(items);
+  }
+
+  private doPrintLabels(items: PrintableLabel[]): void {
     const html = this.buildPrintHtml(items);
     const printWindow = window.open('', '_blank');
     if (!printWindow) {

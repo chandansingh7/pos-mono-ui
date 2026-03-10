@@ -7,6 +7,7 @@ import { LabelDialogComponent } from './label-dialog.component';
 import { LabelBulkDialogComponent } from './label-bulk-dialog.component';
 import { LabelAttachProductDialogComponent } from './label-attach-product-dialog.component';
 import { AddAsProductDialogComponent } from './add-as-product-dialog.component';
+import { PrintLabelsBulkDialogComponent } from './print-labels-bulk-dialog.component';
 
 const routes: Routes = [{ path: '', component: LabelsComponent }];
 
@@ -16,7 +17,8 @@ const routes: Routes = [{ path: '', component: LabelsComponent }];
     LabelDialogComponent,
     LabelAttachProductDialogComponent,
     LabelBulkDialogComponent,
-    AddAsProductDialogComponent
+    AddAsProductDialogComponent,
+    PrintLabelsBulkDialogComponent
   ],
   imports: [SharedModule, MatTabsModule, RouterModule.forChild(routes)]
 })

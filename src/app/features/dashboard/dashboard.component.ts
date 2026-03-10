@@ -25,6 +25,22 @@ export class DashboardComponent implements OnInit {
   topProductsColumns = ['rank', 'productName', 'unitsSold'];
   recentOrdersColumns = ['id', 'customer', 'items', 'total', 'payment', 'status', 'time'];
 
+  readonly achievements: string[] = [
+    'Decimal quantities for weight/volume products (e.g. 0.3 kg) with correct totals and stock updates.',
+    'Unit-aware products (Sold by: Piece/Weight/Volume) with unit labels (each, kg, lb, L, etc.).',
+    'One global UI control standard: inputs, dropdowns, and buttons are consistent across the app.',
+    'Labels: print from products or standalone labels with barcodes; attach labels to products.',
+    'Access logs (Admin): per-user IP usage and IP allow list (whitelist) for secure access.'
+  ];
+
+  readonly currentLimitations: string[] = [
+    'Monolith backend (microservice split is planned in the roadmap).',
+    'Single-company per deployment; no multi-store or stock transfers yet.',
+    'No offline mode / PWA sync for poor connectivity.',
+    'Fixed tax rate; no configurable or per-product tax rules.',
+    'Label printing uses a fixed A4 template (8 labels per page).'
+  ];
+
   constructor(
     private reportService: ReportService,
     private inventoryService: InventoryService,

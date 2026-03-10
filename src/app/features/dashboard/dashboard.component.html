@@ -235,4 +235,35 @@
     </mat-card-content>
   </mat-card>
 
+  <!-- ── Achievements & Current limitations ───────────────────────────────── -->
+  <div class="two-panel mt-16">
+    <mat-card class="panel-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon class="section-icon">task_alt</mat-icon>
+          What we’ve achieved
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <ul class="scope-list">
+          <li *ngFor="let item of achievements">{{ item }}</li>
+        </ul>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="panel-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon class="section-icon warn-icon">info</mat-icon>
+          Current limitations
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <ul class="scope-list">
+          <li *ngFor="let item of currentLimitations">{{ item }}</li>
+        </ul>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
 </ng-container>

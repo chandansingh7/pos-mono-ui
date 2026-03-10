@@ -1,0 +1,34 @@
+<h2 mat-dialog-title>Print labels in bulk</h2>
+<mat-dialog-content>
+  <p class="dialog-description">
+    Enter how many labels to print for each product. You can print more than the current stock if needed.
+  </p>
+  <form [formGroup]="form">
+    <div class="product-rows">
+      <div *ngFor="let p of products" class="product-row">
+        <div class="product-info">
+          <span class="product-name">{{ p.name }}</span>
+          <span class="product-meta">Stock: {{ p.quantity }} · {{ p.price | currency:currencyCode }}</span>
+        </div>
+        <mat-form-field appearance="outline" class="count-field" subscriptSizing="dynamic">
+          <mat-label>Labels</mat-label>
+          <input matInput type="number" [formControlName]="'count_' + p.id" min="1" placeholder="1">
+          <mat-error *ngIf="form.get('count_' + p.id)?.hasError('min')">At least 1</mat-error>
+        </mat-form-field>
+        <span *ngIf="exceedsQuantity(p)" class="exceeds-warning">
+          You are printing more labels than current stock.
+        </span>
+      </div>
+    </div>
+    <div *ngIf="hasAnyExceedsQuantity()" class="global-warning">
+      <mat-icon>warning</mat-icon>
+      Some products have more labels requested than stock. You can still print.
+    </div>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button mat-raised-button color="primary" (click)="onPrint()" [disabled]="form.invalid">
+    <mat-icon>print</mat-icon> Print
+  </button>
+</mat-dialog-actions>

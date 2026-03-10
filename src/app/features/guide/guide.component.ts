@@ -52,6 +52,7 @@ export class GuideComponent {
         'Open POS / Cashier for all selling and checkout work.',
         'Scan a barcode or search by product name to add items to the cart.',
         'Adjust quantities, apply discounts if allowed, and choose the payment method.',
+        'For items sold by weight or volume (kg, lb, L, etc.), you can enter decimal quantities (for example 0.3 kg) and totals and stock will update correctly.',
         'Complete the sale to create an order and automatically update inventory.',
         'For CASH payments you must have an open shift; the app will block cash sales if no shift is open.'
       ]
@@ -137,7 +138,7 @@ export class GuideComponent {
     },
     {
       question: 'How do I print labels for items without a barcode?',
-      answer: 'Go to Labels → Standalone labels. Create a label and leave barcode blank to auto-generate one, then print. You can later attach the label to a product from the same screen.'
+      answer: 'Go to Labels → Standalone labels. Create a label and either enter a barcode or leave it blank to auto-generate one, then print. You can later attach the label to a product (or convert it into a product) from the same screen.'
     },
     {
       question: 'Where do I see daily sales?',

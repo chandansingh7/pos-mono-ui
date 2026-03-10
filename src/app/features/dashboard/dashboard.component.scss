@@ -78,6 +78,21 @@
 
 .mt-16 { margin-top: t.$space-md; }
 
+// ── Achievements / limitations list ──────────────────────────────────────────
+.scope-list {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  li {
+    font-size: 13px;
+    color: t.$color-text-primary;
+    line-height: 1.35;
+  }
+}
+
 // ── Panel cards ───────────────────────────────────────────────────────────────
 .panel-card {
   border-radius: t.$radius-lg !important;
