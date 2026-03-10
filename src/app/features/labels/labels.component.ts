@@ -18,6 +18,7 @@ import { LabelBulkDialogComponent } from './label-bulk-dialog.component';
 import { AddAsProductDialogComponent } from './add-as-product-dialog.component';
 import { PrintLabelsBulkDialogComponent, PrintableItemWithCount } from './print-labels-bulk-dialog.component';
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
+import { LabelPrintTemplate, LabelPrintTemplateId, resolveLabelPrintTemplate } from './label-print-template.util';
 
 const JSBARCODE_CDN = 'https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js';
 
@@ -27,20 +28,6 @@ interface PrintableLabel {
   sku?: string | null;
   barcode?: string;
   id?: number;
-}
-
-type LabelPrintTemplateId = 'A4_2x4' | 'A4_2x5' | 'A4_3x4' | 'CUSTOM';
-
-interface LabelPrintTemplate {
-  id: LabelPrintTemplateId;
-  name: string;
-  pageWidthMm: number;
-  pageHeightMm: number;
-  columns: number;
-  rows: number;
-  gapMm: number;
-  pagePaddingMm: number;
-  labelPaddingMm: number;
 }
 
 @Component({
@@ -169,22 +156,14 @@ export class LabelsComponent implements OnInit {
     } catch {}
   }
 
-  private clamp(n: number, min: number, max: number): number {
-    if (isNaN(n)) return min;
-    return Math.min(max, Math.max(min, n));
-  }
-
   private getActivePrintTemplate(): LabelPrintTemplate {
-    const base = this.printTemplates.find(t => t.id === this.printTemplateId) ?? this.printTemplates[0];
-    if (this.printTemplateId !== 'CUSTOM') return base;
-    return {
-      ...base,
-      columns: this.clamp(Number(this.customColumnsControl.value ?? 2), 1, 4),
-      rows: this.clamp(Number(this.customRowsControl.value ?? 4), 1, 10),
-      gapMm: this.clamp(Number(this.customGapMmControl.value ?? 6), 0, 12),
-      pagePaddingMm: this.clamp(Number(this.customPagePaddingMmControl.value ?? 8), 0, 20),
-      labelPaddingMm: this.clamp(Number(this.customLabelPaddingMmControl.value ?? 4), 0, 12),
-    };
+    return resolveLabelPrintTemplate(this.printTemplates, this.printTemplateId, {
+      columns: this.customColumnsControl.value,
+      rows: this.customRowsControl.value,
+      gapMm: this.customGapMmControl.value,
+      pagePaddingMm: this.customPagePaddingMmControl.value,
+      labelPaddingMm: this.customLabelPaddingMmControl.value,
+    });
   }
 
   onTabChange(idx: number): void {
