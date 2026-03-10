@@ -40,6 +40,12 @@
           </mat-select>
         </mat-form-field>
       </div>
+      <div class="label-fields-row">
+        <span class="label-fields-title">Label fields:</span>
+        <mat-checkbox [(ngModel)]="labelFieldSettings.showName" (change)="onLabelFieldSettingChange()">Name</mat-checkbox>
+        <mat-checkbox [(ngModel)]="labelFieldSettings.showSku" (change)="onLabelFieldSettingChange()">SKU</mat-checkbox>
+        <mat-checkbox [(ngModel)]="labelFieldSettings.showPrice" (change)="onLabelFieldSettingChange()">Price</mat-checkbox>
+      </div>
       <div class="custom-template-row" *ngIf="printTemplateId === 'CUSTOM'">
         <mat-form-field class="custom-field standard-input-height" appearance="outline" subscriptSizing="dynamic" floatLabel="always">
           <mat-label>Columns</mat-label>
@@ -142,6 +148,12 @@
             <mat-option *ngFor="let t of printTemplates" [value]="t.id">{{ t.name }}</mat-option>
           </mat-select>
         </mat-form-field>
+      </div>
+      <div class="label-fields-row">
+        <span class="label-fields-title">Label fields:</span>
+        <mat-checkbox [(ngModel)]="labelFieldSettings.showName" (change)="onLabelFieldSettingChange()">Name</mat-checkbox>
+        <mat-checkbox [(ngModel)]="labelFieldSettings.showSku" (change)="onLabelFieldSettingChange()">SKU</mat-checkbox>
+        <mat-checkbox [(ngModel)]="labelFieldSettings.showPrice" (change)="onLabelFieldSettingChange()">Price</mat-checkbox>
       </div>
       <div class="custom-template-row" *ngIf="printTemplateId === 'CUSTOM'">
         <mat-form-field class="custom-field standard-input-height" appearance="outline" subscriptSizing="dynamic" floatLabel="always">

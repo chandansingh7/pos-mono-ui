@@ -73,6 +73,19 @@
   min-width: 0;
 }
 
+.label-fields-row {
+  display: flex;
+  align-items: center;
+  gap: t.$space-sm;
+  margin-bottom: t.$space-md;
+  font-size: t.$font-size-sm;
+
+  .label-fields-title {
+    color: t.$color-text-secondary;
+    margin-right: t.$space-xs;
+  }
+}
+
 .selected-count {
   font-size: t.$font-size-sm;
   color: t.$color-text-secondary;

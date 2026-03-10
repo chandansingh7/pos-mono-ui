@@ -19,6 +19,7 @@ import { AddAsProductDialogComponent } from './add-as-product-dialog.component';
 import { PrintLabelsBulkDialogComponent, PrintableItemWithCount } from './print-labels-bulk-dialog.component';
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
 import { LabelPrintTemplate, LabelPrintTemplateId, resolveLabelPrintTemplate } from './label-print-template.util';
+import { DEFAULT_LABEL_FIELD_SETTINGS, LabelFieldSettings, parseLabelFieldSettings } from './label-field-settings.util';
 
 const JSBARCODE_CDN = 'https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js';
 
@@ -57,6 +58,8 @@ export class LabelsComponent implements OnInit {
   searchControl = new FormControl('');
   categoryFilter = new FormControl<number | null>(null);
 
+  labelFieldSettings: LabelFieldSettings = { ...DEFAULT_LABEL_FIELD_SETTINGS };
+
   readonly printTemplates: LabelPrintTemplate[] = [
     { id: 'A4_2x4', name: 'A4 — 2×4 (8 per page)', pageWidthMm: 210, pageHeightMm: 297, columns: 2, rows: 4, gapMm: 6, pagePaddingMm: 8, labelPaddingMm: 4 },
     { id: 'A4_2x5', name: 'A4 — 2×5 (10 per page)', pageWidthMm: 210, pageHeightMm: 297, columns: 2, rows: 5, gapMm: 5, pagePaddingMm: 8, labelPaddingMm: 4 },
@@ -93,6 +96,7 @@ export class LabelsComponent implements OnInit {
     this.loadProducts(0);
     this.loadLabels(0);
     this.loadCustomTemplate();
+    this.loadLabelFieldSettings();
     this.searchControl.valueChanges
       .pipe(debounceTime(350), distinctUntilChanged())
       .subscribe(() => {
@@ -164,6 +168,28 @@ export class LabelsComponent implements OnInit {
       pagePaddingMm: this.customPagePaddingMmControl.value,
       labelPaddingMm: this.customLabelPaddingMmControl.value,
     });
+  }
+
+  private loadLabelFieldSettings(): void {
+    try {
+      const raw = localStorage.getItem('labels.fieldSettings');
+      if (!raw) {
+        this.labelFieldSettings = { ...DEFAULT_LABEL_FIELD_SETTINGS };
+        return;
+      }
+      const parsed = JSON.parse(raw);
+      this.labelFieldSettings = parseLabelFieldSettings(parsed);
+    } catch {
+      this.labelFieldSettings = { ...DEFAULT_LABEL_FIELD_SETTINGS };
+    }
+  }
+
+  onLabelFieldSettingChange(): void {
+    try {
+      localStorage.setItem('labels.fieldSettings', JSON.stringify(this.labelFieldSettings));
+    } catch {
+      // ignore storage errors
+    }
   }
 
   onTabChange(idx: number): void {
@@ -556,12 +582,14 @@ export class LabelsComponent implements OnInit {
     const curr = c?.displayCurrency || 'USD';
     const loc = c?.locale;
 
+    const fields = this.labelFieldSettings;
+
     const labelHtml = (item: PrintableLabel, idx: number) => `
       <div class="label">
         <svg id="barcode-${idx}" class="label-barcode"></svg>
-        <div class="label-name">${this.escapeHtml(item.name)}</div>
-        <div class="label-price">${formatCurrency(Number(item.price), curr, loc)}</div>
-        <div class="label-sku">${this.escapeHtml(item.sku || '—')}</div>
+        ${fields.showName ? `<div class="label-name">${this.escapeHtml(item.name)}</div>` : ''}
+        ${fields.showPrice ? `<div class="label-price">${formatCurrency(Number(item.price), curr, loc)}</div>` : ''}
+        ${fields.showSku ? `<div class="label-sku">${this.escapeHtml(item.sku || '—')}</div>` : ''}
       </div>
     `;
 
