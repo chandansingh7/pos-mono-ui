@@ -143,25 +143,25 @@ export class LabelsComponent implements OnInit {
   }
 
   private loadLabelFieldSettings(): void {
-    try {
-      const raw = localStorage.getItem('labels.fieldSettings');
-      if (!raw) {
-        this.labelFieldSettings = { ...DEFAULT_LABEL_FIELD_SETTINGS };
-        return;
-      }
-      const parsed = JSON.parse(raw);
-      this.labelFieldSettings = parseLabelFieldSettings(parsed);
-    } catch {
-      this.labelFieldSettings = { ...DEFAULT_LABEL_FIELD_SETTINGS };
-    }
+    const company = this.companyService.getCached();
+    this.applyLabelFieldSettingsFromCompany(company);
+    this.companyService.company$.subscribe(c => this.applyLabelFieldSettingsFromCompany(c));
   }
 
   onLabelFieldSettingChange(): void {
-    try {
-      localStorage.setItem('labels.fieldSettings', JSON.stringify(this.labelFieldSettings));
-    } catch {
-      // ignore storage errors
+    // No-op: label field defaults are now configured via Settings screen and persisted in backend.
+  }
+
+  private applyLabelFieldSettingsFromCompany(company: { labelShowName?: boolean | null; labelShowSku?: boolean | null; labelShowPrice?: boolean | null } | null): void {
+    if (!company) {
+      this.labelFieldSettings = { ...DEFAULT_LABEL_FIELD_SETTINGS };
+      return;
     }
+    this.labelFieldSettings = parseLabelFieldSettings({
+      showName: company.labelShowName,
+      showSku: company.labelShowSku,
+      showPrice: company.labelShowPrice
+    });
   }
 
   onTabChange(idx: number): void {

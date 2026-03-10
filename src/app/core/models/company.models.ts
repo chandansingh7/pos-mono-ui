@@ -35,6 +35,11 @@ export interface CompanyResponse {
   /** Shift rule: require same-day close. */
   shiftRequireSameDay?: boolean;
 
+  /** Label field visibility defaults for printed labels. */
+  labelShowName?: boolean;
+  labelShowSku?: boolean;
+  labelShowPrice?: boolean;
+
   /** Default label layout template for price labels (A4_2x4, A4_2x5, A4_3x4, CUSTOM). */
   labelTemplateId?: string;
   /** Custom layout: columns for CUSTOM template. */
@@ -72,6 +77,11 @@ export interface CompanyRequest {
   shiftMinOpenMinutes?: number | null;
   shiftMaxOpenHours?: number | null;
   shiftRequireSameDay?: boolean | null;
+
+  /** Label field visibility defaults for printed labels. */
+  labelShowName?: boolean | null;
+  labelShowSku?: boolean | null;
+  labelShowPrice?: boolean | null;
 
   /** Default label layout template for price labels (A4_2x4, A4_2x5, A4_3x4, CUSTOM). */
   labelTemplateId?: string | null;
