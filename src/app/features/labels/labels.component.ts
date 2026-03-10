@@ -58,6 +58,15 @@ export class LabelsComponent implements OnInit {
   searchControl = new FormControl('');
   categoryFilter = new FormControl<number | null>(null);
 
+  // Column-level filters (client-side, per current page)
+  productSkuFilter = new FormControl('');
+  productBarcodeFilter = new FormControl('');
+  productPriceFilter = new FormControl('');
+
+  labelSkuFilter = new FormControl('');
+  labelBarcodeFilter = new FormControl('');
+  labelPriceFilter = new FormControl('');
+
   labelFieldSettings: LabelFieldSettings = { ...DEFAULT_LABEL_FIELD_SETTINGS };
 
   readonly printTemplates: LabelPrintTemplate[] = [
@@ -94,7 +103,17 @@ export class LabelsComponent implements OnInit {
   get hasActiveFilters(): boolean {
     const search = (this.searchControl.value || '').trim();
     const category = this.categoryFilter.value;
-    return search.length > 0 || category !== null;
+    const textFilters = [
+      this.productSkuFilter.value,
+      this.productBarcodeFilter.value,
+      this.productPriceFilter.value,
+      this.labelSkuFilter.value,
+      this.labelBarcodeFilter.value,
+      this.labelPriceFilter.value,
+    ]
+      .map(v => (v || '').toString().trim())
+      .some(v => v.length > 0);
+    return search.length > 0 || category !== null || textFilters;
   }
 
   ngOnInit(): void {
@@ -119,6 +138,12 @@ export class LabelsComponent implements OnInit {
   clearFilters(): void {
     this.searchControl.setValue('', { emitEvent: true });
     this.categoryFilter.setValue(null, { emitEvent: true });
+    this.productSkuFilter.setValue('', { emitEvent: false });
+    this.productBarcodeFilter.setValue('', { emitEvent: false });
+    this.productPriceFilter.setValue('', { emitEvent: false });
+    this.labelSkuFilter.setValue('', { emitEvent: false });
+    this.labelBarcodeFilter.setValue('', { emitEvent: false });
+    this.labelPriceFilter.setValue('', { emitEvent: false });
   }
 
   private applyLabelTemplateFromCompany(company: { labelTemplateId?: string | null; labelTemplateColumns?: number | null; labelTemplateRows?: number | null; labelTemplateGapMm?: number | null; labelTemplatePagePaddingMm?: number | null; labelTemplateLabelPaddingMm?: number | null } | null): void {
@@ -219,13 +244,14 @@ export class LabelsComponent implements OnInit {
   }
 
   toggleSelectAllProducts(): void {
-    if (this.products.every(p => this.selectedIds.has(p.id))) {
-      this.products.forEach(p => {
+    const visible = this.filteredProducts;
+    if (visible.every(p => this.selectedIds.has(p.id))) {
+      visible.forEach(p => {
         this.selectedIds.delete(p.id);
         this.selectedProductsMap.delete(p.id);
       });
     } else {
-      this.products.forEach(p => {
+      visible.forEach(p => {
         this.selectedIds.add(p.id);
         this.selectedProductsMap.set(p.id, p);
       });
@@ -253,7 +279,8 @@ export class LabelsComponent implements OnInit {
   }
 
   get isAllProductsSelected(): boolean {
-    return this.products.length > 0 && this.products.every(p => this.selectedIds.has(p.id));
+    const visible = this.filteredProducts;
+    return visible.length > 0 && visible.every(p => this.selectedIds.has(p.id));
   }
 
   // ── Standalone Labels tab ────────────────────────────────────────────────────
@@ -294,13 +321,14 @@ export class LabelsComponent implements OnInit {
   }
 
   toggleSelectAllLabels(): void {
-    if (this.labels.every(l => this.selectedLabelIds.has(l.id))) {
-      this.labels.forEach(l => {
+    const visible = this.filteredLabels;
+    if (visible.every(l => this.selectedLabelIds.has(l.id))) {
+      visible.forEach(l => {
         this.selectedLabelIds.delete(l.id);
         this.selectedLabelsMap.delete(l.id);
       });
     } else {
-      this.labels.forEach(l => {
+      visible.forEach(l => {
         this.selectedLabelIds.add(l.id);
         this.selectedLabelsMap.set(l.id, l);
       });
@@ -310,7 +338,8 @@ export class LabelsComponent implements OnInit {
   }
 
   get isAllLabelsSelected(): boolean {
-    return this.labels.length > 0 && this.labels.every(l => this.selectedLabelIds.has(l.id));
+    const visible = this.filteredLabels;
+    return visible.length > 0 && visible.every(l => this.selectedLabelIds.has(l.id));
   }
 
   openCreateLabelDialog(): void {
@@ -455,6 +484,34 @@ export class LabelsComponent implements OnInit {
 
   get selectedCount(): number {
     return this.activeTab === 0 ? this.selectedIds.size : this.selectedLabelIds.size;
+  }
+
+  // ── Client-side column filters (per current page) ────────────────────────────
+
+  get filteredProducts(): ProductResponse[] {
+    const skuFilter = (this.productSkuFilter.value || '').toString().trim().toLowerCase();
+    const barcodeFilter = (this.productBarcodeFilter.value || '').toString().trim().toLowerCase();
+    const priceFilter = (this.productPriceFilter.value || '').toString().trim();
+
+    return this.products.filter(p => {
+      if (skuFilter && !(p.sku ?? '').toLowerCase().includes(skuFilter)) return false;
+      if (barcodeFilter && !(p.barcode ?? '').toLowerCase().includes(barcodeFilter)) return false;
+      if (priceFilter && !(p.price != null && p.price.toString().includes(priceFilter))) return false;
+      return true;
+    });
+  }
+
+  get filteredLabels(): LabelResponse[] {
+    const skuFilter = (this.labelSkuFilter.value || '').toString().trim().toLowerCase();
+    const barcodeFilter = (this.labelBarcodeFilter.value || '').toString().trim().toLowerCase();
+    const priceFilter = (this.labelPriceFilter.value || '').toString().trim();
+
+    return this.labels.filter(l => {
+      if (skuFilter && !(l.sku ?? '').toLowerCase().includes(skuFilter)) return false;
+      if (barcodeFilter && !(l.barcode ?? '').toLowerCase().includes(barcodeFilter)) return false;
+      if (priceFilter && !(l.price != null && l.price.toString().includes(priceFilter))) return false;
+      return true;
+    });
   }
 
   /** Open bulk print dialog for selected products (From Products tab). */

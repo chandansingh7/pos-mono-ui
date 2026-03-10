@@ -94,6 +94,11 @@
   color: rgba(0, 0, 0, 0.6);
 }
 
+/* Global narrow field width used across app (e.g. Guide search). */
+.settings-narrow-field {
+  max-width: 400px;
+}
+
 .label-layout-grid {
   display: grid;
   grid-template-columns: minmax(260px, 320px) minmax(320px, 1fr);
