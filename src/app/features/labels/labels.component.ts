@@ -91,6 +91,12 @@ export class LabelsComponent implements OnInit {
     return this.companyService.getCached()?.displayCurrency || 'USD';
   }
 
+  get hasActiveFilters(): boolean {
+    const search = (this.searchControl.value || '').trim();
+    const category = this.categoryFilter.value;
+    return search.length > 0 || category !== null;
+  }
+
   ngOnInit(): void {
     this.loadCategories();
     this.loadProducts(0);
@@ -108,6 +114,11 @@ export class LabelsComponent implements OnInit {
       if (this.activeTab === 0) this.loadProducts(0);
       else this.loadLabels(0);
     });
+  }
+
+  clearFilters(): void {
+    this.searchControl.setValue('', { emitEvent: true });
+    this.categoryFilter.setValue(null, { emitEvent: true });
   }
 
   private applyLabelTemplateFromCompany(company: { labelTemplateId?: string | null; labelTemplateColumns?: number | null; labelTemplateRows?: number | null; labelTemplateGapMm?: number | null; labelTemplatePagePaddingMm?: number | null; labelTemplateLabelPaddingMm?: number | null } | null): void {
