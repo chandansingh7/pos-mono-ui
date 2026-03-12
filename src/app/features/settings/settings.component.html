@@ -108,6 +108,9 @@
         <button mat-stroked-button type="button" (click)="connectMicrosoftFlow()">
           <mat-icon>account_circle</mat-icon> Connect Microsoft
         </button>
+        <button mat-stroked-button color="warn" type="button" *ngIf="microsoftConnected" (click)="disconnectMicrosoft()">
+          <mat-icon>link_off</mat-icon> Disconnect
+        </button>
         <span class="helper-text" *ngIf="microsoftConnected">
           Connected as <strong>{{ company?.msAccountEmail || 'Microsoft account' }}</strong>
         </span>

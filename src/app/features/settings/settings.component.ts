@@ -97,11 +97,21 @@ export class SettingsComponent implements OnInit {
     }
     this.load();
     this.route.queryParamMap.subscribe(params => {
-      const code = params.get('ms_code');
+      const code = params.get('code');
       if (code) {
         this.connectMicrosoft(code);
       }
     });
+
+    // If Microsoft connect happens in a popup, it will notify the opener.
+    if (typeof window !== 'undefined') {
+      window.addEventListener('message', (event: MessageEvent) => {
+        if (event?.data?.type === 'ms_connected') {
+          this.load();
+          this.snackBar.open('Microsoft account connected for receipts.', 'Close', { duration: 4000 });
+        }
+      });
+    }
   }
 
   /** When user selects a country, pre-select weight and volume units used in that country. */
@@ -385,12 +395,31 @@ export class SettingsComponent implements OnInit {
       next: res => {
         this.company = res.data ?? this.company;
         this.snackBar.open('Microsoft account connected for receipts.', 'Close', { duration: 4000 });
-        // Remove code from URL
-        this.router.navigate([], { queryParams: { ms_code: null }, queryParamsHandling: 'merge' });
+        // Remove code/state from URL
+        this.router.navigate([], { queryParams: { code: null, state: null, session_state: null }, queryParamsHandling: 'merge' });
+        // If we're in a popup, tell opener and close.
+        try {
+          if (window.opener) {
+            window.opener.postMessage({ type: 'ms_connected' }, window.location.origin);
+            window.close();
+          }
+        } catch {}
       },
       error: err => {
         this.snackBar.open(err.error?.message || 'Microsoft connection failed.', 'Close', { duration: 5000 });
-        this.router.navigate([], { queryParams: { ms_code: null }, queryParamsHandling: 'merge' });
+        this.router.navigate([], { queryParams: { code: null, state: null, session_state: null }, queryParamsHandling: 'merge' });
+      }
+    });
+  }
+
+  disconnectMicrosoft(): void {
+    this.companyService.disconnectMicrosoft().subscribe({
+      next: res => {
+        this.company = res.data ?? this.company;
+        this.snackBar.open('Microsoft account disconnected.', 'Close', { duration: 3000 });
+      },
+      error: () => {
+        this.snackBar.open('Failed to disconnect Microsoft account.', 'Close', { duration: 4000 });
       }
     });
   }

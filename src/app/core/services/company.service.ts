@@ -93,4 +93,10 @@ export class CompanyService {
       tap(res => { this.applyCached(res.data); })
     );
   }
+
+  disconnectMicrosoft(): Observable<ApiResponse<CompanyResponse>> {
+    return this.http.post<ApiResponse<CompanyResponse>>(`${this.url}/microsoft/disconnect`, {}).pipe(
+      tap(res => { this.applyCached(res.data); })
+    );
+  }
 }
