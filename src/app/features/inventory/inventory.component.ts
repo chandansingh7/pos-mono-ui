@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatDialog } from '@angular/material/dialog';
@@ -26,6 +26,7 @@ export class InventoryComponent implements OnInit {
   stats: InventoryStats | null = null;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild('productNameInput') productNameInput?: ElementRef<HTMLInputElement>;
 
   filters = new FormGroup({
     productName: new FormControl(''),
@@ -143,6 +144,10 @@ export class InventoryComponent implements OnInit {
         this.loading = false;
         this.applyColumnFilters();
         this.cdr.detectChanges();
+        // Focus Product search input once table is visible so user can type without clicking
+        if (page === 0) {
+          setTimeout(() => this.productNameInput?.nativeElement?.focus(), 150);
+        }
       },
       error: () => { this.loading = false; this.cdr.detectChanges(); }
     });

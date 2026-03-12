@@ -76,6 +76,11 @@ export class ProductsComponent implements OnInit {
     this.loadCategories();
     this.loadProducts();
     this.loadStats();
+    // Name and SKU header filters drive server-side search across all products
+    this.filters.get('name')?.valueChanges.pipe(debounceTime(350), distinctUntilChanged())
+      .subscribe(() => this.loadProducts(0));
+    this.filters.get('sku')?.valueChanges.pipe(debounceTime(350), distinctUntilChanged())
+      .subscribe(() => this.loadProducts(0));
     this.searchControl.valueChanges.pipe(debounceTime(350), distinctUntilChanged())
       .subscribe(() => this.loadProducts(0));
     this.categoryFilter.valueChanges.subscribe(() => this.loadProducts(0));
@@ -222,8 +227,11 @@ export class ProductsComponent implements OnInit {
   loadProducts(page = 0): void {
     this.loading = true;
     const sort = this.sortCol ? `${this.sortCol},${this.sortDir}` : undefined;
+    const nameSearch = (this.filters.value.name || '').toString().trim();
+    const skuSearch = (this.filters.value.sku || '').toString().trim();
+    const search = nameSearch || skuSearch || this.searchControl.value || '';
     this.productService.getAll(
-      this.searchControl.value || '',
+      search || undefined,
       this.categoryFilter.value || undefined,
       page, this.pageSize, sort
     ).subscribe({

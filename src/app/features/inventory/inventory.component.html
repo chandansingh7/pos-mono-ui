@@ -45,7 +45,7 @@
         <th mat-header-cell *matHeaderCellDef class="col-th name-th">
           <div class="filter-sort-row">
             <mat-form-field class="filter-field" appearance="outline" subscriptSizing="dynamic">
-              <input matInput formControlName="productName" placeholder="Product">
+              <input matInput #productNameInput formControlName="productName" placeholder="Product">
             </mat-form-field>
             <button mat-icon-button class="sort-btn" (click)="sortBy('productName')" matTooltip="Sort">
               <mat-icon [class.sort-active]="sortCol==='productName'">{{ sortIcon('productName') }}</mat-icon>
