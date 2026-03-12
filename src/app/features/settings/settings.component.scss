@@ -78,6 +78,56 @@
   margin-top: 4px;
 }
 
+// Email (receipts) card
+mat-card-header.email-card-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  .email-card-header-content { flex: 1; min-width: 0; }
+  .header-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #2e7d32;
+    font-size: 14px;
+    font-weight: 500;
+    flex-shrink: 0;
+    .verified-icon {
+      font-size: 22px;
+      width: 22px;
+      height: 22px;
+    }
+  }
+}
+.email-2fa-hint {
+  margin-bottom: 8px;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 4px;
+}
+.email-custom-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  .email-port { width: 120px; }
+}
+.email-verify-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 12px;
+  button mat-icon { margin-right: 4px; vertical-align: middle; }
+  .verify-hint {
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.6);
+    max-width: 320px;
+  }
+}
+
 .preview-actions {
   display: flex;
   align-items: center;

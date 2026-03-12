@@ -4,7 +4,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CompanyService } from '../../core/services/company.service';
 import { AuthService } from '../../core/services/auth.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { CompanyResponse, RECEIPT_PAPER_SIZES, DISPLAY_CURRENCIES, DISPLAY_LOCALES, POS_LAYOUTS, WEIGHT_UNITS, VOLUME_UNITS } from '../../core/models/company.models';
+import { CompanyResponse, RECEIPT_PAPER_SIZES, DISPLAY_CURRENCIES, DISPLAY_LOCALES, POS_LAYOUTS, WEIGHT_UNITS, VOLUME_UNITS, EMAIL_PROVIDERS } from '../../core/models/company.models';
 import { COUNTRIES, getDefaultWeightUnitForCountry, getDefaultVolumeUnitForCountry } from '../../core/data/countries.data';
 import { resolveProductImageUrl } from '../../core/utils/product-image.util';
 import { LabelPrintTemplate, LabelPrintTemplateId, resolveLabelPrintTemplate } from '../labels/label-print-template.util';
@@ -26,8 +26,10 @@ export class SettingsComponent implements OnInit {
   weightUnits = WEIGHT_UNITS;
   volumeUnits = VOLUME_UNITS;
   countries = COUNTRIES;
+  emailProviders = EMAIL_PROVIDERS;
   logoLoadError = false;
   faviconLoadError = false;
+  verifyingEmail = false;
 
   labelTemplates: LabelPrintTemplate[] = [
     { id: 'A4_2x4', name: 'A4 — 2×4 (8 per page)', pageWidthMm: 210, pageHeightMm: 297, columns: 2, rows: 4, gapMm: 6, pagePaddingMm: 8, labelPaddingMm: 4 },
@@ -76,7 +78,13 @@ export class SettingsComponent implements OnInit {
       labelTemplatePagePaddingMm: [8],
       labelTemplateLabelPaddingMm: [4],
       labelPageWidthMm: [58],
-      labelPageHeightMm: [40]
+      labelPageHeightMm: [40],
+      smtpProvider: [null as string | null],
+      smtpHost: [''],
+      smtpPort: [587],
+      smtpUsername: [''],
+      smtpPassword: [''],
+      smtpStartTls: [true]
     });
   }
 
@@ -128,6 +136,12 @@ export class SettingsComponent implements OnInit {
             address: this.company.address ?? '',
             phone: this.company.phone ?? '',
             email: this.company.email ?? '',
+            smtpProvider: this.company.smtpProvider ?? null,
+            smtpHost: this.company.smtpHost ?? '',
+            smtpPort: this.company.smtpPort ?? 587,
+            smtpUsername: this.company.smtpUsername ?? '',
+            smtpPassword: '', // never load password
+            smtpStartTls: this.company.smtpStartTls ?? true,
             taxId: this.company.taxId ?? '',
             website: this.company.website ?? '',
             receiptHeaderText: this.company.receiptHeaderText ?? '',
@@ -286,5 +300,43 @@ export class SettingsComponent implements OnInit {
     const tpl = this.labelLayoutPreview;
     const count = Math.max(1, tpl.columns * tpl.rows);
     return Array.from({ length: count }, (_, i) => i);
+  }
+
+  /** Whether email setup has been verified (green tick). */
+  get emailVerified(): boolean {
+    return !!this.company?.emailVerifiedAt;
+  }
+
+  /** When provider changes to Gmail/Outlook, pre-fill host/port. */
+  onEmailProviderChange(provider: string): void {
+    const preset = this.emailProviders.find(p => p.value === provider);
+    if (preset?.host) {
+      this.form.patchValue({
+        smtpHost: preset.host,
+        smtpPort: preset.port,
+        smtpStartTls: true
+      }, { emitEvent: false });
+    }
+    if (provider === 'GMAIL' || provider === 'OUTLOOK') {
+      const email = this.form.get('email')?.value ?? '';
+      if (email && !this.form.get('smtpUsername')?.value) {
+        this.form.patchValue({ smtpUsername: email }, { emitEvent: false });
+      }
+    }
+  }
+
+  verifyEmailSetup(): void {
+    this.verifyingEmail = true;
+    this.companyService.verifyEmail().subscribe({
+      next: res => {
+        this.verifyingEmail = false;
+        this.company = res.data ?? this.company;
+        this.snackBar.open('Email setup verified. You can send receipts from the Orders page.', 'Close', { duration: 4000 });
+      },
+      error: err => {
+        this.verifyingEmail = false;
+        this.snackBar.open(err.error?.message || 'Verification failed. Check email, app password (use App Password if you have 2FA), and try again.', 'Close', { duration: 5000 });
+      }
+    });
   }
 }

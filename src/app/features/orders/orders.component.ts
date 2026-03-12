@@ -270,30 +270,13 @@ export class OrdersComponent implements OnInit, AfterViewChecked {
   }
 
   emailReceipt(order: OrderResponse): void {
-    const c = this.companyService.getCached();
-    const to = order.customerEmail || '';
-    const subject = `Receipt #${order.id} - ${c?.name || 'Your purchase'}`;
-    const lines: string[] = [];
-    lines.push(`${c?.name || 'Receipt'} - Order #${order.id}`);
-    lines.push('');
-    (order.items || []).forEach(i => {
-      lines.push(`${i.productName} x${i.quantity} - ${formatCurrency(Number(i.subtotal), c?.displayCurrency || 'USD', c?.locale)}`);
+    this.orderService.sendReceipt(order.id).subscribe({
+      next: () => this.snackBar.open('Receipt sent to customer email', 'Close', { duration: 4000 }),
+      error: err => {
+        const msg = err.error?.message || err.error?.errorCode || 'Failed to send receipt';
+        this.snackBar.open(msg, 'Close', { duration: 5000 });
+      }
     });
-    lines.push('');
-    lines.push(`Subtotal: ${formatCurrency(Number(order.subtotal), c?.displayCurrency || 'USD', c?.locale)}`);
-    lines.push(`Tax: ${formatCurrency(Number(order.tax), c?.displayCurrency || 'USD', c?.locale)}`);
-    if ((order.discount || 0) > 0) {
-      lines.push(`Discount: -${formatCurrency(Number(order.discount), c?.displayCurrency || 'USD', c?.locale)}`);
-    }
-    lines.push(`TOTAL: ${formatCurrency(Number(order.total), c?.displayCurrency || 'USD', c?.locale)}`);
-    lines.push(`Payment: ${order.paymentMethod || ''}`);
-    if (c?.receiptFooterText) {
-      lines.push('');
-      lines.push(c.receiptFooterText);
-    }
-    const body = lines.join('\n');
-    const mailto = `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    window.location.href = mailto;
   }
 
   clearFilters(): void { this.filters.reset(); }

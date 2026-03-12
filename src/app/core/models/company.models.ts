@@ -6,6 +6,12 @@ export interface CompanyResponse {
   address?: string;
   phone?: string;
   email?: string;
+  smtpProvider?: string;
+  smtpHost?: string;
+  smtpPort?: number;
+  smtpUsername?: string;
+  smtpStartTls?: boolean;
+  emailVerifiedAt?: string | null;
   taxId?: string;
   website?: string;
   receiptFooterText?: string;
@@ -67,6 +73,13 @@ export interface CompanyRequest {
   address?: string;
   phone?: string;
   email?: string;
+  smtpProvider?: string | null;
+  smtpHost?: string | null;
+  smtpPort?: number | null;
+  smtpUsername?: string | null;
+  /** Only sent when saving; never returned. Use app password if you have 2FA. */
+  smtpPassword?: string | null;
+  smtpStartTls?: boolean | null;
   taxId?: string;
   website?: string;
   receiptFooterText?: string;
@@ -145,6 +158,13 @@ export const VOLUME_UNITS = [
   { value: 'ml', label: 'Milliliters (ml)' },
   { value: 'gal', label: 'US Gallon (gal)' },
   { value: 'fl_oz', label: 'US Fluid ounce (fl oz)' }
+] as const;
+
+/** Email (SMTP) provider presets for receipt sending. Host/port are pre-filled for Gmail and Outlook. */
+export const EMAIL_PROVIDERS = [
+  { value: 'GMAIL', label: 'Gmail', hint: 'Use App Password if you have 2-step verification', host: 'smtp.gmail.com', port: 587 },
+  { value: 'OUTLOOK', label: 'Microsoft Outlook / Office 365', hint: 'Use App password if you have 2FA', host: 'smtp.office365.com', port: 587 },
+  { value: 'CUSTOM', label: 'Custom SMTP', hint: 'Enter your server host and port', host: '', port: 587 }
 ] as const;
 
 /** Common locales for number/date formatting. */

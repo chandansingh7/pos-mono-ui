@@ -38,6 +38,11 @@ export class OrderService {
     return this.http.put<ApiResponse<OrderResponse>>(`${this.url}/${id}/cancel`, {});
   }
 
+  /** Send receipt email from company email (Settings) to customer. Requires SMTP configured and company email set. */
+  sendReceipt(orderId: number): Observable<ApiResponse<void>> {
+    return this.http.post<ApiResponse<void>>(`${this.url}/${orderId}/send-receipt`, {});
+  }
+
   getStats(): Observable<ApiResponse<OrderStats>> {
     return this.http.get<ApiResponse<OrderStats>>(`${this.url}/stats`,
       { headers: new HttpHeaders({ [SILENT_ERROR_HEADER]: '1' }) });

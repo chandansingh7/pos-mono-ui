@@ -76,4 +76,11 @@ export class CompanyService {
       tap(res => { this.applyCached(res.data); })
     );
   }
+
+  /** Verify email (SMTP) setup by sending a test email. Returns updated company with emailVerifiedAt set. */
+  verifyEmail(): Observable<ApiResponse<CompanyResponse>> {
+    return this.http.post<ApiResponse<CompanyResponse>>(`${this.url}/verify-email`, {}).pipe(
+      tap(res => { this.applyCached(res.data); })
+    );
+  }
 }
