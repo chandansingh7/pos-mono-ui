@@ -1,4 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
+import { Router } from '@angular/router';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatDialog } from '@angular/material/dialog';
@@ -44,7 +45,8 @@ export class CustomersComponent implements OnInit {
     private customerService: CustomerService,
     private authService: AuthService,
     private dialog: MatDialog,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -142,7 +144,7 @@ export class CustomersComponent implements OnInit {
   }
 
   viewOrders(customer: CustomerResponse): void {
-    this.snackBar.open(`Viewing orders for ${customer.name} — coming soon`, 'Close', { duration: 3000 });
+    this.router.navigate(['/app/orders'], { queryParams: { customer: customer.name } });
   }
 
   openMemberCard(customer: CustomerResponse): void {

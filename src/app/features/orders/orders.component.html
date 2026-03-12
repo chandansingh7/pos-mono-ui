@@ -169,6 +169,9 @@
             <button mat-icon-button (click)="printReceipt(o)" matTooltip="Print receipt">
               <mat-icon>print</mat-icon>
             </button>
+            <button mat-icon-button (click)="emailReceipt(o)" matTooltip="Email receipt">
+              <mat-icon>email</mat-icon>
+            </button>
             <button mat-icon-button color="accent" *ngIf="isAdmin && o.status === 'COMPLETED'"
               (click)="refundOrder(o)" matTooltip="Refund">
               <mat-icon>currency_exchange</mat-icon>

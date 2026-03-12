@@ -28,6 +28,7 @@ export interface OrderResponse {
   id: number;
   customerId: number;
   customerName: string;
+  customerEmail?: string | null;
   cashierUsername: string;
   items: OrderItemResponse[];
   subtotal: number;

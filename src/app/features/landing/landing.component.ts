@@ -38,6 +38,8 @@ export class LandingComponent {
     'In-app Guide, Support and FAQ with search.',
     'JWT authentication, role-based API security, and centralised error handling.',
     'One global UI control standard: inputs, dropdowns, and buttons are consistent across the app.',
+    'Customer order history: jump from a customer to their filtered order list in one click.',
+    'Email receipts: send a receipt via your email client directly from the Orders screen.',
     'Deployed on Azure with CI/CD (GitHub Actions).',
   ];
 
@@ -52,8 +54,6 @@ export class LandingComponent {
     'No promotions engine (percentage off, BOGO, coupon codes) beyond manual discount.',
     'No audit trail for price or inventory changes (access logs do not yet track field-level changes).',
     'Billing is receipt configuration only; no formal invoicing (numbered invoices, PDF, due dates).',
-    'Customer order history view is not yet implemented.',
-    'No email receipt option for customers.',
     'Reports use fixed periods; no custom date range or period comparison.',
     'No accounting or e-commerce integrations (e.g. QuickBooks, Xero).',
     'No full label template designer (you can choose A4 templates or a basic custom layout).',

@@ -1,4 +1,5 @@
 import { Component, OnInit, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { PageEvent } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -56,7 +57,8 @@ export class OrdersComponent implements OnInit, AfterViewChecked {
     private authService: AuthService,
     private companyService: CompanyService,
     private dialog: MatDialog,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
@@ -64,6 +66,12 @@ export class OrdersComponent implements OnInit, AfterViewChecked {
     this.sortCol = 'date';
     this.sortDir = 'desc';
     this.setupFilterPredicate();
+
+    const initialCustomer = this.route.snapshot.queryParamMap.get('customer');
+    if (initialCustomer) {
+      this.filters.patchValue({ customer: initialCustomer });
+    }
+
     this.load();
     this.loadStats();
     this.filters.valueChanges.pipe(debounceTime(200)).subscribe(() => this.applyColumnFilters());
@@ -259,6 +267,33 @@ export class OrdersComponent implements OnInit, AfterViewChecked {
     w.document.close();
     w.focus();
     setTimeout(() => { w.print(); w.close(); }, 250);
+  }
+
+  emailReceipt(order: OrderResponse): void {
+    const c = this.companyService.getCached();
+    const to = order.customerEmail || '';
+    const subject = `Receipt #${order.id} - ${c?.name || 'Your purchase'}`;
+    const lines: string[] = [];
+    lines.push(`${c?.name || 'Receipt'} - Order #${order.id}`);
+    lines.push('');
+    (order.items || []).forEach(i => {
+      lines.push(`${i.productName} x${i.quantity} - ${formatCurrency(Number(i.subtotal), c?.displayCurrency || 'USD', c?.locale)}`);
+    });
+    lines.push('');
+    lines.push(`Subtotal: ${formatCurrency(Number(order.subtotal), c?.displayCurrency || 'USD', c?.locale)}`);
+    lines.push(`Tax: ${formatCurrency(Number(order.tax), c?.displayCurrency || 'USD', c?.locale)}`);
+    if ((order.discount || 0) > 0) {
+      lines.push(`Discount: -${formatCurrency(Number(order.discount), c?.displayCurrency || 'USD', c?.locale)}`);
+    }
+    lines.push(`TOTAL: ${formatCurrency(Number(order.total), c?.displayCurrency || 'USD', c?.locale)}`);
+    lines.push(`Payment: ${order.paymentMethod || ''}`);
+    if (c?.receiptFooterText) {
+      lines.push('');
+      lines.push(c.receiptFooterText);
+    }
+    const body = lines.join('\n');
+    const mailto = `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = mailto;
   }
 
   clearFilters(): void { this.filters.reset(); }
