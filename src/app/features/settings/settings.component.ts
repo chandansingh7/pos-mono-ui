@@ -97,7 +97,8 @@ export class SettingsComponent implements OnInit {
     }
     this.load();
     this.route.queryParamMap.subscribe(params => {
-      const code = params.get('code');
+      // Microsoft may return the auth code in query or fragment depending on app registration settings.
+      const code = params.get('code') || this.getMicrosoftCodeFromFragment();
       if (code) {
         this.connectMicrosoft(code);
       }
@@ -410,6 +411,16 @@ export class SettingsComponent implements OnInit {
         this.router.navigate([], { queryParams: { code: null, state: null, session_state: null }, queryParamsHandling: 'merge' });
       }
     });
+  }
+
+  private getMicrosoftCodeFromFragment(): string | null {
+    if (typeof window === 'undefined') return null;
+    const hash = window.location.hash || '';
+    if (!hash) return null;
+    // Typical fragments: #code=...&state=...
+    const raw = hash.startsWith('#') ? hash.slice(1) : hash;
+    const sp = new URLSearchParams(raw);
+    return sp.get('code');
   }
 
   disconnectMicrosoft(): void {
