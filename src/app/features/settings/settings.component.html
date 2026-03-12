@@ -94,6 +94,25 @@
   </mat-card-header>
   <mat-card-content>
     <form [formGroup]="form" class="settings-form">
+      <div class="email-method-row">
+        <mat-radio-group formControlName="emailSendMethod">
+          <mat-radio-button value="SMTP">SMTP</mat-radio-button>
+          <mat-radio-button value="MICROSOFT">Microsoft sign-in</mat-radio-button>
+        </mat-radio-group>
+        <span class="helper-text" *ngIf="form.get('emailSendMethod')?.value === 'MICROSOFT'">
+          Uses a Microsoft login popup and sends via Microsoft Graph (no SMTP password stored).
+        </span>
+      </div>
+
+      <div *ngIf="form.get('emailSendMethod')?.value === 'MICROSOFT'" class="ms-connect-row">
+        <button mat-stroked-button type="button" (click)="connectMicrosoftFlow()">
+          <mat-icon>account_circle</mat-icon> Connect Microsoft
+        </button>
+        <span class="helper-text" *ngIf="microsoftConnected">
+          Connected as <strong>{{ company?.msAccountEmail || 'Microsoft account' }}</strong>
+        </span>
+      </div>
+
       <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
         <mat-label>Provider</mat-label>
         <mat-select formControlName="smtpProvider" (selectionChange)="onEmailProviderChange($event.value)">
@@ -102,7 +121,7 @@
         </mat-select>
       </mat-form-field>
 
-      <ng-container *ngIf="form.get('smtpProvider')?.value">
+      <ng-container *ngIf="form.get('emailSendMethod')?.value === 'SMTP' && form.get('smtpProvider')?.value">
         <p class="helper-text email-2fa-hint" *ngIf="form.get('smtpProvider')?.value === 'GMAIL' || form.get('smtpProvider')?.value === 'OUTLOOK'">
           Use the same address as Company email above. If you have 2-step verification (2FA), create an <strong>App Password</strong> in your Google or Microsoft account and enter it below — do not use your normal password.
         </p>

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CompanyService } from '../../core/services/company.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -44,6 +44,7 @@ export class SettingsComponent implements OnInit {
     private fb: FormBuilder,
     private companyService: CompanyService,
     private authService: AuthService,
+    private route: ActivatedRoute,
     private router: Router,
     private snackBar: MatSnackBar
   ) {
@@ -84,7 +85,8 @@ export class SettingsComponent implements OnInit {
       smtpPort: [587],
       smtpUsername: [''],
       smtpPassword: [''],
-      smtpStartTls: [true]
+      smtpStartTls: [true],
+      emailSendMethod: ['SMTP']
     });
   }
 
@@ -94,6 +96,12 @@ export class SettingsComponent implements OnInit {
       return;
     }
     this.load();
+    this.route.queryParamMap.subscribe(params => {
+      const code = params.get('ms_code');
+      if (code) {
+        this.connectMicrosoft(code);
+      }
+    });
   }
 
   /** When user selects a country, pre-select weight and volume units used in that country. */
@@ -142,6 +150,7 @@ export class SettingsComponent implements OnInit {
             smtpUsername: this.company.smtpUsername ?? '',
             smtpPassword: '', // never load password
             smtpStartTls: this.company.smtpStartTls ?? true,
+            emailSendMethod: this.company.emailSendMethod ?? 'SMTP',
             taxId: this.company.taxId ?? '',
             website: this.company.website ?? '',
             receiptHeaderText: this.company.receiptHeaderText ?? '',
@@ -307,6 +316,10 @@ export class SettingsComponent implements OnInit {
     return !!this.company?.emailVerifiedAt;
   }
 
+  get microsoftConnected(): boolean {
+    return !!this.company?.msConnectedAt;
+  }
+
   /** When provider changes to Gmail/Outlook, pre-fill host/port. */
   onEmailProviderChange(provider: string): void {
     const preset = this.emailProviders.find(p => p.value === provider);
@@ -336,6 +349,48 @@ export class SettingsComponent implements OnInit {
       error: err => {
         this.verifyingEmail = false;
         this.snackBar.open(err.error?.message || 'Verification failed. Check email, app password (use App Password if you have 2FA), and try again.', 'Close', { duration: 5000 });
+      }
+    });
+  }
+
+  connectMicrosoftFlow(): void {
+    const state = Math.random().toString(36).slice(2);
+    this.companyService.getMicrosoftAuthUrl(state).subscribe({
+      next: res => {
+        const url = res.data;
+        if (!url) {
+          this.snackBar.open('Microsoft OAuth is not configured on the server.', 'Close', { duration: 4000 });
+          return;
+        }
+        const popup = window.open(url, 'ms_login', 'width=520,height=700');
+        if (!popup) {
+          this.snackBar.open('Popup blocked. Allow popups and try again.', 'Close', { duration: 4000 });
+          return;
+        }
+        const timer = window.setInterval(() => {
+          if (popup.closed) {
+            window.clearInterval(timer);
+            // After redirect back to app, query param handler will call connect.
+          }
+        }, 500);
+      },
+      error: () => {
+        this.snackBar.open('Failed to start Microsoft sign-in.', 'Close', { duration: 4000 });
+      }
+    });
+  }
+
+  private connectMicrosoft(code: string): void {
+    this.companyService.connectMicrosoft(code).subscribe({
+      next: res => {
+        this.company = res.data ?? this.company;
+        this.snackBar.open('Microsoft account connected for receipts.', 'Close', { duration: 4000 });
+        // Remove code from URL
+        this.router.navigate([], { queryParams: { ms_code: null }, queryParamsHandling: 'merge' });
+      },
+      error: err => {
+        this.snackBar.open(err.error?.message || 'Microsoft connection failed.', 'Close', { duration: 5000 });
+        this.router.navigate([], { queryParams: { ms_code: null }, queryParamsHandling: 'merge' });
       }
     });
   }

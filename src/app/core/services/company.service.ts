@@ -83,4 +83,14 @@ export class CompanyService {
       tap(res => { this.applyCached(res.data); })
     );
   }
+
+  getMicrosoftAuthUrl(state: string): Observable<ApiResponse<string>> {
+    return this.http.get<ApiResponse<string>>(`${this.url}/microsoft/auth-url`, { params: { state } });
+  }
+
+  connectMicrosoft(code: string): Observable<ApiResponse<CompanyResponse>> {
+    return this.http.post<ApiResponse<CompanyResponse>>(`${this.url}/microsoft/connect`, {}, { params: { code } }).pipe(
+      tap(res => { this.applyCached(res.data); })
+    );
+  }
 }

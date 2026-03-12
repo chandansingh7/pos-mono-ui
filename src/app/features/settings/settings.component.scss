@@ -128,6 +128,26 @@ mat-card-header.email-card-header {
   }
 }
 
+.email-method-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  mat-radio-group {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+}
+
+.ms-connect-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 8px;
+  button mat-icon { margin-right: 4px; vertical-align: middle; }
+}
+
 .preview-actions {
   display: flex;
   align-items: center;

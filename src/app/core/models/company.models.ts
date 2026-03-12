@@ -12,6 +12,9 @@ export interface CompanyResponse {
   smtpUsername?: string;
   smtpStartTls?: boolean;
   emailVerifiedAt?: string | null;
+  emailSendMethod?: string;
+  msAccountEmail?: string;
+  msConnectedAt?: string | null;
   taxId?: string;
   website?: string;
   receiptFooterText?: string;
@@ -80,6 +83,7 @@ export interface CompanyRequest {
   /** Only sent when saving; never returned. Use app password if you have 2FA. */
   smtpPassword?: string | null;
   smtpStartTls?: boolean | null;
+  emailSendMethod?: string | null;
   taxId?: string;
   website?: string;
   receiptFooterText?: string;
