@@ -4,7 +4,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { FormControl, FormGroup } from '@angular/forms';
-import { debounceTime } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { InventoryService, InventoryStats } from '../../core/services/inventory.service';
 import { AuthService } from '../../core/services/auth.service';
 import { InventoryResponse } from '../../core/models/inventory.models';
@@ -55,6 +55,11 @@ export class InventoryComponent implements OnInit {
     this.load(0);
     this.loadStats();
     this.loadLowStock();
+    // Product and SKU filters drive server-side search across all data
+    this.filters.get('productName')?.valueChanges.pipe(debounceTime(350), distinctUntilChanged())
+      .subscribe(() => this.load(0));
+    this.filters.get('sku')?.valueChanges.pipe(debounceTime(350), distinctUntilChanged())
+      .subscribe(() => this.load(0));
     this.filters.valueChanges.pipe(debounceTime(200)).subscribe(() => this.applyColumnFilters());
   }
 
@@ -128,7 +133,10 @@ export class InventoryComponent implements OnInit {
   load(page = 0): void {
     this.loading = true;
     const sort = this.getSortParam();
-    this.inventoryService.getAll(page, this.pageSize, sort).subscribe({
+    const productName = (this.filters.value.productName || '').toString().trim();
+    const sku = (this.filters.value.sku || '').toString().trim();
+    const search = productName || sku || undefined;
+    this.inventoryService.getAll(search, page, this.pageSize, sort).subscribe({
       next: res => {
         this.dataSource.data = res.data?.content || [];
         this.totalElements = res.data?.totalElements ?? 0;

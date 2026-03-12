@@ -56,7 +56,7 @@ export class CustomersComponent implements OnInit {
     this.setupFilterPredicate();
     this.load();
     this.loadStats();
-    this.searchControl.valueChanges.pipe(debounceTime(350), distinctUntilChanged())
+    this.filters.get('name')?.valueChanges.pipe(debounceTime(350), distinctUntilChanged())
       .subscribe(() => this.load(0));
     this.filters.valueChanges.pipe(debounceTime(200)).subscribe(() => this.applyColumnFilters());
   }
@@ -117,7 +117,9 @@ export class CustomersComponent implements OnInit {
 
   load(page = 0): void {
     this.loading = true;
-    this.customerService.getAll(this.searchControl.value || '', page, this.pageSize).subscribe({
+    const filters = this.filters.value;
+    const search = (filters.name || '').toString().trim();
+    this.customerService.getAll(search, page, this.pageSize).subscribe({
       next: res => {
         this.dataSource.data = res.data?.content || [];
         this.totalElements   = res.data?.totalElements || 0;
