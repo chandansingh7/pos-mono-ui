@@ -4,14 +4,30 @@ import { ProductResponse } from '../models/product.models';
 import { CompanyResponse } from '../models/company.models';
 import { CustomerResponse } from '../models/customer.models';
 
+const TEST_DB_NAME = 'pos_offline_db';
+
+function deleteTestDb(): Promise<void> {
+  return new Promise((resolve) => {
+    const req = indexedDB.deleteDatabase(TEST_DB_NAME);
+    req.onsuccess = () => resolve();
+    req.onerror = () => resolve();
+    req.onblocked = () => resolve();
+  });
+}
+
 describe('PosLocalStoreService', () => {
   let service: PosLocalStoreService;
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    await deleteTestDb();
     TestBed.configureTestingModule({
       providers: [PosLocalStoreService]
     });
     service = TestBed.inject(PosLocalStoreService);
+  });
+
+  afterEach(async () => {
+    await deleteTestDb();
   });
 
   it('should be created', () => {
