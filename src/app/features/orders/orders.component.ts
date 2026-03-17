@@ -377,14 +377,16 @@ export class OrdersComponent implements OnInit, AfterViewChecked {
         const body = err.error ?? {};
         const msg = body.message || body.errorCode || 'Failed to send receipt';
         const code = body.errorCode as string | undefined;
-        const hint = code === 'EM004'
-          ? ' Verify /me/sendMail in Graph Explorer or use SMTP in Settings.'
-          : code === 'EM001'
-            ? ' Set Company email in Settings.'
-            : code === 'EM002'
-              ? ' Configure SMTP or Microsoft sign-in in Settings.'
-              : '';
-        this.snackBar.open(msg + hint, 'Close', { duration: 7000 });
+        let hint = '';
+        if (code === 'EM004') {
+          // msg already contains the Graph error detail from the server
+          hint = ' Check Azure app permissions (Mail.Send delegated) or reconnect Microsoft in Settings.';
+        } else if (code === 'EM001') {
+          hint = ' Set Company email in Settings.';
+        } else if (code === 'EM002') {
+          hint = ' Configure SMTP or Microsoft sign-in in Settings.';
+        }
+        this.snackBar.open(msg + hint, 'Close', { duration: 9000 });
       }
     });
   }
