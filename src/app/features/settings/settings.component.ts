@@ -413,7 +413,20 @@ export class SettingsComponent implements OnInit {
       },
       error: err => {
         this.verifyingEmail = false;
-        this.snackBar.open(err.error?.message || 'Verification failed. Check email, app password (use App Password if you have 2FA), and try again.', 'Close', { duration: 5000 });
+        const serverMsg: string = err.error?.message || '';
+        let hint = '';
+        // Give actionable hints based on common SMTP error patterns
+        if (serverMsg.toLowerCase().includes('authentication') || serverMsg.toLowerCase().includes('535') || serverMsg.toLowerCase().includes('username and password')) {
+          hint = ' → Wrong email or password. If 2FA is ON, use an App Password.';
+        } else if (serverMsg.toLowerCase().includes('connection') || serverMsg.toLowerCase().includes('timeout') || serverMsg.toLowerCase().includes('connect')) {
+          hint = ' → Cannot reach SMTP server. Check host/port settings.';
+        } else if (serverMsg.toLowerCase().includes('ssl') || serverMsg.toLowerCase().includes('tls') || serverMsg.toLowerCase().includes('handshake')) {
+          hint = ' → TLS/SSL error. Try toggling Start TLS or switching port.';
+        } else if (!serverMsg) {
+          hint = 'Check email address, app password, host and port settings.';
+        }
+        const display = serverMsg ? serverMsg + hint : hint;
+        this.snackBar.open(display || 'Verification failed. Check your SMTP settings.', 'Close', { duration: 9000 });
       }
     });
   }
