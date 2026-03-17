@@ -1,0 +1,57 @@
+.callback-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+.callback-card {
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+  padding: 2rem;
+
+  .icon-done {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    color: #2e7d32;
+  }
+
+  .icon-error {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    color: #c62828;
+  }
+
+  h1 {
+    font-size: 1.35rem;
+    margin: 1rem 0 0.5rem;
+    font-weight: 600;
+  }
+
+  .lead {
+    margin: 0.5rem 0;
+    color: rgba(0, 0, 0, 0.7);
+  }
+
+  .email {
+    font-size: 0.95rem;
+    color: rgba(0, 0, 0, 0.6);
+    margin: 0.5rem 0;
+  }
+
+  .message {
+    margin: 0.5rem 0;
+    color: rgba(0, 0, 0, 0.8);
+  }
+
+  .closing {
+    margin-top: 1.5rem;
+    font-size: 0.875rem;
+    color: rgba(0, 0, 0, 0.5);
+  }
+}

@@ -1,0 +1,17 @@
+<div class="callback-page">
+  <div class="callback-card">
+    <div *ngIf="success" class="success">
+      <mat-icon class="icon-done">check_circle</mat-icon>
+      <h1>Microsoft account connected</h1>
+      <p class="lead">You can send order receipts from the Orders page. No need to verify again.</p>
+      <p *ngIf="email" class="email">{{ email }}</p>
+      <p class="closing">This window will close automatically.</p>
+    </div>
+    <div *ngIf="!success" class="error">
+      <mat-icon class="icon-error">error</mat-icon>
+      <h1>Connection failed</h1>
+      <p class="message">{{ errorMessage }}</p>
+      <p class="closing">You can close this window and try again from Settings.</p>
+    </div>
+  </div>
+</div>

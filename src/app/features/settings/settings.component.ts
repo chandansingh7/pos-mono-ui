@@ -96,20 +96,17 @@ export class SettingsComponent implements OnInit {
       return;
     }
     this.load();
-    this.route.queryParamMap.subscribe(params => {
-      // Microsoft may return the auth code in query or fragment depending on app registration settings.
-      const code = params.get('code') || this.getMicrosoftCodeFromFragment();
-      if (code) {
-        this.connectMicrosoft(code);
-      }
-    });
 
-    // If Microsoft connect happens in a popup, it will notify the opener.
+    // Microsoft connect runs in a popup; backend callback redirects to /auth/microsoft-callback which notifies us here.
     if (typeof window !== 'undefined') {
       window.addEventListener('message', (event: MessageEvent) => {
         if (event?.data?.type === 'ms_connected') {
           this.load();
-          this.snackBar.open('Microsoft account connected for receipts.', 'Close', { duration: 4000 });
+          if (event.data?.success !== false) {
+            this.snackBar.open('Microsoft account connected for receipts. You can send email.', 'Close', { duration: 4000 });
+          } else {
+            this.snackBar.open('Microsoft connection failed. Try again from Settings.', 'Close', { duration: 5000 });
+          }
         }
       });
     }
@@ -389,38 +386,6 @@ export class SettingsComponent implements OnInit {
         this.snackBar.open('Failed to start Microsoft sign-in.', 'Close', { duration: 4000 });
       }
     });
-  }
-
-  private connectMicrosoft(code: string): void {
-    this.companyService.connectMicrosoft(code).subscribe({
-      next: res => {
-        this.company = res.data ?? this.company;
-        this.snackBar.open('Microsoft account connected for receipts.', 'Close', { duration: 4000 });
-        // Remove code/state from URL
-        this.router.navigate([], { queryParams: { code: null, state: null, session_state: null }, queryParamsHandling: 'merge' });
-        // If we're in a popup, tell opener and close.
-        try {
-          if (window.opener) {
-            window.opener.postMessage({ type: 'ms_connected' }, window.location.origin);
-            window.close();
-          }
-        } catch {}
-      },
-      error: err => {
-        this.snackBar.open(err.error?.message || 'Microsoft connection failed.', 'Close', { duration: 5000 });
-        this.router.navigate([], { queryParams: { code: null, state: null, session_state: null }, queryParamsHandling: 'merge' });
-      }
-    });
-  }
-
-  private getMicrosoftCodeFromFragment(): string | null {
-    if (typeof window === 'undefined') return null;
-    const hash = window.location.hash || '';
-    if (!hash) return null;
-    // Typical fragments: #code=...&state=...
-    const raw = hash.startsWith('#') ? hash.slice(1) : hash;
-    const sp = new URLSearchParams(raw);
-    return sp.get('code');
   }
 
   disconnectMicrosoft(): void {
