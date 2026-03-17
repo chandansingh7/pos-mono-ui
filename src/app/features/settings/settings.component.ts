@@ -378,7 +378,9 @@ export class SettingsComponent implements OnInit {
         const timer = window.setInterval(() => {
           if (popup.closed) {
             window.clearInterval(timer);
-            // After redirect back to app, query param handler will call connect.
+            // Fallback: if postMessage was blocked or missed, refresh company state when popup closes.
+            // (Primary path is the /auth/microsoft-callback page sending postMessage to the opener.)
+            setTimeout(() => this.load(), 300);
           }
         }, 500);
       },
