@@ -113,7 +113,7 @@ describe('LabelsComponent', () => {
 
   it('should load products, labels, and categories on init', () => {
     fixture.detectChanges();
-    expect(productServiceSpy.getAll).toHaveBeenCalledWith('', undefined, 0, 50, 'name,asc');
+    expect(productServiceSpy.getAll).toHaveBeenCalledWith('', undefined, 0, 50, 'name,asc', jasmine.objectContaining({ sku: '', barcode: '', price: '' }));
     expect(labelServiceSpy.getAll).toHaveBeenCalled();
     expect(component.products).toEqual([mockProduct]);
     expect(component.labels).toEqual([mockLabel]);
@@ -158,7 +158,7 @@ describe('LabelsComponent', () => {
     productServiceSpy.getAll.calls.reset();
 
     component.onPage({ pageIndex: 1, pageSize: 100 } as any);
-    expect(productServiceSpy.getAll).toHaveBeenCalledWith('', undefined, 1, 100, 'name,asc');
+    expect(productServiceSpy.getAll).toHaveBeenCalledWith('', undefined, 1, 100, 'name,asc', jasmine.objectContaining({ sku: '', barcode: '', price: '' }));
   });
 
   it('should show snackbar when printing with no selection', () => {

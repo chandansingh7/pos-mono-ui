@@ -19,10 +19,20 @@ export class InventoryService {
 
   constructor(private http: HttpClient) {}
 
-  getAll(search: string | undefined, page = 0, size = 20, sort = 'updatedAt,desc'): Observable<ApiResponse<PageResponse<InventoryResponse>>> {
+  getAll(
+    search: string | undefined,
+    page = 0,
+    size = 20,
+    sort = 'updatedAt,desc',
+    filters?: { quantity?: string; threshold?: string; status?: string; updatedAt?: string }
+  ): Observable<ApiResponse<PageResponse<InventoryResponse>>> {
     let params: Record<string, string> = { page: String(page), size: String(size), sort };
-    if (search != null && search.trim() !== '') {
-      params = { ...params, search: search.trim() };
+    if (search != null && search.trim() !== '') params = { ...params, search: search.trim() };
+    if (filters) {
+      if (filters.quantity?.trim()) params = { ...params, quantity: filters.quantity.trim() };
+      if (filters.threshold?.trim()) params = { ...params, threshold: filters.threshold.trim() };
+      if (filters.status?.trim()) params = { ...params, status: filters.status.trim() };
+      if (filters.updatedAt?.trim()) params = { ...params, updatedAt: filters.updatedAt.trim() };
     }
     return this.http.get<ApiResponse<PageResponse<InventoryResponse>>>(this.url, { params: params as any });
   }

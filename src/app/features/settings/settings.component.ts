@@ -8,6 +8,8 @@ import { CompanyResponse, RECEIPT_PAPER_SIZES, DISPLAY_CURRENCIES, DISPLAY_LOCAL
 import { COUNTRIES, getDefaultWeightUnitForCountry, getDefaultVolumeUnitForCountry } from '../../core/data/countries.data';
 import { resolveProductImageUrl } from '../../core/utils/product-image.util';
 import { LabelPrintTemplate, LabelPrintTemplateId, resolveLabelPrintTemplate } from '../labels/label-print-template.util';
+import { PosLocalStoreService } from '../../core/services/pos-local-store.service';
+import { OfflineSyncService } from '../../core/services/offline-sync.service';
 
 @Component({
   selector: 'app-settings',
@@ -31,6 +33,8 @@ export class SettingsComponent implements OnInit {
   faviconLoadError = false;
   verifyingEmail = false;
 
+  syncDiagnostics: { pendingCount: number; failedCount: number; lastSyncAt?: string } | null = null;
+
   labelTemplates: LabelPrintTemplate[] = [
     { id: 'A4_2x4', name: 'A4 — 2×4 (8 per page)', pageWidthMm: 210, pageHeightMm: 297, columns: 2, rows: 4, gapMm: 6, pagePaddingMm: 8, labelPaddingMm: 4 },
     { id: 'A4_2x5', name: 'A4 — 2×5 (10 per page)', pageWidthMm: 210, pageHeightMm: 297, columns: 2, rows: 5, gapMm: 5, pagePaddingMm: 8, labelPaddingMm: 4 },
@@ -46,7 +50,9 @@ export class SettingsComponent implements OnInit {
     private authService: AuthService,
     private route: ActivatedRoute,
     private router: Router,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private localStore: PosLocalStoreService,
+    private offlineSync: OfflineSyncService
   ) {
     this.form = this.fb.group({
       name: ['', [Validators.required]],
@@ -86,7 +92,10 @@ export class SettingsComponent implements OnInit {
       smtpUsername: [''],
       smtpPassword: [''],
       smtpStartTls: [true],
-      emailSendMethod: ['SMTP']
+      emailSendMethod: ['SMTP'],
+      offlineAllowDashboard: [true],
+      offlineAllowOrders: [false],
+      offlineAllowPos: [false]
     });
   }
 
@@ -95,7 +104,9 @@ export class SettingsComponent implements OnInit {
       this.router.navigate(['/app/dashboard']);
       return;
     }
+
     this.load();
+    this.loadSyncDiagnostics();
 
     // Microsoft connect runs in a popup; backend callback redirects to /auth/microsoft-callback which notifies us here.
     if (typeof window !== 'undefined') {
@@ -110,6 +121,29 @@ export class SettingsComponent implements OnInit {
         }
       });
     }
+  }
+
+  loadSyncDiagnostics(): void {
+    this.localStore.init().then(async () => {
+      const [pendingCount, failedCount, syncState] = await Promise.all([
+        this.localStore.getPendingCount(),
+        this.localStore.getFailedCount(),
+        this.localStore.getSyncState()
+      ]);
+      this.syncDiagnostics = {
+        pendingCount,
+        failedCount,
+        lastSyncAt: syncState?.lastFullSyncAt || undefined
+      };
+    });
+  }
+
+  async retryFailedSync(): Promise<void> {
+    await this.localStore.init();
+    const count = await this.localStore.resetAllFailedToPending();
+    this.loadSyncDiagnostics();
+    this.offlineSync.triggerSync();
+    this.snackBar.open(count > 0 ? `${count} failed order(s) queued for retry.` : 'No failed orders to retry.', 'Close', { duration: 3000 });
   }
 
   /** When user selects a country, pre-select weight and volume units used in that country. */
@@ -185,7 +219,10 @@ export class SettingsComponent implements OnInit {
             labelTemplatePagePaddingMm: this.company.labelTemplatePagePaddingMm ?? 8,
             labelTemplateLabelPaddingMm: this.company.labelTemplateLabelPaddingMm ?? 4,
             labelPageWidthMm: this.company.labelPageWidthMm ?? 58,
-            labelPageHeightMm: this.company.labelPageHeightMm ?? 40
+            labelPageHeightMm: this.company.labelPageHeightMm ?? 40,
+            offlineAllowDashboard: this.company.offlineAllowDashboard ?? true,
+            offlineAllowOrders: this.company.offlineAllowOrders ?? false,
+            offlineAllowPos: this.company.offlineAllowPos ?? false
           });
         } else {
           this.form.patchValue({
@@ -212,7 +249,10 @@ export class SettingsComponent implements OnInit {
             labelTemplatePagePaddingMm: 8,
             labelTemplateLabelPaddingMm: 4,
             labelPageWidthMm: 58,
-            labelPageHeightMm: 40
+            labelPageHeightMm: 40,
+            offlineAllowDashboard: true,
+            offlineAllowOrders: false,
+            offlineAllowPos: false
           });
         }
         this.form.markAsPristine();
@@ -401,4 +441,5 @@ export class SettingsComponent implements OnInit {
       }
     });
   }
+
 }

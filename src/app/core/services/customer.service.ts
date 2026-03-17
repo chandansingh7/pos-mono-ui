@@ -12,9 +12,21 @@ export class CustomerService {
 
   constructor(private http: HttpClient) {}
 
-  getAll(search?: string, page = 0, size = 20): Observable<ApiResponse<PageResponse<CustomerResponse>>> {
+  getAll(
+    search?: string,
+    page = 0,
+    size = 20,
+    filters?: { name?: string; email?: string; phone?: string; createdAt?: string; updatedAt?: string }
+  ): Observable<ApiResponse<PageResponse<CustomerResponse>>> {
     let params = new HttpParams().set('page', page).set('size', size);
     if (search) params = params.set('search', search);
+    if (filters) {
+      if (filters.name?.trim()) params = params.set('name', filters.name.trim());
+      if (filters.email?.trim()) params = params.set('email', filters.email.trim());
+      if (filters.phone?.trim()) params = params.set('phone', filters.phone.trim());
+      if (filters.createdAt?.trim()) params = params.set('createdAt', filters.createdAt.trim());
+      if (filters.updatedAt?.trim()) params = params.set('updatedAt', filters.updatedAt.trim());
+    }
     return this.http.get<ApiResponse<PageResponse<CustomerResponse>>>(this.url, { params });
   }
 

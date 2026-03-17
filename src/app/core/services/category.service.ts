@@ -13,8 +13,18 @@ export class CategoryService {
   constructor(private http: HttpClient) {}
 
   /** Paginated list for categories table. */
-  getAll(page = 0, size = 20, sort = 'updatedAt,desc'): Observable<ApiResponse<PageResponse<CategoryResponse>>> {
-    const params = { page: String(page), size: String(size), sort };
+  getAll(
+    page = 0,
+    size = 20,
+    sort = 'updatedAt,desc',
+    filters?: { name?: string; description?: string; updatedAt?: string }
+  ): Observable<ApiResponse<PageResponse<CategoryResponse>>> {
+    const params: Record<string, string> = { page: String(page), size: String(size), sort };
+    if (filters) {
+      if (filters.name?.trim()) params['name'] = filters.name.trim();
+      if (filters.description?.trim()) params['description'] = filters.description.trim();
+      if (filters.updatedAt?.trim()) params['updatedAt'] = filters.updatedAt.trim();
+    }
     return this.http.get<ApiResponse<PageResponse<CategoryResponse>>>(this.url, { params: params as any });
   }
 

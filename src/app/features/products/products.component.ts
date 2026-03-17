@@ -72,19 +72,15 @@ export class ProductsComponent implements OnInit {
     // Default: show most recently updated products first
     this.sortCol = 'updatedAt';
     this.sortDir = 'desc';
-    this.setupFilterPredicate();
     this.loadCategories();
     this.loadProducts();
     this.loadStats();
-    // Name and SKU header filters drive server-side search across all products
-    this.filters.get('name')?.valueChanges.pipe(debounceTime(350), distinctUntilChanged())
-      .subscribe(() => this.loadProducts(0));
-    this.filters.get('sku')?.valueChanges.pipe(debounceTime(350), distinctUntilChanged())
+    // All filters drive server-side search across entire dataset
+    this.filters.valueChanges.pipe(debounceTime(350), distinctUntilChanged())
       .subscribe(() => this.loadProducts(0));
     this.searchControl.valueChanges.pipe(debounceTime(350), distinctUntilChanged())
       .subscribe(() => this.loadProducts(0));
     this.categoryFilter.valueChanges.subscribe(() => this.loadProducts(0));
-    this.filters.valueChanges.pipe(debounceTime(200)).subscribe(() => this.applyColumnFilters());
   }
 
   loadStats(): void {
@@ -191,56 +187,29 @@ export class ProductsComponent implements OnInit {
     }
   }
 
-  private setupFilterPredicate(): void {
-    this.dataSource.filterPredicate = (row: ProductResponse, filter: string) => {
-      const f = JSON.parse(filter);
-      return [
-        this.contains(row.name, f.name),
-        this.contains(row.sku, f.sku),
-        this.contains(row.categoryName, f.category),
-        this.contains(row.price?.toString(), f.price),
-        this.contains(row.quantity?.toString(), f.stock),
-        this.contains(row.active ? 'active' : 'inactive', f.status),
-        this.contains(row.updatedAt, f.updatedAt),
-      ].every(Boolean);
-    };
-  }
-
-  private contains(value: string | null | undefined, filter: string): boolean {
-    if (!filter) return true;
-    return (value ?? '').toString().toLowerCase().includes(filter.toLowerCase());
-  }
-
-  private applyColumnFilters(): void {
-    const v = this.filters.value;
-    this.dataSource.filter = JSON.stringify({
-      name:      v.name      || '',
-      sku:       v.sku       || '',
-      category:  v.category  || '',
-      price:     v.price     || '',
-      stock:     v.stock     || '',
-      status:    v.status    || '',
-      updatedAt: v.updatedAt || '',
-    });
-  }
-
   loadProducts(page = 0): void {
     this.loading = true;
     const sort = this.sortCol ? `${this.sortCol},${this.sortDir}` : undefined;
-    const nameSearch = (this.filters.value.name || '').toString().trim();
-    const skuSearch = (this.filters.value.sku || '').toString().trim();
+    const v = this.filters.value;
+    const nameSearch = (v.name || '').toString().trim();
+    const skuSearch = (v.sku || '').toString().trim();
     const search = nameSearch || skuSearch || this.searchControl.value || '';
+    const filters = {
+      status: v.status || '',
+      price: v.price || '',
+      stock: v.stock || '',
+      updatedAt: v.updatedAt || '',
+    };
     this.productService.getAll(
       search || undefined,
       this.categoryFilter.value || undefined,
-      page, this.pageSize, sort
+      page, this.pageSize, sort, filters
     ).subscribe({
       next: res => {
         this.brokenImages.clear();
         this.dataSource.data = res.data?.content || [];
         this.totalElements   = res.data?.totalElements || 0;
         this.loading = false;
-        this.applyColumnFilters();
         this.cdr.detectChanges();
       },
       error: () => { this.loading = false; this.cdr.detectChanges(); }

@@ -4,6 +4,8 @@ import { catchError } from 'rxjs/operators';
 import { ReportService } from '../../core/services/report.service';
 import { InventoryService } from '../../core/services/inventory.service';
 import { OrderService } from '../../core/services/order.service';
+import { NetworkStatusService } from '../../core/services/network-status.service';
+import { OfflineSettingsService } from '../../core/services/offline-settings.service';
 import { SalesReportResponse } from '../../core/models/report.models';
 import { InventoryResponse } from '../../core/models/inventory.models';
 import { OrderResponse } from '../../core/models/order.models';
@@ -21,11 +23,22 @@ export class DashboardComponent implements OnInit {
 
   loading = true;
   today = new Date();
+  isOffline = false;
+  dashboardBlockedOffline = false;
+
+  constructor(
+    private reportService: ReportService,
+    private inventoryService: InventoryService,
+    private orderService: OrderService,
+    private networkStatus: NetworkStatusService,
+    private offlineSettings: OfflineSettingsService
+  ) {}
 
   topProductsColumns = ['rank', 'productName', 'unitsSold'];
   recentOrdersColumns = ['id', 'customer', 'items', 'total', 'payment', 'status', 'time'];
 
   readonly achievements: string[] = [
+    'Offline PWA: place orders when offline; auto-sync when back online.',
     'Decimal quantities for weight/volume products (e.g. 0.3 kg) with correct totals and stock updates.',
     'Unit-aware products (Sold by: Piece/Weight/Volume) with unit labels (each, kg, lb, L, etc.).',
     'One global UI control standard: inputs, dropdowns, and buttons are consistent across the app.',
@@ -36,18 +49,16 @@ export class DashboardComponent implements OnInit {
   readonly currentLimitations: string[] = [
     'Monolith backend (microservice split is planned in the roadmap).',
     'Single-company per deployment; no multi-store or stock transfers yet.',
-    'No offline mode / PWA sync for poor connectivity.',
     'Fixed tax rate; no configurable or per-product tax rules.',
-    'No full label template designer (A4 templates and a basic custom layout are supported).'
+    'No full label template designer (A4 templates and a basic custom layout are supported).',
+    'Refund flow is planned (Orders page shows "coming soon").'
   ];
 
-  constructor(
-    private reportService: ReportService,
-    private inventoryService: InventoryService,
-    private orderService: OrderService
-  ) {}
-
   ngOnInit(): void {
+    this.networkStatus.isOffline$.subscribe(off => {
+      this.isOffline = off;
+      this.dashboardBlockedOffline = off && !this.offlineSettings.getSettings().allowDashboard;
+    });
     forkJoin({
       daily:    this.reportService.getDailyReport(undefined, true).pipe(catchError(() => of({ data: null, success: false, message: null, errorCode: null }))),
       monthly:  this.reportService.getMonthlyReport(undefined, undefined, true).pipe(catchError(() => of({ data: null, success: false, message: null, errorCode: null }))),

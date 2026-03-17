@@ -67,6 +67,15 @@ export interface CompanyResponse {
 
   /** Optional custom page height (mm) for CUSTOM label template. */
   labelPageHeightMm?: number;
+
+  /** Admin-controlled: allow dashboard when offline. */
+  offlineAllowDashboard?: boolean;
+
+  /** Admin-controlled: allow viewing orders when offline. */
+  offlineAllowOrders?: boolean;
+
+  /** Admin-controlled: allow POS when offline. */
+  offlineAllowPos?: boolean;
 }
 
 export interface CompanyRequest {
@@ -124,6 +133,15 @@ export interface CompanyRequest {
 
   /** Optional custom page height (mm) for CUSTOM label template. */
   labelPageHeightMm?: number | null;
+
+  /** Admin-controlled: allow dashboard when offline. */
+  offlineAllowDashboard?: boolean | null;
+
+  /** Admin-controlled: allow viewing orders when offline. */
+  offlineAllowOrders?: boolean | null;
+
+  /** Admin-controlled: allow POS when offline. */
+  offlineAllowPos?: boolean | null;
 }
 
 /** POS layout options for Settings and POS component. */

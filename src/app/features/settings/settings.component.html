@@ -275,6 +275,57 @@
 
 <mat-card class="card" *ngIf="!loading">
   <mat-card-header>
+    <mat-card-title>Offline sync diagnostics</mat-card-title>
+    <mat-card-subtitle>This device: pending and failed offline orders</mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
+    <div class="sync-diagnostics" *ngIf="syncDiagnostics">
+      <div class="sync-row">
+        <span class="sync-label">Pending (will sync when online):</span>
+        <strong>{{ syncDiagnostics.pendingCount }}</strong>
+      </div>
+      <div class="sync-row">
+        <span class="sync-label">Failed (fix issue and retry):</span>
+        <strong class="warn-text">{{ syncDiagnostics.failedCount }}</strong>
+      </div>
+      <div class="sync-row" *ngIf="syncDiagnostics.lastSyncAt">
+        <span class="sync-label">Last data sync:</span>
+        <span>{{ syncDiagnostics.lastSyncAt | date:'short' }}</span>
+      </div>
+      <div class="sync-actions">
+        <button mat-stroked-button (click)="retryFailedSync()" [disabled]="!syncDiagnostics.failedCount">
+          <mat-icon>refresh</mat-icon> Retry failed
+        </button>
+      </div>
+    </div>
+  </mat-card-content>
+</mat-card>
+
+<mat-card class="card" *ngIf="!loading">
+  <mat-card-header>
+    <mat-card-title>Offline behaviour</mat-card-title>
+    <mat-card-subtitle>Admin control: choose which areas are usable when devices are offline.</mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
+    <form [formGroup]="form" class="settings-form">
+      <mat-checkbox formControlName="offlineAllowDashboard">
+        Allow dashboard when offline
+      </mat-checkbox>
+      <mat-checkbox formControlName="offlineAllowOrders">
+        Allow viewing orders when offline (cached data)
+      </mat-checkbox>
+      <mat-checkbox formControlName="offlineAllowPos">
+        Allow POS when offline (place orders; sync when back online)
+      </mat-checkbox>
+      <p class="helper-text">
+        These settings apply company-wide. All devices use these when offline. Save to apply.
+      </p>
+    </form>
+  </mat-card-content>
+</mat-card>
+
+<mat-card class="card" *ngIf="!loading">
+  <mat-card-header>
     <mat-card-title>Localisation &amp; currency</mat-card-title>
     <mat-card-subtitle>Display currency for prices and locale for number/date formatting</mat-card-subtitle>
   </mat-card-header>

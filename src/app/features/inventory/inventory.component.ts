@@ -52,16 +52,11 @@ export class InventoryComponent implements OnInit {
     // Default: newest inventory changes first
     this.sortCol = 'updatedAt';
     this.sortDir = 'desc';
-    this.setupFilterPredicate();
     this.load(0);
     this.loadStats();
     this.loadLowStock();
-    // Product and SKU filters drive server-side search across all data
-    this.filters.get('productName')?.valueChanges.pipe(debounceTime(350), distinctUntilChanged())
+    this.filters.valueChanges.pipe(debounceTime(350), distinctUntilChanged())
       .subscribe(() => this.load(0));
-    this.filters.get('sku')?.valueChanges.pipe(debounceTime(350), distinctUntilChanged())
-      .subscribe(() => this.load(0));
-    this.filters.valueChanges.pipe(debounceTime(200)).subscribe(() => this.applyColumnFilters());
   }
 
   refresh(): void {
@@ -134,15 +129,21 @@ export class InventoryComponent implements OnInit {
   load(page = 0): void {
     this.loading = true;
     const sort = this.getSortParam();
-    const productName = (this.filters.value.productName || '').toString().trim();
-    const sku = (this.filters.value.sku || '').toString().trim();
+    const v = this.filters.value;
+    const productName = (v.productName || '').toString().trim();
+    const sku = (v.sku || '').toString().trim();
     const search = productName || sku || undefined;
-    this.inventoryService.getAll(search, page, this.pageSize, sort).subscribe({
+    const filters = {
+      quantity: v.quantity || '',
+      threshold: v.threshold || '',
+      status: v.status || '',
+      updatedAt: v.updatedAt || '',
+    };
+    this.inventoryService.getAll(search, page, this.pageSize, sort, filters).subscribe({
       next: res => {
         this.dataSource.data = res.data?.content || [];
         this.totalElements = res.data?.totalElements ?? 0;
         this.loading = false;
-        this.applyColumnFilters();
         this.cdr.detectChanges();
         // Focus Product search input once table is visible so user can type without clicking
         if (page === 0) {

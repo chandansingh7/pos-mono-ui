@@ -17,7 +17,8 @@ export class LabelService {
     categoryId?: number,
     page = 0,
     size = 20,
-    sort = 'createdAt,desc'
+    sort = 'createdAt,desc',
+    filters?: { sku?: string; barcode?: string; price?: string }
   ): Observable<ApiResponse<PageResponse<LabelResponse>>> {
     let params = new HttpParams()
       .set('page', page)
@@ -25,6 +26,11 @@ export class LabelService {
       .set('sort', sort);
     if (search) params = params.set('search', search);
     if (categoryId) params = params.set('categoryId', categoryId);
+    if (filters) {
+      if (filters.sku?.trim()) params = params.set('sku', filters.sku.trim());
+      if (filters.barcode?.trim()) params = params.set('barcode', filters.barcode.trim());
+      if (filters.price?.trim()) params = params.set('price', filters.price.trim());
+    }
     return this.http.get<ApiResponse<PageResponse<LabelResponse>>>(this.url, { params });
   }
 

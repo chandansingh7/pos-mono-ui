@@ -5,8 +5,36 @@
   </button>
 </div>
 
+<!-- ── Offline blocked ────────────────────────────────────────────────────────── -->
+<mat-card class="offline-blocked-card" *ngIf="ordersBlockedOffline">
+  <mat-card-content>
+    <mat-icon class="blocked-icon">cloud_off</mat-icon>
+    <h3>Orders unavailable offline</h3>
+    <p>Admin has disabled orders view when offline. Go to <a routerLink="/app/pos">POS</a> if enabled, or wait until you're back online.</p>
+  </mat-card-content>
+</mat-card>
+
+<!-- ── Pending offline orders banner ─────────────────────────────────────────── -->
+<mat-card class="offline-pending-banner" *ngIf="!ordersBlockedOffline && (pendingOfflineCount > 0 || failedOfflineCount > 0)">
+  <mat-card-content>
+    <mat-icon class="banner-icon">cloud_off</mat-icon>
+    <div class="banner-text">
+      <strong *ngIf="pendingOfflineCount > 0">{{ pendingOfflineCount }} order(s)</strong>
+      <span *ngIf="pendingOfflineCount > 0"> saved offline — will sync when online.</span>
+      <strong *ngIf="failedOfflineCount > 0">{{ failedOfflineCount }} failed</strong>
+      <span *ngIf="failedOfflineCount > 0"> — fix issue (e.g. stock) and retry.</span>
+    </div>
+    <button mat-stroked-button *ngIf="!isOffline && failedOfflineCount > 0" (click)="retryFailedSync()">
+      <mat-icon>refresh</mat-icon> Retry failed
+    </button>
+    <button mat-stroked-button *ngIf="!isOffline" (click)="triggerOfflineSync()">
+      <mat-icon>sync</mat-icon> Sync now
+    </button>
+  </mat-card-content>
+</mat-card>
+
 <!-- ── Mini Stats ──────────────────────────────────────────────────────────── -->
-<div class="page-stats" *ngIf="stats">
+<div class="page-stats" *ngIf="!ordersBlockedOffline && stats">
   <div class="stat-pill pill-primary">
     <mat-icon class="pill-icon">receipt_long</mat-icon>
     <div class="pill-body"><span class="pill-value">{{ stats.total }}</span><span class="pill-label">Total</span></div>
@@ -29,7 +57,7 @@
   </div>
 </div>
 
-<mat-card class="card">
+<mat-card class="card" *ngIf="!ordersBlockedOffline">
   <div *ngIf="loading" style="display:flex;justify-content:center;padding:48px"><mat-spinner diameter="40"></mat-spinner></div>
 
   <div class="table-wrap" *ngIf="!loading" [formGroup]="filters">

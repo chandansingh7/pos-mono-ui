@@ -46,10 +46,9 @@ export class CategoriesComponent implements OnInit {
     // Default: newest categories first
     this.sortCol = 'updatedAt';
     this.sortDir = 'desc';
-    this.setupFilterPredicate();
     this.load();
     this.loadStats();
-    this.filters.valueChanges.pipe(debounceTime(200)).subscribe(() => this.applyColumnFilters());
+    this.filters.valueChanges.pipe(debounceTime(350)).subscribe(() => this.load(0));
   }
 
   loadStats(): void {
@@ -95,12 +94,17 @@ export class CategoriesComponent implements OnInit {
   load(page = 0): void {
     this.loading = true;
     const sort = this.sortCol ? `${this.sortCol},${this.sortDir}` : 'updatedAt,desc';
-    this.categoryService.getAll(page, this.pageSize, sort).subscribe({
+    const v = this.filters.value;
+    const filters = {
+      name: v.name || '',
+      description: v.description || '',
+      updatedAt: v.updatedAt || '',
+    };
+    this.categoryService.getAll(page, this.pageSize, sort, filters).subscribe({
       next: res => {
         this.dataSource.data = res.data?.content || [];
         this.totalElements = res.data?.totalElements ?? 0;
         this.loading = false;
-        this.applyColumnFilters();
       },
       error: () => { this.loading = false; }
     });

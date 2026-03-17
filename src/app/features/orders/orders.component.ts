@@ -9,6 +9,10 @@ import { debounceTime } from 'rxjs/operators';
 import { OrderService, OrderStats } from '../../core/services/order.service';
 import { AuthService } from '../../core/services/auth.service';
 import { CompanyService } from '../../core/services/company.service';
+import { NetworkStatusService } from '../../core/services/network-status.service';
+import { PosLocalStoreService } from '../../core/services/pos-local-store.service';
+import { OfflineSyncService } from '../../core/services/offline-sync.service';
+import { OfflineSettingsService } from '../../core/services/offline-settings.service';
 import { OrderResponse } from '../../core/models/order.models';
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
 import { formatCurrency } from '../../core/utils/currency.util';
@@ -38,6 +42,13 @@ export class OrdersComponent implements OnInit, AfterViewChecked {
   /** Orders for current page (from server); detail rows are inserted in buildTableRows(). */
   private allOrders: OrderResponse[] = [];
 
+  /** Pending offline orders count (from IndexedDB). */
+  pendingOfflineCount = 0;
+  /** Failed offline orders count (sync rejected). */
+  failedOfflineCount = 0;
+  isOffline = false;
+  ordersBlockedOffline = false;
+
   filters = new FormGroup({
     id:       new FormControl(''),
     customer: new FormControl(''),
@@ -56,6 +67,10 @@ export class OrdersComponent implements OnInit, AfterViewChecked {
     private orderService: OrderService,
     private authService: AuthService,
     private companyService: CompanyService,
+    private networkStatus: NetworkStatusService,
+    private localStore: PosLocalStoreService,
+    private offlineSync: OfflineSyncService,
+    private offlineSettings: OfflineSettingsService,
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
     private route: ActivatedRoute
@@ -65,7 +80,6 @@ export class OrdersComponent implements OnInit, AfterViewChecked {
     // Default: newest orders first (by date)
     this.sortCol = 'date';
     this.sortDir = 'desc';
-    this.setupFilterPredicate();
 
     const initialCustomer = this.route.snapshot.queryParamMap.get('customer');
     if (initialCustomer) {
@@ -74,7 +88,33 @@ export class OrdersComponent implements OnInit, AfterViewChecked {
 
     this.load();
     this.loadStats();
-    this.filters.valueChanges.pipe(debounceTime(200)).subscribe(() => this.applyColumnFilters());
+    this.refreshPendingOfflineCount();
+    this.networkStatus.isOffline$.subscribe(off => {
+      this.isOffline = off;
+      this.ordersBlockedOffline = off && !this.offlineSettings.getSettings().allowOrders;
+      this.refreshPendingOfflineCount();
+    });
+    this.filters.valueChanges.pipe(debounceTime(350)).subscribe(() => this.load(0));
+  }
+
+  private refreshPendingOfflineCount(): void {
+    this.localStore.init().then(async () => {
+      this.pendingOfflineCount = await this.localStore.getPendingCount();
+      this.failedOfflineCount = await this.localStore.getFailedCount();
+    });
+  }
+
+  async retryFailedSync(): Promise<void> {
+    await this.localStore.init();
+    const count = await this.localStore.resetAllFailedToPending();
+    this.refreshPendingOfflineCount();
+    this.offlineSync.triggerSync();
+    this.snackBar.open(count > 0 ? `${count} failed order(s) queued for retry.` : 'No failed orders to retry.', 'Close', { duration: 3000 });
+  }
+
+  triggerOfflineSync(): void {
+    this.offlineSync.triggerSync();
+    setTimeout(() => this.refreshPendingOfflineCount(), 2000);
   }
 
   ngAfterViewChecked(): void {
@@ -119,24 +159,6 @@ export class OrdersComponent implements OnInit, AfterViewChecked {
     this.dataSource.data = this.buildTableRows();
   }
 
-  private setupFilterPredicate(): void {
-    this.dataSource.filterPredicate = (row: OrderTableRow, filter: string) => {
-      if (row && (row as any).isDetailRow) return true;
-      const o = row as OrderResponse;
-      const f = JSON.parse(filter);
-      return [
-        this.contains(o.id?.toString(), f.id),
-        this.contains(o.customerName || 'Walk-in', f.customer),
-        this.contains(o.cashierUsername, f.cashier),
-        this.contains(o.items?.length?.toString(), f.items),
-        this.contains(o.total?.toString(), f.total),
-        this.contains(o.paymentMethod, f.payment),
-        this.contains(o.status, f.status),
-        this.contains(o.createdAt, f.date),
-      ].every(Boolean);
-    };
-  }
-
   /** Build table rows: orders with optional detail row inserted after expanded order. */
   private buildTableRows(): OrderTableRow[] {
     const rows: OrderTableRow[] = [];
@@ -159,37 +181,26 @@ export class OrdersComponent implements OnInit, AfterViewChecked {
   whenOrderRow = (_index: number, row: OrderTableRow): boolean => this.isOrderRow(row);
   whenDetailRow = (_index: number, row: OrderTableRow): boolean => this.isDetailRow(row);
 
-  private contains(value: string | null | undefined, filter: string): boolean {
-    if (!filter) return true;
-    return (value ?? '').toString().toLowerCase().includes(filter.toLowerCase());
-  }
-
-  private applyColumnFilters(): void {
-    const v = this.filters.value;
-    this.dataSource.filter = JSON.stringify({
-      id:       v.id       || '',
-      customer: v.customer || '',
-      cashier:  v.cashier  || '',
-      items:    v.items    || '',
-      total:    v.total    || '',
-      payment:  v.payment  || '',
-      status:   v.status   || '',
-      date:     v.date     || '',
-    });
-  }
-
   load(page = 0): void {
     this.loading = true;
-    this.orderService.getAll(page, this.pageSize).subscribe({
+    const v = this.filters.value;
+    const filters = {
+      id: v.id || '',
+      customer: v.customer || '',
+      cashier: v.cashier || '',
+      items: v.items || '',
+      total: v.total || '',
+      status: v.status || '',
+      payment: v.payment || '',
+      date: v.date || '',
+    };
+    this.orderService.getAll(page, this.pageSize, filters).subscribe({
       next: res => {
         this.allOrders = res.data?.content || [];
         this.totalElements = res.data?.totalElements || 0;
         this.expandedOrder = null;
         this.loading = false;
-        // Always re-apply filters and sort after loading a new page so that
-        // the filter works consistently across the full paged list.
         this.applySort();
-        this.applyColumnFilters();
         this.dataSource.data = this.buildTableRows();
       },
       error: () => { this.loading = false; }
@@ -275,8 +286,17 @@ export class OrdersComponent implements OnInit, AfterViewChecked {
     this.orderService.sendReceipt(order.id).subscribe({
       next: () => this.snackBar.open('Receipt sent to customer email', 'Close', { duration: 4000 }),
       error: err => {
-        const msg = err.error?.message || err.error?.errorCode || 'Failed to send receipt';
-        this.snackBar.open(msg, 'Close', { duration: 5000 });
+        const body = err.error ?? {};
+        const msg = body.message || body.errorCode || 'Failed to send receipt';
+        const code = body.errorCode as string | undefined;
+        const hint = code === 'EM004'
+          ? ' Verify /me/sendMail in Graph Explorer or use SMTP in Settings.'
+          : code === 'EM001'
+            ? ' Set Company email in Settings.'
+            : code === 'EM002'
+              ? ' Configure SMTP or Microsoft sign-in in Settings.'
+              : '';
+        this.snackBar.open(msg + hint, 'Close', { duration: 7000 });
       }
     });
   }

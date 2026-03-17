@@ -21,8 +21,22 @@ export class OrderService {
 
   constructor(private http: HttpClient) {}
 
-  getAll(page = 0, size = 20): Observable<ApiResponse<PageResponse<OrderResponse>>> {
-    const params = new HttpParams().set('page', page).set('size', size);
+  getAll(
+    page = 0,
+    size = 20,
+    filters?: { id?: string; customer?: string; cashier?: string; items?: string; total?: string; status?: string; payment?: string; date?: string }
+  ): Observable<ApiResponse<PageResponse<OrderResponse>>> {
+    let params = new HttpParams().set('page', page).set('size', size);
+    if (filters) {
+      if (filters.id?.trim()) params = params.set('id', filters.id.trim());
+      if (filters.customer?.trim()) params = params.set('customer', filters.customer.trim());
+      if (filters.cashier?.trim()) params = params.set('cashier', filters.cashier.trim());
+      if (filters.items?.trim()) params = params.set('items', filters.items.trim());
+      if (filters.total?.trim()) params = params.set('total', filters.total.trim());
+      if (filters.status?.trim()) params = params.set('status', filters.status.trim());
+      if (filters.payment?.trim()) params = params.set('paymentMethod', filters.payment.trim());
+      if (filters.date?.trim()) params = params.set('date', filters.date.trim());
+    }
     return this.http.get<ApiResponse<PageResponse<OrderResponse>>>(this.url, { params });
   }
 

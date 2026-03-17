@@ -1,5 +1,51 @@
 @use 'theme' as t;
 
+.offline-blocked-card {
+  margin-bottom: t.$space-md;
+  background: #ffebee;
+  border: 1px solid #ef9a9a;
+
+  mat-card-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: t.$space-lg !important;
+  }
+
+  .blocked-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    color: #c62828;
+    margin-bottom: t.$space-sm;
+  }
+
+  h3 { margin: 0 0 t.$space-sm; font-size: 1.1em; }
+  p { margin: 0; color: t.$color-text-secondary; }
+  a { color: t.$color-primary; }
+}
+
+.offline-pending-banner {
+  margin-bottom: t.$space-md;
+  background: #fff3e0;
+  border: 1px solid #ffb74d;
+
+  mat-card-content {
+    display: flex;
+    align-items: center;
+    gap: t.$space-md;
+  }
+
+  .banner-icon {
+    color: #e65100;
+  }
+
+  .banner-text {
+    flex: 1;
+  }
+}
+
 .table-wrap { overflow-x: auto; }
 
 .col-th { vertical-align: middle !important; padding: 4px 6px !important; }

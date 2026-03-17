@@ -28,8 +28,14 @@ export class ProductService {
 
   constructor(private http: HttpClient) {}
 
-  getAll(search?: string, categoryId?: number, page = 0, size = 20, sort?: string): Observable<ApiResponse<PageResponse<ProductResponse>>> {
-    // Add cache-busting param so refreshed list after bulk upload always shows latest data.
+  getAll(
+    search?: string,
+    categoryId?: number,
+    page = 0,
+    size = 20,
+    sort?: string,
+    filters?: { status?: string; price?: string; stock?: string; updatedAt?: string; sku?: string; barcode?: string }
+  ): Observable<ApiResponse<PageResponse<ProductResponse>>> {
     let params = new HttpParams()
       .set('page', page)
       .set('size', size)
@@ -37,6 +43,14 @@ export class ProductService {
     if (search) params = params.set('search', search);
     if (categoryId) params = params.set('categoryId', categoryId);
     if (sort) params = params.set('sort', sort);
+    if (filters) {
+      if (filters.status?.trim()) params = params.set('status', filters.status.trim());
+      if (filters.price?.trim()) params = params.set('price', filters.price.trim());
+      if (filters.stock?.trim()) params = params.set('stock', filters.stock.trim());
+      if (filters.updatedAt?.trim()) params = params.set('updatedAt', filters.updatedAt.trim());
+      if (filters.sku?.trim()) params = params.set('sku', filters.sku.trim());
+      if (filters.barcode?.trim()) params = params.set('barcode', filters.barcode.trim());
+    }
     return this.http.get<ApiResponse<PageResponse<ProductResponse>>>(this.url, { params });
   }
 

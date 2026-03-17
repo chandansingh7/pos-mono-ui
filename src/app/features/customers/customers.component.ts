@@ -53,12 +53,10 @@ export class CustomersComponent implements OnInit {
     // Default: newest customers first
     this.sortCol = 'updatedAt';
     this.sortDir = 'desc';
-    this.setupFilterPredicate();
     this.load();
     this.loadStats();
-    this.filters.get('name')?.valueChanges.pipe(debounceTime(350), distinctUntilChanged())
+    this.filters.valueChanges.pipe(debounceTime(350), distinctUntilChanged())
       .subscribe(() => this.load(0));
-    this.filters.valueChanges.pipe(debounceTime(200)).subscribe(() => this.applyColumnFilters());
   }
 
   loadStats(): void {
@@ -86,45 +84,22 @@ export class CustomersComponent implements OnInit {
     });
   }
 
-  private setupFilterPredicate(): void {
-    this.dataSource.filterPredicate = (row: CustomerResponse, filter: string) => {
-      const f = JSON.parse(filter);
-      return [
-        this.contains(row.name, f.name),
-        this.contains(row.email, f.email),
-        this.contains(row.phone, f.phone),
-        this.contains(row.createdAt, f.createdAt),
-        this.contains(row.updatedAt, f.updatedAt),
-      ].every(Boolean);
-    };
-  }
-
-  private contains(value: string | null | undefined, filter: string): boolean {
-    if (!filter) return true;
-    return (value ?? '').toString().toLowerCase().includes(filter.toLowerCase());
-  }
-
-  private applyColumnFilters(): void {
-    const v = this.filters.value;
-    this.dataSource.filter = JSON.stringify({
-      name:      v.name      || '',
-      email:     v.email     || '',
-      phone:     v.phone     || '',
-      createdAt: v.createdAt || '',
-      updatedAt: v.updatedAt || '',
-    });
-  }
-
   load(page = 0): void {
     this.loading = true;
-    const filters = this.filters.value;
-    const search = (filters.name || '').toString().trim();
-    this.customerService.getAll(search, page, this.pageSize).subscribe({
+    const v = this.filters.value;
+    const search = (v.name || '').toString().trim();
+    const filters = {
+      name: v.name || '',
+      email: v.email || '',
+      phone: v.phone || '',
+      createdAt: v.createdAt || '',
+      updatedAt: v.updatedAt || '',
+    };
+    this.customerService.getAll(search, page, this.pageSize, filters).subscribe({
       next: res => {
         this.dataSource.data = res.data?.content || [];
         this.totalElements   = res.data?.totalElements || 0;
         this.loading = false;
-        this.applyColumnFilters();
         this.applySort();
       },
       error: () => { this.loading = false; }

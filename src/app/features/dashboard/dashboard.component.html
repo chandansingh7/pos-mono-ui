@@ -9,12 +9,21 @@
   </a>
 </div>
 
+<!-- ── Offline blocked ──────────────────────────────────────────────────────── -->
+<mat-card class="offline-blocked-card" *ngIf="dashboardBlockedOffline">
+  <mat-card-content>
+    <mat-icon class="blocked-icon">cloud_off</mat-icon>
+    <h3>Dashboard unavailable offline</h3>
+    <p>Admin has disabled dashboard access when offline. Go to <a routerLink="/app/pos">POS</a> if enabled, or wait until you're back online.</p>
+  </mat-card-content>
+</mat-card>
+
 <!-- ── Loading ──────────────────────────────────────────────────────────────── -->
-<div *ngIf="loading" class="loading-center">
+<div *ngIf="loading && !dashboardBlockedOffline" class="loading-center">
   <mat-spinner diameter="48"></mat-spinner>
 </div>
 
-<ng-container *ngIf="!loading">
+<ng-container *ngIf="!loading && !dashboardBlockedOffline">
 
   <!-- ── KPI Cards — 6 across ─────────────────────────────────────────────── -->
   <div class="kpi-grid">

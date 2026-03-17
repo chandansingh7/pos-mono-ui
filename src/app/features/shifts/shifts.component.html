@@ -48,7 +48,7 @@
       </div>
       <div class="summary-row">
         <span>Expected cash</span>
-        <span>{{ (currentShift.expectedCash ?? (currentShift.openingFloat + (currentShift.cashSales || 0))) | currency:currencyCode }}</span>
+        <span>{{ currentShift.expectedCash | currency:currencyCode }}</span>
       </div>
     </div>
 

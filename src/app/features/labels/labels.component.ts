@@ -135,6 +135,18 @@ export class LabelsComponent implements OnInit {
       if (this.activeTab === 0) this.loadProducts(0);
       else this.loadLabels(0);
     });
+    this.productSkuFilter.valueChanges.pipe(debounceTime(350), distinctUntilChanged())
+      .subscribe(() => { if (this.activeTab === 0) this.loadProducts(0); });
+    this.productBarcodeFilter.valueChanges.pipe(debounceTime(350), distinctUntilChanged())
+      .subscribe(() => { if (this.activeTab === 0) this.loadProducts(0); });
+    this.productPriceFilter.valueChanges.pipe(debounceTime(350), distinctUntilChanged())
+      .subscribe(() => { if (this.activeTab === 0) this.loadProducts(0); });
+    this.labelSkuFilter.valueChanges.pipe(debounceTime(350), distinctUntilChanged())
+      .subscribe(() => { if (this.activeTab === 1) this.loadLabels(0); });
+    this.labelBarcodeFilter.valueChanges.pipe(debounceTime(350), distinctUntilChanged())
+      .subscribe(() => { if (this.activeTab === 1) this.loadLabels(0); });
+    this.labelPriceFilter.valueChanges.pipe(debounceTime(350), distinctUntilChanged())
+      .subscribe(() => { if (this.activeTab === 1) this.loadLabels(0); });
   }
 
   clearFilters(): void {
@@ -212,13 +224,19 @@ export class LabelsComponent implements OnInit {
   // ── Products tab ────────────────────────────────────────────────────────────
   loadProducts(page = 0): void {
     this.loading = true;
+    const filters = {
+      sku: this.productSkuFilter.value || '',
+      barcode: this.productBarcodeFilter.value || '',
+      price: this.productPriceFilter.value || '',
+    };
     this.productService
       .getAll(
         this.searchControl.value || '',
         this.categoryFilter.value ?? undefined,
         page,
         this.pageSize,
-        'name,asc'
+        'name,asc',
+        filters
       )
       .subscribe({
         next: (res: ApiResponse<PageResponse<ProductResponse>>) => {
@@ -290,12 +308,19 @@ export class LabelsComponent implements OnInit {
   // ── Standalone Labels tab ────────────────────────────────────────────────────
   loadLabels(page = 0): void {
     this.loading = true;
+    const filters = {
+      sku: this.labelSkuFilter.value || '',
+      barcode: this.labelBarcodeFilter.value || '',
+      price: this.labelPriceFilter.value || '',
+    };
     this.labelService
       .getAll(
         this.searchControl.value || '',
         this.categoryFilter.value ?? undefined,
         page,
-        this.pageSize
+        this.pageSize,
+        'createdAt,desc',
+        filters
       )
       .subscribe({
         next: (res: ApiResponse<PageResponse<LabelResponse>>) => {
@@ -492,30 +517,14 @@ export class LabelsComponent implements OnInit {
 
   // ── Client-side column filters (per current page) ────────────────────────────
 
+  /** Products filtered server-side; display as-is. */
   get filteredProducts(): ProductResponse[] {
-    const skuFilter = (this.productSkuFilter.value || '').toString().trim().toLowerCase();
-    const barcodeFilter = (this.productBarcodeFilter.value || '').toString().trim().toLowerCase();
-    const priceFilter = (this.productPriceFilter.value || '').toString().trim();
-
-    return this.products.filter(p => {
-      if (skuFilter && !(p.sku ?? '').toLowerCase().includes(skuFilter)) return false;
-      if (barcodeFilter && !(p.barcode ?? '').toLowerCase().includes(barcodeFilter)) return false;
-      if (priceFilter && !(p.price != null && p.price.toString().includes(priceFilter))) return false;
-      return true;
-    });
+    return this.products;
   }
 
+  /** Labels filtered server-side; display as-is. */
   get filteredLabels(): LabelResponse[] {
-    const skuFilter = (this.labelSkuFilter.value || '').toString().trim().toLowerCase();
-    const barcodeFilter = (this.labelBarcodeFilter.value || '').toString().trim().toLowerCase();
-    const priceFilter = (this.labelPriceFilter.value || '').toString().trim();
-
-    return this.labels.filter(l => {
-      if (skuFilter && !(l.sku ?? '').toLowerCase().includes(skuFilter)) return false;
-      if (barcodeFilter && !(l.barcode ?? '').toLowerCase().includes(barcodeFilter)) return false;
-      if (priceFilter && !(l.price != null && l.price.toString().includes(priceFilter))) return false;
-      return true;
-    });
+    return this.labels;
   }
 
   /** Open bulk print dialog for selected products (From Products tab). */
