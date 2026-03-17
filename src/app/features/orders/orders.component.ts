@@ -186,9 +186,11 @@ export class OrdersComponent implements OnInit, AfterViewChecked {
         this.totalElements = res.data?.totalElements || 0;
         this.expandedOrder = null;
         this.loading = false;
-        this.dataSource.data = this.buildTableRows();
-        this.applyColumnFilters();
+        // Always re-apply filters and sort after loading a new page so that
+        // the filter works consistently across the full paged list.
         this.applySort();
+        this.applyColumnFilters();
+        this.dataSource.data = this.buildTableRows();
       },
       error: () => { this.loading = false; }
     });
