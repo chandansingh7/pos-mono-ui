@@ -1,9 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Subscription } from 'rxjs';
 import { ShiftService } from '../../core/services/shift.service';
 import { AuthService } from '../../core/services/auth.service';
 import { CompanyService } from '../../core/services/company.service';
+import { NetworkStatusService } from '../../core/services/network-status.service';
+import { OfflineSyncService } from '../../core/services/offline-sync.service';
 import { ShiftResponse } from '../../core/models/shift.models';
 import { MatDialog } from '@angular/material/dialog';
 import {
@@ -16,7 +19,7 @@ import {
   templateUrl: './shifts.component.html',
   styleUrls: ['./shifts.component.scss']
 })
-export class ShiftsComponent implements OnInit {
+export class ShiftsComponent implements OnInit, OnDestroy {
   loading = false;
   currentShift: ShiftResponse | null = null;
   errorMessage: string | null = null;
@@ -24,15 +27,21 @@ export class ShiftsComponent implements OnInit {
   openCount = 0;
   listLoading = false;
 
+  isOffline = false;
+
   openForm: FormGroup;
   closeForm: FormGroup;
   displayedColumns = ['cashier', 'openedAt', 'closedAt', 'openingFloat', 'cashSales', 'expectedCash', 'countedCash', 'difference', 'status', 'actions'];
+
+  private subs = new Subscription();
 
   constructor(
     private fb: FormBuilder,
     private shiftService: ShiftService,
     private authService: AuthService,
     private companyService: CompanyService,
+    private networkStatus: NetworkStatusService,
+    private offlineSync: OfflineSyncService,
     private snackBar: MatSnackBar,
     private dialog: MatDialog
   ) {
@@ -53,11 +62,26 @@ export class ShiftsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.refresh();
+    this.subs.add(
+      this.networkStatus.isOffline$.subscribe(off => {
+        this.isOffline = off;
+        if (!off) {
+          // Came back online: trigger sync, then refresh
+          this.offlineSync.triggerSync();
+          setTimeout(() => this.refresh(), 2500);
+        }
+        this.refresh();
+      })
+    );
     if (this.isManagerPlus) this.loadOverview();
   }
 
+  ngOnDestroy(): void {
+    this.subs.unsubscribe();
+  }
+
   loadOverview(): void {
+    if (this.isOffline) return;
     this.listLoading = true;
     this.shiftService.list(0, 50).subscribe({
       next: res => {
@@ -104,8 +128,12 @@ export class ShiftsComponent implements OnInit {
     this.shiftService.open(this.openForm.value).subscribe({
       next: res => {
         this.currentShift = res.data ?? null;
-        if (this.isManagerPlus) this.loadOverview();
-        this.snackBar.open('Shift opened', 'Close', { duration: 3000 });
+        if (this.currentShift && this.isOffline) {
+          this.currentShift = { ...this.currentShift, isOffline: true };
+        }
+        if (this.isManagerPlus && !this.isOffline) this.loadOverview();
+        const msg = this.isOffline ? 'Shift opened offline — will sync when online.' : 'Shift opened';
+        this.snackBar.open(msg, 'Close', { duration: 4000 });
         this.loading = false;
       },
       error: err => {
@@ -117,12 +145,15 @@ export class ShiftsComponent implements OnInit {
 
   closeShift(): void {
     if (this.closeForm.invalid) return;
+    if (this.currentShift?.isOffline) {
+      this.snackBar.open('You are offline. Get back online to close your shift.', 'Close', { duration: 5000 });
+      return;
+    }
     this.loading = true;
     this.shiftService.close(this.closeForm.value).subscribe({
       next: res => {
         const closed = res.data ?? null;
         let message = 'Shift closed.';
-
         if (closed && closed.difference !== undefined && closed.difference !== null) {
           const diff = Number(closed.difference);
           if (!isNaN(diff)) {
@@ -136,8 +167,6 @@ export class ShiftsComponent implements OnInit {
             }
           }
         }
-
-        // Shift is now closed — treat as no active shift and refresh overview
         this.currentShift = null;
         this.closeForm.reset({ countedCash: 0 });
         if (this.isManagerPlus) this.loadOverview();
@@ -164,4 +193,3 @@ export class ShiftsComponent implements OnInit {
     });
   }
 }
-

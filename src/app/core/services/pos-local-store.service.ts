@@ -5,14 +5,28 @@ import { CustomerResponse } from '../models/customer.models';
 import { PaymentMethod } from '../models/order.models';
 
 const DB_NAME = 'pos_offline_db';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 const STORE_COMPANY = 'company';
 const STORE_PRODUCTS = 'products';
 const STORE_CUSTOMERS = 'customers';
 const STORE_ORDERS_LOCAL = 'orders_local';
 const STORE_SYNC_STATE = 'sync_state';
+const STORE_SHIFTS_LOCAL = 'shifts_local';
 
 export type SyncStatus = 'pending' | 'synced' | 'failed';
+
+/** A shift saved locally when the device is offline. */
+export interface LocalShift {
+  /** e.g. "shift_<timestamp>_<random>" — client-generated key */
+  localId: string;
+  openingFloat: number;
+  openedAt: string;         // ISO 8601
+  deviceId: string;
+  syncStatus: SyncStatus;
+  /** Set after successful sync */
+  serverShiftId?: number;
+  lastSyncError?: string;
+}
 
 export interface LocalOrderItem {
   productId: number;
@@ -87,6 +101,12 @@ export class PosLocalStoreService {
         }
         if (!db.objectStoreNames.contains(STORE_SYNC_STATE)) {
           db.createObjectStore(STORE_SYNC_STATE, { keyPath: 'key' });
+        }
+        // v2: local offline shifts
+        if (!db.objectStoreNames.contains(STORE_SHIFTS_LOCAL)) {
+          const ss = db.createObjectStore(STORE_SHIFTS_LOCAL, { keyPath: 'localId' });
+          ss.createIndex('syncStatus', 'syncStatus', { unique: false });
+          ss.createIndex('openedAt', 'openedAt', { unique: false });
         }
       };
     });
@@ -276,4 +296,89 @@ export class PosLocalStoreService {
     }
     return failed.length;
   }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Local Shifts (Phase 3 offline shift support)
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  async saveLocalShift(shift: LocalShift): Promise<void> {
+    await this.run(STORE_SHIFTS_LOCAL, 'readwrite', s => s.put(shift));
+  }
+
+  async getLocalShift(localId: string): Promise<LocalShift | null> {
+    const s = await this.run<LocalShift | undefined>(STORE_SHIFTS_LOCAL, 'readonly', st => st.get(localId));
+    return s ?? null;
+  }
+
+  async getPendingShifts(): Promise<LocalShift[]> {
+    const all = await this.run<LocalShift[]>(STORE_SHIFTS_LOCAL, 'readonly', s => s.getAll());
+    return (all || []).filter(s => s.syncStatus === 'pending');
+  }
+
+  async getOpenLocalShift(): Promise<LocalShift | null> {
+    const pending = await this.getPendingShifts();
+    return pending.length > 0 ? pending[0] : null;
+  }
+
+  async markShiftSynced(localId: string, serverShiftId: number): Promise<void> {
+    const shift = await this.run<LocalShift | undefined>(STORE_SHIFTS_LOCAL, 'readonly', s => s.get(localId));
+    if (shift) {
+      shift.syncStatus = 'synced';
+      shift.serverShiftId = serverShiftId;
+      shift.lastSyncError = undefined;
+      await this.run(STORE_SHIFTS_LOCAL, 'readwrite', s => s.put(shift));
+    }
+  }
+
+  async markShiftFailed(localId: string, reason: string): Promise<void> {
+    const shift = await this.run<LocalShift | undefined>(STORE_SHIFTS_LOCAL, 'readonly', s => s.get(localId));
+    if (shift) {
+      shift.syncStatus = 'failed';
+      shift.lastSyncError = reason;
+      await this.run(STORE_SHIFTS_LOCAL, 'readwrite', s => s.put(shift));
+    }
+  }
+
+  async deleteLocalShift(localId: string): Promise<void> {
+    await this.run(STORE_SHIFTS_LOCAL, 'readwrite', s => s.delete(localId));
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Offline Reports: cached aggregates (Phase 4)
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  /** Daily totals derived entirely from IndexedDB local orders (pending + synced). */
+  async getOfflineReportToday(): Promise<OfflineDailyReport> {
+    const today = new Date().toISOString().slice(0, 10);
+    const all = await this.run<LocalOrder[]>(STORE_ORDERS_LOCAL, 'readonly', s => s.getAll());
+    const todayOrders = (all || []).filter(o => o.createdAt?.startsWith(today));
+    let revenue = 0;
+    let cashRevenue = 0;
+    const paymentBreakdown: Record<string, number> = {};
+    for (const o of todayOrders) {
+      revenue += o.total ?? 0;
+      const pm = (o.paymentMethod as string) || 'UNKNOWN';
+      paymentBreakdown[pm] = (paymentBreakdown[pm] ?? 0) + (o.total ?? 0);
+      if (pm === 'CASH') cashRevenue += o.total ?? 0;
+    }
+    return {
+      date: today,
+      orderCount: todayOrders.length,
+      revenue,
+      cashRevenue,
+      paymentBreakdown,
+      pendingSync: todayOrders.filter(o => o.syncStatus === 'pending').length,
+      failedSync: todayOrders.filter(o => o.syncStatus === 'failed').length,
+    };
+  }
+}
+
+export interface OfflineDailyReport {
+  date: string;
+  orderCount: number;
+  revenue: number;
+  cashRevenue: number;
+  paymentBreakdown: Record<string, number>;
+  pendingSync: number;
+  failedSync: number;
 }

@@ -120,3 +120,53 @@ tr.row-selected .mat-mdc-cell {
   tfoot tr { background: #fafafa; }
   .total-row td { font-size: t.$font-size-md; }
 }
+
+// ── Offline row chips (Phase 3 unified list) ─────────────────────────────────
+
+.chip-offline-pending {
+  background: #ff9800 !important;
+  color: #fff !important;
+  font-size: 11px !important;
+}
+
+.chip-offline-failed {
+  background: #f44336 !important;
+  color: #fff !important;
+  font-size: 11px !important;
+}
+
+.chip-icon {
+  font-size: 14px !important;
+  width: 14px !important;
+  height: 14px !important;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
+// ── Conflict resolution panel (Phase 4) ─────────────────────────────────────
+
+.conflict-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: #ffebee;
+  border: 1px solid #ef9a9a;
+  border-radius: 6px;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  font-size: 13px;
+  color: #b71c1c;
+
+  mat-icon { flex-shrink: 0; margin-top: 1px; }
+
+  .conflict-hint {
+    margin-top: 4px;
+    font-size: 12px;
+    color: #5d4037;
+  }
+
+  .retry-btn {
+    margin-top: 8px;
+    font-size: 12px;
+  }
+}

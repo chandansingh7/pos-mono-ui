@@ -11,6 +11,8 @@ export interface ShiftResponse {
   status: ShiftStatus;
   openedAt: string;
   closedAt?: string;
+  /** True when the shift was opened offline and not yet synced to the server. */
+  isOffline?: boolean;
 }
 
 export interface OpenShiftRequest {

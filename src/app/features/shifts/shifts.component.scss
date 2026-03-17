@@ -59,3 +59,47 @@
   text-align: right;
 }
 
+.offline-banner {
+  margin-top: 12px;
+  background: #fff3e0;
+
+  mat-card-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: #e65100;
+    padding: 10px 16px !important;
+  }
+
+  mat-icon {
+    flex-shrink: 0;
+  }
+}
+
+.offline-close-note {
+  margin: 12px 0;
+  background: #e3f2fd;
+
+  mat-card-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: #0d47a1;
+    padding: 8px 16px !important;
+  }
+
+  mat-icon {
+    flex-shrink: 0;
+  }
+}
+
+.chip-offline {
+  background: #ff9800 !important;
+  color: #fff !important;
+  font-size: 11px !important;
+  height: 20px !important;
+  margin-left: 8px;
+}
+

@@ -2,6 +2,14 @@
   <h2>Shifts &amp; cash drawer</h2>
 </div>
 
+<!-- ── Offline banner ─────────────────────────────────────────────────────────── -->
+<mat-card class="offline-banner" *ngIf="isOffline">
+  <mat-card-content>
+    <mat-icon>cloud_off</mat-icon>
+    <span>You are offline. You can open a shift — it will sync to the server when you reconnect. Closing a shift requires an internet connection.</span>
+  </mat-card-content>
+</mat-card>
+
 <mat-card class="card card-warn" *ngIf="errorMessage">
   <mat-card-content>
     <p>{{ errorMessage }}</p>
@@ -30,7 +38,10 @@
 
 <mat-card class="card" *ngIf="!loading && currentShift && !errorMessage">
   <mat-card-header>
-    <mat-card-title>Current shift</mat-card-title>
+    <mat-card-title>
+      Current shift
+      <mat-chip *ngIf="currentShift.isOffline" class="chip-offline">Offline — pending sync</mat-chip>
+    </mat-card-title>
     <mat-card-subtitle>
       Cashier: {{ currentShift.cashierUsername }} • Opened at:
       {{ currentShift.openedAt | date:'short' }}
@@ -52,7 +63,15 @@
       </div>
     </div>
 
-    <form [formGroup]="closeForm" class="shift-form close-form">
+    <!-- Close is disabled when shift is offline (requires server) -->
+    <mat-card class="offline-close-note" *ngIf="currentShift.isOffline">
+      <mat-card-content>
+        <mat-icon>info</mat-icon>
+        <span>Go online to close this shift and record the reconciliation.</span>
+      </mat-card-content>
+    </mat-card>
+
+    <form [formGroup]="closeForm" class="shift-form close-form" *ngIf="!currentShift.isOffline">
       <mat-form-field appearance="outline" subscriptSizing="dynamic" class="full-width">
         <mat-label>Counted cash in drawer</mat-label>
         <input matInput type="number" formControlName="countedCash" min="0" step="0.01">

@@ -301,6 +301,42 @@
   </mat-card-content>
 </mat-card>
 
+<!-- Phase 4: Offline daily report cached from IndexedDB -->
+<mat-card class="card" *ngIf="!loading && offlineReport">
+  <mat-card-header>
+    <mat-card-title>Offline report — Today</mat-card-title>
+    <mat-card-subtitle>Aggregated from locally cached orders on this device ({{ offlineReport.date }})</mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
+    <div class="sync-diagnostics">
+      <div class="sync-row">
+        <span class="sync-label">Orders today (local):</span>
+        <strong>{{ offlineReport.orderCount }}</strong>
+      </div>
+      <div class="sync-row">
+        <span class="sync-label">Total revenue:</span>
+        <strong>{{ offlineReport.revenue | currency:currencyCode }}</strong>
+      </div>
+      <div class="sync-row">
+        <span class="sync-label">Cash revenue:</span>
+        <strong>{{ offlineReport.cashRevenue | currency:currencyCode }}</strong>
+      </div>
+      <div class="sync-row" *ngFor="let entry of offlineReportPaymentEntries">
+        <span class="sync-label">{{ entry.method }}:</span>
+        <span>{{ entry.amount | currency:currencyCode }}</span>
+      </div>
+      <div class="sync-row" *ngIf="offlineReport.pendingSync > 0">
+        <span class="sync-label warn-text">Pending sync:</span>
+        <strong class="warn-text">{{ offlineReport.pendingSync }}</strong>
+      </div>
+      <div class="sync-row" *ngIf="offlineReport.failedSync > 0">
+        <span class="sync-label warn-text">Failed sync:</span>
+        <strong class="warn-text">{{ offlineReport.failedSync }}</strong>
+      </div>
+    </div>
+  </mat-card-content>
+</mat-card>
+
 <mat-card class="card" *ngIf="!loading">
   <mat-card-header>
     <mat-card-title>Offline behaviour</mat-card-title>

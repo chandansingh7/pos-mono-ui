@@ -10,15 +10,35 @@ import { OrderService, OrderStats } from '../../core/services/order.service';
 import { AuthService } from '../../core/services/auth.service';
 import { CompanyService } from '../../core/services/company.service';
 import { NetworkStatusService } from '../../core/services/network-status.service';
-import { PosLocalStoreService } from '../../core/services/pos-local-store.service';
+import { PosLocalStoreService, LocalOrder } from '../../core/services/pos-local-store.service';
 import { OfflineSyncService } from '../../core/services/offline-sync.service';
 import { OfflineSettingsService } from '../../core/services/offline-settings.service';
 import { OrderResponse } from '../../core/models/order.models';
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
 import { formatCurrency } from '../../core/utils/currency.util';
 
+/** An offline order wrapped to match the OrderResponse shape for the table. */
+export interface OfflineOrderRow {
+  id: number;
+  customerName?: string;
+  cashierUsername: string;
+  items: Array<{ productName: string; quantity: number; subtotal: number }>;
+  total: number;
+  subtotal: number;
+  tax: number;
+  discount: number;
+  paymentMethod: string;
+  status: string;
+  createdAt: string;
+  /** Differentiates offline-only rows in the unified list. */
+  isOfflineRow: true;
+  offlineSyncStatus: 'pending' | 'synced' | 'failed';
+  offlineLocalId: string;
+  offlineError?: string;
+}
+
 /** Row model: either an order or a detail placeholder (shown below the expanded order). */
-export type OrderTableRow = OrderResponse | { isDetailRow: true; order: OrderResponse };
+export type OrderTableRow = OrderResponse | OfflineOrderRow | { isDetailRow: true; order: OrderResponse | OfflineOrderRow };
 
 @Component({
   selector: 'app-orders',
@@ -37,10 +57,12 @@ export class OrdersComponent implements OnInit, AfterViewChecked {
   totalElements = 0;
   pageSize = 10;
   loading = false;
-  expandedOrder: OrderResponse | null = null;
+  expandedOrder: OrderResponse | OfflineOrderRow | null = null;
 
   /** Orders for current page (from server); detail rows are inserted in buildTableRows(). */
   private allOrders: OrderResponse[] = [];
+  /** Offline orders from IndexedDB merged into the list. */
+  private offlineOrders: OfflineOrderRow[] = [];
 
   /** Pending offline orders count (from IndexedDB). */
   pendingOfflineCount = 0;
@@ -101,7 +123,42 @@ export class OrdersComponent implements OnInit, AfterViewChecked {
     this.localStore.init().then(async () => {
       this.pendingOfflineCount = await this.localStore.getPendingCount();
       this.failedOfflineCount = await this.localStore.getFailedCount();
+      await this.loadOfflineOrders();
     });
+  }
+
+  /** Load all local offline orders and merge them into the table. */
+  private async loadOfflineOrders(): Promise<void> {
+    await this.localStore.init();
+    const local = await this.localStore.getAllLocalOrders();
+    this.offlineOrders = local
+      .filter(o => o.syncStatus === 'pending' || o.syncStatus === 'failed')
+      .map(o => this.localOrderToRow(o));
+    this.dataSource.data = this.buildTableRows();
+  }
+
+  private localOrderToRow(o: LocalOrder): OfflineOrderRow {
+    return {
+      id: o.serverOrderId ?? 0,
+      customerName: o.customerName,
+      cashierUsername: 'you (offline)',
+      items: (o.items || []).map(i => ({
+        productName: i.productName ?? `Product #${i.productId}`,
+        quantity: i.quantity,
+        subtotal: i.subtotal ?? 0
+      })),
+      total: o.total,
+      subtotal: o.subtotal,
+      tax: o.tax,
+      discount: o.discount,
+      paymentMethod: o.paymentMethod as string,
+      status: o.syncStatus === 'failed' ? 'OFFLINE_FAILED' : 'OFFLINE_PENDING',
+      createdAt: o.createdAt,
+      isOfflineRow: true,
+      offlineSyncStatus: o.syncStatus,
+      offlineLocalId: o.localId,
+      offlineError: o.lastSyncError
+    };
   }
 
   async retryFailedSync(): Promise<void> {
@@ -142,7 +199,7 @@ export class OrdersComponent implements OnInit, AfterViewChecked {
   private applySort(): void {
     if (!this.sortCol) return;
     const dir = this.sortDir === 'asc' ? 1 : -1;
-    this.allOrders = [...this.allOrders].sort((a, b) => {
+    const sortFn = (a: any, b: any) => {
       let va: any, vb: any;
       switch (this.sortCol) {
         case 'customer': va = a.customerName ?? 'Walk-in'; vb = b.customerName ?? 'Walk-in'; break;
@@ -150,31 +207,45 @@ export class OrdersComponent implements OnInit, AfterViewChecked {
         case 'items':    va = a.items?.length ?? 0; vb = b.items?.length ?? 0; break;
         case 'payment':  va = a.paymentMethod; vb = b.paymentMethod; break;
         case 'date':     va = a.createdAt; vb = b.createdAt; break;
-        default:         va = (a as any)[this.sortCol]; vb = (b as any)[this.sortCol];
+        default:         va = a[this.sortCol]; vb = b[this.sortCol];
       }
       va = (va ?? '').toString().toLowerCase();
       vb = (vb ?? '').toString().toLowerCase();
       return (va < vb ? -1 : va > vb ? 1 : 0) * dir;
-    });
+    };
+    this.allOrders = [...this.allOrders].sort(sortFn);
     this.dataSource.data = this.buildTableRows();
   }
 
-  /** Build table rows: orders with optional detail row inserted after expanded order. */
+  /** Build table rows: server orders + offline orders (at top), with detail row after expanded. */
   private buildTableRows(): OrderTableRow[] {
     const rows: OrderTableRow[] = [];
+    // Offline rows first (most recent activity visible immediately)
+    for (const o of this.offlineOrders) {
+      rows.push(o);
+      if (this.expandedOrder && 'offlineLocalId' in this.expandedOrder && this.expandedOrder.offlineLocalId === o.offlineLocalId) {
+        rows.push({ isDetailRow: true, order: o });
+      }
+    }
     for (const o of this.allOrders) {
       rows.push(o);
-      if (this.expandedOrder?.id === o.id) rows.push({ isDetailRow: true, order: o });
+      if (this.expandedOrder && !('offlineLocalId' in this.expandedOrder) && this.expandedOrder.id === o.id) {
+        rows.push({ isDetailRow: true, order: o });
+      }
     }
     return rows;
   }
 
-  isOrderRow(row: OrderTableRow): row is OrderResponse {
+  isOrderRow(row: OrderTableRow): row is OrderResponse | OfflineOrderRow {
     return row != null && !(row as any).isDetailRow;
   }
 
-  isDetailRow(row: OrderTableRow): row is { isDetailRow: true; order: OrderResponse } {
+  isDetailRow(row: OrderTableRow): row is { isDetailRow: true; order: OrderResponse | OfflineOrderRow } {
     return row != null && !!(row as any).isDetailRow;
+  }
+
+  isOfflineOrderRow(row: OrderTableRow): row is OfflineOrderRow {
+    return row != null && !!(row as any).isOfflineRow;
   }
 
   /** For matRowDef when: predicate (index, row) => boolean */
@@ -201,7 +272,10 @@ export class OrdersComponent implements OnInit, AfterViewChecked {
         this.expandedOrder = null;
         this.loading = false;
         this.applySort();
-        this.dataSource.data = this.buildTableRows();
+        // Merge offline orders into the table
+        this.localStore.init().then(async () => {
+          await this.loadOfflineOrders();
+        });
       },
       error: () => { this.loading = false; }
     });
@@ -213,14 +287,23 @@ export class OrdersComponent implements OnInit, AfterViewChecked {
     if (this.isOrderRow(row)) this.toggleExpand(row);
   }
 
-  toggleExpand(order: OrderResponse): void {
-    const opening = this.expandedOrder?.id !== order.id;
-    this.expandedOrder = this.expandedOrder?.id === order.id ? null : order;
+  toggleExpand(order: OrderResponse | OfflineOrderRow): void {
+    const isOffline = 'offlineLocalId' in order;
+    const currentIsOffline = this.expandedOrder && 'offlineLocalId' in this.expandedOrder;
+    const isSame = isOffline && currentIsOffline
+      ? (this.expandedOrder as OfflineOrderRow).offlineLocalId === order.offlineLocalId
+      : !isOffline && !currentIsOffline && this.expandedOrder?.id === order.id;
+    const opening = !isSame;
+    this.expandedOrder = isSame ? null : order;
     this.dataSource.data = this.buildTableRows();
     if (opening && this.expandedOrder) this.scrollToDetailOnce = true;
   }
 
-  cancelOrder(order: OrderResponse): void {
+  cancelOrder(order: OrderResponse | OfflineOrderRow): void {
+    if ('isOfflineRow' in order) {
+      this.snackBar.open('Cannot cancel an offline order from here. It will be created when synced.', 'Close', { duration: 4000 });
+      return;
+    }
     this.dialog.open(ConfirmDialogComponent, {
       data: { title: 'Cancel Order', message: `Cancel Order #${order.id}?`, confirmText: 'Cancel Order' }
     }).afterClosed().subscribe(confirmed => {
@@ -232,7 +315,8 @@ export class OrdersComponent implements OnInit, AfterViewChecked {
     });
   }
 
-  refundOrder(order: OrderResponse): void {
+  refundOrder(order: OrderResponse | OfflineOrderRow): void {
+    if ('isOfflineRow' in order) return;
     this.dialog.open(ConfirmDialogComponent, {
       data: { title: 'Refund Order', message: `Issue refund for Order #${order.id}?`, confirmText: 'Refund' }
     }).afterClosed().subscribe(() => {
@@ -240,7 +324,7 @@ export class OrdersComponent implements OnInit, AfterViewChecked {
     });
   }
 
-  printReceipt(order: OrderResponse): void {
+  printReceipt(order: OrderResponse | OfflineOrderRow): void {
     const c = this.companyService.getCached();
     const widthClass = (c?.receiptPaperSize === '58mm') ? 'receipt-58' : (c?.receiptPaperSize === 'A4') ? 'receipt-a4' : 'receipt-80';
     const w = window.open('', '_blank', 'width=400,height=600');
@@ -282,7 +366,11 @@ export class OrdersComponent implements OnInit, AfterViewChecked {
     setTimeout(() => { w.print(); w.close(); }, 250);
   }
 
-  emailReceipt(order: OrderResponse): void {
+  emailReceipt(order: OrderResponse | OfflineOrderRow): void {
+    if ('isOfflineRow' in order) {
+      this.snackBar.open('Email receipt is not available for offline orders until they are synced.', 'Close', { duration: 4000 });
+      return;
+    }
     this.orderService.sendReceipt(order.id).subscribe({
       next: () => this.snackBar.open('Receipt sent to customer email', 'Close', { duration: 4000 }),
       error: err => {

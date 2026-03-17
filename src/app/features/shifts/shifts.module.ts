@@ -10,7 +10,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatIconModule } from '@angular/material/icon';
+import { MatDialogModule } from '@angular/material/dialog';
 import { ShiftsComponent } from './shifts.component';
+import { SharedModule } from '../../shared/shared.module';
 
 const routes: Routes = [
   { path: '', component: ShiftsComponent }
@@ -21,6 +24,7 @@ const routes: Routes = [
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    SharedModule,
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,
@@ -29,6 +33,8 @@ const routes: Routes = [
     MatSnackBarModule,
     MatTableModule,
     MatChipsModule,
+    MatIconModule,
+    MatDialogModule,
     RouterModule.forChild(routes)
   ]
 })

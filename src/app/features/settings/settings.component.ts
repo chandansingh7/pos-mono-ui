@@ -8,7 +8,7 @@ import { CompanyResponse, RECEIPT_PAPER_SIZES, DISPLAY_CURRENCIES, DISPLAY_LOCAL
 import { COUNTRIES, getDefaultWeightUnitForCountry, getDefaultVolumeUnitForCountry } from '../../core/data/countries.data';
 import { resolveProductImageUrl } from '../../core/utils/product-image.util';
 import { LabelPrintTemplate, LabelPrintTemplateId, resolveLabelPrintTemplate } from '../labels/label-print-template.util';
-import { PosLocalStoreService } from '../../core/services/pos-local-store.service';
+import { PosLocalStoreService, OfflineDailyReport } from '../../core/services/pos-local-store.service';
 import { OfflineSyncService } from '../../core/services/offline-sync.service';
 
 @Component({
@@ -34,6 +34,8 @@ export class SettingsComponent implements OnInit {
   verifyingEmail = false;
 
   syncDiagnostics: { pendingCount: number; failedCount: number; lastSyncAt?: string } | null = null;
+  offlineReport: OfflineDailyReport | null = null;
+  offlineReportPaymentEntries: Array<{ method: string; amount: number }> = [];
 
   labelTemplates: LabelPrintTemplate[] = [
     { id: 'A4_2x4', name: 'A4 — 2×4 (8 per page)', pageWidthMm: 210, pageHeightMm: 297, columns: 2, rows: 4, gapMm: 6, pagePaddingMm: 8, labelPaddingMm: 4 },
@@ -136,6 +138,21 @@ export class SettingsComponent implements OnInit {
         lastSyncAt: syncState?.lastFullSyncAt || undefined
       };
     });
+    this.loadOfflineReport();
+  }
+
+  loadOfflineReport(): void {
+    this.localStore.init().then(async () => {
+      const report = await this.localStore.getOfflineReportToday();
+      this.offlineReport = report.orderCount > 0 ? report : null;
+      this.offlineReportPaymentEntries = Object.entries(report.paymentBreakdown)
+        .map(([method, amount]) => ({ method, amount }))
+        .filter(e => e.method !== 'CASH'); // cash is shown separately
+    });
+  }
+
+  get currencyCode(): string {
+    return this.form?.value?.displayCurrency || this.company?.displayCurrency || 'USD';
   }
 
   async retryFailedSync(): Promise<void> {
