@@ -76,8 +76,18 @@ export class PosLocalStoreService {
     this.initPromise = new Promise((resolve, reject) => {
       const req = indexedDB.open(DB_NAME, DB_VERSION);
       req.onerror = () => reject(req.error);
+      req.onblocked = () => {
+        // Another tab/connection has the DB open at an older version.
+        // The upgrade will proceed once those connections close.
+      };
       req.onsuccess = () => {
         this.db = req.result;
+        // Close the connection gracefully when the DB is deleted or upgraded elsewhere.
+        this.db.onversionchange = () => {
+          this.db?.close();
+          this.db = null;
+          this.initPromise = null;
+        };
         resolve();
       };
       req.onupgradeneeded = (e) => {
@@ -111,6 +121,13 @@ export class PosLocalStoreService {
       };
     });
     return this.initPromise;
+  }
+
+  /** Close the underlying IDBDatabase connection and reset state. Used in tests. */
+  closeForTesting(): void {
+    this.db?.close();
+    this.db = null;
+    this.initPromise = null;
   }
 
   getDeviceId(): string {

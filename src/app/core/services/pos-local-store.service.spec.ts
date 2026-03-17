@@ -1,16 +1,23 @@
 import { TestBed } from '@angular/core/testing';
-import { PosLocalStoreService, LocalOrder } from './pos-local-store.service';
+import { PosLocalStoreService, LocalOrder, LocalShift } from './pos-local-store.service';
 import { ProductResponse } from '../models/product.models';
 import { CompanyResponse } from '../models/company.models';
-import { CustomerResponse } from '../models/customer.models';
 
 const TEST_DB_NAME = 'pos_offline_db';
 
-function deleteTestDb(): Promise<void> {
+/**
+ * Close the service connection first, then delete the DB.
+ * Without closing, indexedDB.deleteDatabase fires onblocked and never
+ * completes while an open IDBDatabase connection exists.
+ */
+function deleteTestDb(service?: PosLocalStoreService): Promise<void> {
+  service?.closeForTesting();
   return new Promise((resolve) => {
     const req = indexedDB.deleteDatabase(TEST_DB_NAME);
     req.onsuccess = () => resolve();
     req.onerror = () => resolve();
+    // onblocked fires when another connection is still open; we already closed
+    // ours above, so this should not happen — but resolve anyway just in case.
     req.onblocked = () => resolve();
   });
 }
@@ -19,15 +26,21 @@ describe('PosLocalStoreService', () => {
   let service: PosLocalStoreService;
 
   beforeEach(async () => {
-    await deleteTestDb();
+    // Tear down any existing service + DB before creating a fresh one
+    const prev = TestBed.inject(PosLocalStoreService);
+    await deleteTestDb(prev);
+
+    TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [PosLocalStoreService]
     });
     service = TestBed.inject(PosLocalStoreService);
+    // Clear device ID from localStorage so each test starts clean
+    localStorage.removeItem('pos_device_id_v1');
   });
 
   afterEach(async () => {
-    await deleteTestDb();
+    await deleteTestDb(service);
   });
 
   it('should be created', () => {
@@ -157,5 +170,66 @@ describe('PosLocalStoreService', () => {
     await service.resetOrderToPending('loc_retry_1');
     const pending = await service.getPendingOrders();
     expect(pending.some(o => o.localId === 'loc_retry_1')).toBeTrue();
+  });
+
+  it('saveLocalShift and getOpenLocalShift should work', async () => {
+    await service.init();
+    const shift: LocalShift = {
+      localId: 'shift_test_1',
+      openingFloat: 100,
+      openedAt: new Date().toISOString(),
+      deviceId: service.getDeviceId(),
+      syncStatus: 'pending'
+    };
+    await service.saveLocalShift(shift);
+    const open = await service.getOpenLocalShift();
+    expect(open).toBeTruthy();
+    expect(open?.localId).toBe('shift_test_1');
+    expect(open?.openingFloat).toBe(100);
+  });
+
+  it('markShiftSynced should update status and serverShiftId', async () => {
+    await service.init();
+    const shift: LocalShift = {
+      localId: 'shift_sync_1',
+      openingFloat: 50,
+      openedAt: new Date().toISOString(),
+      deviceId: service.getDeviceId(),
+      syncStatus: 'pending'
+    };
+    await service.saveLocalShift(shift);
+    await service.markShiftSynced('shift_sync_1', 42);
+    const stored = await service.getLocalShift('shift_sync_1');
+    expect(stored?.syncStatus).toBe('synced');
+    expect(stored?.serverShiftId).toBe(42);
+  });
+
+  it('getOfflineReportToday should aggregate local orders', async () => {
+    await service.init();
+    const today = new Date().toISOString();
+    const order1: LocalOrder = {
+      localId: 'report_1', tempNumber: 'T1',
+      items: [{ productId: 1, quantity: 1 }],
+      subtotal: 10, tax: 1, discount: 0, total: 11,
+      paymentMethod: 'CASH', createdAt: today,
+      deviceId: service.getDeviceId(), syncStatus: 'pending'
+    };
+    const order2: LocalOrder = {
+      localId: 'report_2', tempNumber: 'T2',
+      items: [{ productId: 2, quantity: 2 }],
+      subtotal: 20, tax: 2, discount: 0, total: 22,
+      paymentMethod: 'CREDIT_CARD', createdAt: today,
+      deviceId: service.getDeviceId(), syncStatus: 'synced'
+    };
+    await service.saveLocalOrder(order1);
+    await service.saveLocalOrder(order2);
+
+    const report = await service.getOfflineReportToday();
+    expect(report.orderCount).toBe(2);
+    expect(report.revenue).toBe(33);
+    expect(report.cashRevenue).toBe(11);
+    expect(report.paymentBreakdown['CASH']).toBe(11);
+    expect(report.paymentBreakdown['CREDIT_CARD']).toBe(22);
+    expect(report.pendingSync).toBe(1);
   });
 });
