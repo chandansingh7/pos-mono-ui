@@ -100,7 +100,9 @@
           <mat-radio-button value="MICROSOFT">Microsoft sign-in</mat-radio-button>
         </mat-radio-group>
         <span class="helper-text" *ngIf="form.get('emailSendMethod')?.value === 'MICROSOFT'">
-          Uses a Microsoft login popup and sends via Microsoft Graph (no SMTP password stored).
+          Sends via Microsoft Graph using a work/school Microsoft 365 account.
+          <strong>Personal outlook.com / hotmail.com accounts are not supported here</strong> —
+          use <em>Outlook (personal)</em> SMTP instead.
         </span>
       </div>
 
@@ -125,7 +127,7 @@
       </mat-form-field>
 
       <ng-container *ngIf="form.get('emailSendMethod')?.value === 'SMTP' && form.get('smtpProvider')?.value">
-        <p class="helper-text email-2fa-hint" *ngIf="form.get('smtpProvider')?.value === 'GMAIL' || form.get('smtpProvider')?.value === 'OUTLOOK'">
+        <p class="helper-text email-2fa-hint" *ngIf="form.get('smtpProvider')?.value === 'GMAIL' || form.get('smtpProvider')?.value === 'OUTLOOK' || form.get('smtpProvider')?.value === 'OFFICE365'">
           Use the same address as Company email above. If you have 2-step verification (2FA), create an <strong>App Password</strong> in your Google or Microsoft account and enter it below — do not use your normal password.
         </p>
         <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
@@ -145,7 +147,7 @@
         <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
           <mat-label>{{ form.get('smtpProvider')?.value === 'CUSTOM' ? 'Password' : 'App password' }}</mat-label>
           <input matInput type="password" formControlName="smtpPassword" placeholder="Leave blank to keep existing">
-          <mat-hint *ngIf="form.get('smtpProvider')?.value !== 'CUSTOM'">Gmail/Outlook: use App Password if you have 2FA</mat-hint>
+          <mat-hint *ngIf="form.get('smtpProvider')?.value !== 'CUSTOM'">Gmail / Outlook / Office 365: use App Password if you have 2FA</mat-hint>
         </mat-form-field>
 
         <div class="email-verify-actions">

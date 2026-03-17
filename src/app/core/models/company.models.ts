@@ -184,9 +184,10 @@ export const VOLUME_UNITS = [
 
 /** Email (SMTP) provider presets for receipt sending. Host/port are pre-filled for Gmail and Outlook. */
 export const EMAIL_PROVIDERS = [
-  { value: 'GMAIL', label: 'Gmail', hint: 'Use App Password if you have 2-step verification', host: 'smtp.gmail.com', port: 587 },
-  { value: 'OUTLOOK', label: 'Microsoft Outlook / Office 365', hint: 'Use App password if you have 2FA', host: 'smtp.office365.com', port: 587 },
-  { value: 'CUSTOM', label: 'Custom SMTP', hint: 'Enter your server host and port', host: '', port: 587 }
+  { value: 'GMAIL',        label: 'Gmail',                             hint: 'Use App Password if you have 2-step verification',                                      host: 'smtp.gmail.com',        port: 587 },
+  { value: 'OUTLOOK',      label: 'Outlook / Hotmail (personal)',       hint: 'outlook.com, hotmail.com, live.com — use App Password if you have 2FA',                 host: 'smtp-mail.outlook.com', port: 587 },
+  { value: 'OFFICE365',    label: 'Microsoft 365 / Office 365 (work)', hint: 'Work or school account (@yourdomain.com) — use App Password if you have 2FA',           host: 'smtp.office365.com',    port: 587 },
+  { value: 'CUSTOM',       label: 'Custom SMTP',                        hint: 'Enter your server host and port',                                                        host: '',                      port: 587 }
 ] as const;
 
 /** Common locales for number/date formatting. */

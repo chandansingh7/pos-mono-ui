@@ -395,7 +395,7 @@ export class SettingsComponent implements OnInit {
         smtpStartTls: true
       }, { emitEvent: false });
     }
-    if (provider === 'GMAIL' || provider === 'OUTLOOK') {
+    if (provider === 'GMAIL' || provider === 'OUTLOOK' || provider === 'OFFICE365') {
       const email = this.form.get('email')?.value ?? '';
       if (email && !this.form.get('smtpUsername')?.value) {
         this.form.patchValue({ smtpUsername: email }, { emitEvent: false });
