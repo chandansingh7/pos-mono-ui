@@ -414,13 +414,23 @@ export class SettingsComponent implements OnInit {
       error: err => {
         this.verifyingEmail = false;
         const serverMsg: string = err.error?.message || '';
+        const lower = serverMsg.toLowerCase();
+
+        // Personal Outlook account signed in via Microsoft — cannot use Graph API
+        if (lower.includes('personal outlook') || lower.includes('not supported') && lower.includes('smtp')) {
+          this.snackBar.open(
+            'Microsoft sign-in does not work with personal Outlook accounts. ' +
+            'Go to Email method → select "Outlook / Hotmail (personal)" → enter your Outlook password and click Save, then Verify.',
+            'Close', { duration: 12000 });
+          return;
+        }
+
         let hint = '';
-        // Give actionable hints based on common SMTP error patterns
-        if (serverMsg.toLowerCase().includes('authentication') || serverMsg.toLowerCase().includes('535') || serverMsg.toLowerCase().includes('username and password')) {
+        if (lower.includes('authentication') || lower.includes('535') || lower.includes('username and password')) {
           hint = ' → Wrong email or password. If 2FA is ON, use an App Password.';
-        } else if (serverMsg.toLowerCase().includes('connection') || serverMsg.toLowerCase().includes('timeout') || serverMsg.toLowerCase().includes('connect')) {
+        } else if (lower.includes('connection') || lower.includes('timeout') || lower.includes('connect')) {
           hint = ' → Cannot reach SMTP server. Check host/port settings.';
-        } else if (serverMsg.toLowerCase().includes('ssl') || serverMsg.toLowerCase().includes('tls') || serverMsg.toLowerCase().includes('handshake')) {
+        } else if (lower.includes('ssl') || lower.includes('tls') || lower.includes('handshake')) {
           hint = ' → TLS/SSL error. Try toggling Start TLS or switching port.';
         } else if (!serverMsg) {
           hint = 'Check email address, app password, host and port settings.';
