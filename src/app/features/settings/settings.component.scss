@@ -295,3 +295,26 @@ mat-card-header.email-card-header {
     grid-template-columns: 1fr;
   }
 }
+
+.smtp-mismatch-warn {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: #fff3e0;
+  border: 1px solid #ffb74d;
+  border-radius: 6px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  font-size: 13px;
+  line-height: 1.5;
+
+  mat-icon {
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+
+  em {
+    font-style: normal;
+    font-weight: 600;
+  }
+}

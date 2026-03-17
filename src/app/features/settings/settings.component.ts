@@ -385,6 +385,11 @@ export class SettingsComponent implements OnInit {
     return !!this.company?.msConnectedAt;
   }
 
+  isPersonalOutlookUsername(): boolean {
+    const username: string = this.form.get('smtpUsername')?.value || '';
+    return /@(outlook|hotmail|live)\./i.test(username);
+  }
+
   /** When provider changes to Gmail/Outlook, pre-fill host/port. */
   onEmailProviderChange(provider: string): void {
     const preset = this.emailProviders.find(p => p.value === provider);

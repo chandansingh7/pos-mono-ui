@@ -134,6 +134,19 @@
           <mat-label>Email (SMTP login)</mat-label>
           <input matInput type="email" formControlName="smtpUsername" placeholder="you&#64;gmail.com or you&#64;outlook.com">
         </mat-form-field>
+
+        <!-- Inline mismatch warning: personal Outlook/Hotmail with Office 365 host -->
+        <div class="smtp-mismatch-warn"
+             *ngIf="form.get('smtpProvider')?.value === 'OFFICE365' && isPersonalOutlookUsername()">
+          <mat-icon color="warn">warning</mat-icon>
+          <span>
+            <strong>Wrong provider for this email address.</strong>
+            <em>@outlook.com</em>, <em>@hotmail.com</em> and <em>@live.com</em> are personal accounts —
+            they cannot use the Office 365 SMTP server.<br>
+            Change the <strong>Provider</strong> dropdown to
+            <strong>Outlook / Hotmail (personal)</strong> and save again.
+          </span>
+        </div>
         <div class="email-custom-fields" *ngIf="form.get('smtpProvider')?.value === 'CUSTOM'">
           <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
             <mat-label>SMTP host</mat-label>
