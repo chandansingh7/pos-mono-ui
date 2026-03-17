@@ -425,18 +425,27 @@ export class SettingsComponent implements OnInit {
           return;
         }
 
+        const smtpHost: string = this.form.get('smtpHost')?.value || '';
+        const smtpUsername: string = this.form.get('smtpUsername')?.value || '';
+        const isPersonalAccount = /@(outlook|hotmail|live)\./i.test(smtpUsername);
+        const isOffice365Host = smtpHost.toLowerCase().includes('office365');
+
         let hint = '';
-        if (lower.includes('authentication') || lower.includes('535') || lower.includes('username and password')) {
-          hint = ' → Wrong email or password. If 2FA is ON, use an App Password.';
+        if ((lower.includes('authentication') || lower.includes('535') || lower.includes('username and password') || lower.includes('authentication failed')) && isPersonalAccount && isOffice365Host) {
+          // Personal Outlook account using Office 365 SMTP host — wrong host
+          hint = ' → You have a personal Outlook account but selected "Microsoft 365 / Office 365 (work)" as provider. ' +
+                 'Change the provider to "Outlook / Hotmail (personal)" (host: smtp-mail.outlook.com) and try again.';
+        } else if (lower.includes('authentication') || lower.includes('535') || lower.includes('username and password') || lower.includes('authentication failed')) {
+          hint = ' → Wrong password. If 2FA is ON, generate an App Password at account.microsoft.com/security.';
         } else if (lower.includes('connection') || lower.includes('timeout') || lower.includes('connect')) {
-          hint = ' → Cannot reach SMTP server. Check host/port settings.';
+          hint = ' → Cannot reach SMTP server. Check host and port settings.';
         } else if (lower.includes('ssl') || lower.includes('tls') || lower.includes('handshake')) {
           hint = ' → TLS/SSL error. Try toggling Start TLS or switching port.';
         } else if (!serverMsg) {
-          hint = 'Check email address, app password, host and port settings.';
+          hint = 'Check email address, password, host and port settings.';
         }
         const display = serverMsg ? serverMsg + hint : hint;
-        this.snackBar.open(display || 'Verification failed. Check your SMTP settings.', 'Close', { duration: 9000 });
+        this.snackBar.open(display || 'Verification failed. Check your SMTP settings.', 'Close', { duration: 12000 });
       }
     });
   }
