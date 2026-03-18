@@ -420,36 +420,35 @@ export class SettingsComponent implements OnInit {
         this.verifyingEmail = false;
         const serverMsg: string = err.error?.message || '';
         const lower = serverMsg.toLowerCase();
+        const smtpUsername: string = this.form.get('smtpUsername')?.value || '';
+        const isPersonalOutlook = /@(outlook|hotmail|live)\./i.test(smtpUsername);
 
-        // Microsoft has disabled basic auth for personal Outlook accounts (535 5.7.139)
-        if (lower.includes('5.7.139') || lower.includes('basic authentication is disabled') || lower.includes('em007')) {
+        // Personal Outlook/Hotmail/Live — Microsoft permanently disabled basic SMTP auth.
+        // Show Gmail guidance regardless of which error code came back.
+        if (isPersonalOutlook ||
+            lower.includes('5.7.139') ||
+            lower.includes('basic authentication is disabled') ||
+            lower.includes('microsoft has disabled')) {
           this.snackBar.open(
-            'Microsoft has permanently disabled password-based SMTP for @outlook.com/@hotmail.com accounts. ' +
-            'Solution: Use Gmail — create a Gmail account, enable 2FA, go to myaccount.google.com/apppasswords, ' +
-            'generate an App Password, then select Gmail as provider in Settings → Email.',
+            '@outlook.com / @hotmail.com accounts cannot send email via SMTP — ' +
+            'Microsoft permanently disabled password login for these accounts. ' +
+            'Use Gmail: enable 2FA → go to myaccount.google.com/apppasswords → ' +
+            'generate an App Password → select Gmail as provider in Settings → Email.',
             'Close', { duration: 20000 });
           return;
         }
 
-        // Personal Outlook account signed in via Microsoft — cannot use Graph API
+        // Personal Outlook signed in via Microsoft Graph — not supported
         if (lower.includes('personal outlook') || (lower.includes('not supported') && lower.includes('smtp'))) {
           this.snackBar.open(
             'Microsoft sign-in does not work with personal Outlook accounts. ' +
-            'Go to Email method → select "Outlook / Hotmail (personal)" → enter your Outlook password and click Save, then Verify.',
+            'Switch to Gmail SMTP instead (see above).',
             'Close', { duration: 12000 });
           return;
         }
 
-        const smtpHost: string = this.form.get('smtpHost')?.value || '';
-        const smtpUsername: string = this.form.get('smtpUsername')?.value || '';
-        const isPersonalAccount = /@(outlook|hotmail|live)\./i.test(smtpUsername);
-        const isOffice365Host = smtpHost.toLowerCase().includes('office365');
-
         let hint = '';
-        if ((lower.includes('authentication') || lower.includes('535') || lower.includes('username and password') || lower.includes('authentication failed')) && isPersonalAccount && isOffice365Host) {
-          hint = ' → You have a personal Outlook account but selected "Microsoft 365 / Office 365 (work)" as provider. ' +
-                 'Change the provider to "Outlook / Hotmail (personal)" (host: smtp-mail.outlook.com) and try again.';
-        } else if (lower.includes('authentication') || lower.includes('535') || lower.includes('username and password') || lower.includes('authentication failed')) {
+        if (lower.includes('authentication') || lower.includes('535') || lower.includes('authentication failed')) {
           hint = ' → Wrong password. If 2FA is ON, generate an App Password at account.microsoft.com/security.';
         } else if (lower.includes('connection') || lower.includes('timeout') || lower.includes('connect')) {
           hint = ' → Cannot reach SMTP server. Check host and port settings.';
