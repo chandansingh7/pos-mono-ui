@@ -182,7 +182,16 @@ mat-card-header.email-card-header {
 
 /* Global narrow field width used across app (e.g. Guide search). */
 .settings-narrow-field {
+  max-width: 320px;
+}
+
+/* Localisation & currency — compact layout to match UI standards */
+.localisation-currency-section {
   max-width: 400px;
+
+  .localisation-row {
+    max-width: 400px;
+  }
 }
 
 .label-layout-grid {
