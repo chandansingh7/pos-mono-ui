@@ -57,7 +57,7 @@ export interface RefundDialogResult {
         <strong>Refund total: {{ totalRefundAmount | currency:data.currencyCode }}</strong>
       </div>
 
-      <mat-form-field appearance="outline" style="width:100%; margin-top:12px">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" floatLabel="always" style="width:100%; margin-top:12px">
         <mat-label>Reason (optional)</mat-label>
         <textarea matInput [formControl]="reasonCtrl" rows="2"
           placeholder="e.g. Customer changed mind, defective item..."></textarea>
