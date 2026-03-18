@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { CompanyService } from '../../core/services/company.service';
 import { AuthService } from '../../core/services/auth.service';
+import { TaxRuleService } from '../../core/services/tax-rule.service';
+import { TaxRuleResponse } from '../../core/models/tax-rule.models';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CompanyResponse, RECEIPT_PAPER_SIZES, DISPLAY_CURRENCIES, DISPLAY_LOCALES, POS_LAYOUTS, WEIGHT_UNITS, VOLUME_UNITS, EMAIL_PROVIDERS } from '../../core/models/company.models';
 import { COUNTRIES, getDefaultWeightUnitForCountry, getDefaultVolumeUnitForCountry } from '../../core/data/countries.data';
@@ -37,6 +39,12 @@ export class SettingsComponent implements OnInit {
   offlineReport: OfflineDailyReport | null = null;
   offlineReportPaymentEntries: Array<{ method: string; amount: number }> = [];
 
+  // ── Tax Rules ────────────────────────────────────────────────────────────────
+  taxRules: TaxRuleResponse[] = [];
+  taxRuleForm: FormGroup;
+  editingTaxRuleId: number | null = null;
+  savingTaxRule = false;
+
   labelTemplates: LabelPrintTemplate[] = [
     { id: 'A4_2x4', name: 'A4 — 2×4 (8 per page)', pageWidthMm: 210, pageHeightMm: 297, columns: 2, rows: 4, gapMm: 6, pagePaddingMm: 8, labelPaddingMm: 4 },
     { id: 'A4_2x5', name: 'A4 — 2×5 (10 per page)', pageWidthMm: 210, pageHeightMm: 297, columns: 2, rows: 5, gapMm: 5, pagePaddingMm: 8, labelPaddingMm: 4 },
@@ -50,6 +58,7 @@ export class SettingsComponent implements OnInit {
     private fb: FormBuilder,
     private companyService: CompanyService,
     private authService: AuthService,
+    private taxRuleService: TaxRuleService,
     private route: ActivatedRoute,
     private router: Router,
     private snackBar: MatSnackBar,
@@ -62,6 +71,8 @@ export class SettingsComponent implements OnInit {
       phone: [''],
       email: [''],
       taxId: [''],
+      taxEnabled: [true],
+      taxRatePercent: [10, [Validators.min(0), Validators.max(100)]],
       website: [''],
       receiptHeaderText: [''],
       receiptFooterText: [''],
@@ -99,6 +110,12 @@ export class SettingsComponent implements OnInit {
       offlineAllowOrders: [false],
       offlineAllowPos: [false]
     });
+
+    this.taxRuleForm = this.fb.group({
+      taxCategory: ['', [Validators.required, Validators.maxLength(30), Validators.pattern(/^[A-Z0-9_]+$/)]],
+      label:       ['', [Validators.required, Validators.maxLength(50)]],
+      ratePercent: [0,  [Validators.required, Validators.min(0), Validators.max(100)]]
+    });
   }
 
   ngOnInit(): void {
@@ -109,6 +126,7 @@ export class SettingsComponent implements OnInit {
 
     this.load();
     this.loadSyncDiagnostics();
+    this.loadTaxRules();
 
     // Microsoft connect runs in a popup; backend callback redirects to /auth/microsoft-callback which notifies us here.
     if (typeof window !== 'undefined') {
@@ -211,6 +229,9 @@ export class SettingsComponent implements OnInit {
             smtpStartTls: this.company.smtpStartTls ?? true,
             emailSendMethod: this.company.emailSendMethod ?? 'SMTP',
             taxId: this.company.taxId ?? '',
+            taxEnabled: this.company.taxEnabled !== false,
+            taxRatePercent: this.company.taxRate != null
+              ? +(this.company.taxRate * 100).toFixed(4) : 10,
             website: this.company.website ?? '',
             receiptHeaderText: this.company.receiptHeaderText ?? '',
             receiptFooterText: this.company.receiptFooterText ?? '',
@@ -285,8 +306,12 @@ export class SettingsComponent implements OnInit {
       return;
     }
     this.saving = true;
+    const fv = this.form.value;
+    const taxRatePercent = parseFloat(fv.taxRatePercent ?? '10') || 0;
     const payload = {
-      ...this.form.value,
+      ...fv,
+      taxRate: parseFloat((taxRatePercent / 100).toFixed(6)),
+      taxRatePercent: undefined,  // not a backend field
       logoUrl: this.company?.logoUrl,
       faviconUrl: this.company?.faviconUrl
     };
@@ -528,6 +553,60 @@ export class SettingsComponent implements OnInit {
       error: () => {
         this.snackBar.open('Failed to disconnect Microsoft account.', 'Close', { duration: 4000 });
       }
+    });
+  }
+
+  // ── Tax Rules ────────────────────────────────────────────────────────────────
+
+  loadTaxRules(): void {
+    this.taxRuleService.getAll().subscribe({ next: res => { this.taxRules = res.data || []; } });
+  }
+
+  startEditTaxRule(rule: TaxRuleResponse): void {
+    this.editingTaxRuleId = rule.id;
+    this.taxRuleForm.patchValue({
+      taxCategory: rule.taxCategory,
+      label:       rule.label,
+      ratePercent: +(rule.rate * 100).toFixed(4)
+    });
+  }
+
+  cancelEditTaxRule(): void {
+    this.editingTaxRuleId = null;
+    this.taxRuleForm.reset({ taxCategory: '', label: '', ratePercent: 0 });
+  }
+
+  saveTaxRule(): void {
+    if (this.taxRuleForm.invalid) return;
+    this.savingTaxRule = true;
+    const fv = this.taxRuleForm.value;
+    const req = {
+      taxCategory: (fv.taxCategory as string).toUpperCase(),
+      label:       fv.label as string,
+      rate:        parseFloat(((fv.ratePercent as number) / 100).toFixed(6))
+    };
+    const op$ = this.editingTaxRuleId
+      ? this.taxRuleService.update(this.editingTaxRuleId, req)
+      : this.taxRuleService.create(req);
+    op$.subscribe({
+      next: () => {
+        this.savingTaxRule = false;
+        this.snackBar.open('Tax rule saved', 'Close', { duration: 3000 });
+        this.cancelEditTaxRule();
+        this.loadTaxRules();
+      },
+      error: err => {
+        this.savingTaxRule = false;
+        this.snackBar.open(err.error?.message || 'Failed to save tax rule', 'Close', { duration: 4000 });
+      }
+    });
+  }
+
+  deleteTaxRule(rule: TaxRuleResponse): void {
+    if (!confirm(`Delete tax rule "${rule.label}"? This cannot be undone.`)) return;
+    this.taxRuleService.delete(rule.id).subscribe({
+      next: () => { this.snackBar.open('Tax rule deleted', 'Close', { duration: 3000 }); this.loadTaxRules(); },
+      error: err => this.snackBar.open(err.error?.message || 'Cannot delete tax rule', 'Close', { duration: 5000 })
     });
   }
 

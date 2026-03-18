@@ -181,6 +181,7 @@ $control-label-font-size: v.$font-size-sm; // 12px
 .chip-completed   { background: v.$color-success-bg !important; color: v.$color-success !important; }
 .chip-pending     { background: v.$color-pending-bg !important; color: v.$color-pending !important; }
 .chip-cancelled   { background: v.$color-danger-bg !important;  color: v.$color-danger !important; }
+.chip-refunded    { background: #f3e5f5 !important;             color: #7b1fa2 !important; }
 
 // ─── Data Table — HCI Standards (NNG / Shopify Polaris / Stripe level) ────────
 //

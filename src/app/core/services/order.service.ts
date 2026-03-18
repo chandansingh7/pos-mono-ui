@@ -52,6 +52,10 @@ export class OrderService {
     return this.http.put<ApiResponse<OrderResponse>>(`${this.url}/${id}/cancel`, {});
   }
 
+  refund(id: number, reason?: string): Observable<ApiResponse<OrderResponse>> {
+    return this.http.post<ApiResponse<OrderResponse>>(`${this.url}/${id}/refund`, { reason: reason ?? null });
+  }
+
   /** Send receipt email from company email (Settings) to customer. Requires SMTP configured and company email set. */
   sendReceipt(orderId: number): Observable<ApiResponse<void>> {
     return this.http.post<ApiResponse<void>>(`${this.url}/${orderId}/send-receipt`, {});

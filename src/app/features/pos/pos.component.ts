@@ -422,8 +422,23 @@ export class PosComponent implements OnInit, OnDestroy {
     return this.cart.reduce((sum, i) => sum + i.subtotal, 0);
   }
 
+  get taxEnabled(): boolean {
+    return this.company?.taxEnabled !== false;
+  }
+
+  get taxRate(): number {
+    if (!this.taxEnabled) return 0;
+    return this.company?.taxRate != null ? this.company.taxRate : 0.10;
+  }
+
+  get taxLabel(): string {
+    return this.company?.taxId || 'Tax';
+  }
+
   get tax(): number {
-    return this.subtotal * 0.1;
+    if (!this.taxEnabled) return 0;
+    const afterDiscount = Math.max(0, this.subtotal - (this.discount || 0) - this.redemptionDiscount);
+    return +(afterDiscount * this.taxRate).toFixed(2);
   }
 
   get redemptionDiscount(): number {
@@ -433,7 +448,8 @@ export class PosComponent implements OnInit, OnDestroy {
   }
 
   get total(): number {
-    return this.subtotal + this.tax - (this.discount || 0) - this.redemptionDiscount;
+    const afterDiscount = Math.max(0, this.subtotal - (this.discount || 0) - this.redemptionDiscount);
+    return +(afterDiscount + this.tax).toFixed(2);
   }
 
   /** For cart/receipt: show "each" or "per kg", "per L", etc. */

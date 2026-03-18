@@ -273,6 +273,17 @@
                 <tr class="total-row"><td colspan="4" class="text-right"><strong>TOTAL</strong></td><td><strong>{{ row.order.total | currency:currencyCode }}</strong></td></tr>
               </tfoot>
             </table>
+            <!-- Refund detail panel (shown when order is REFUNDED) -->
+            <div class="refund-detail" *ngIf="!isOfflineOrderRow(row.order) && $any(row.order).refund">
+              <mat-icon style="color:#9c27b0;vertical-align:middle;margin-right:6px">currency_exchange</mat-icon>
+              <strong>Refunded</strong> on {{ $any(row.order).refund.refundedAt | date:'medium' }}
+              by <strong>{{ $any(row.order).refund.refundedBy }}</strong>
+              <span *ngIf="$any(row.order).refund.reason"> — {{ $any(row.order).refund.reason }}</span>
+              <span *ngIf="($any(row.order).refund.rewardPointsDeducted || 0) > 0"
+                    style="margin-left:8px;color:#666;font-size:0.85em">
+                ({{ $any(row.order).refund.rewardPointsDeducted }} reward points deducted)
+              </span>
+            </div>
           </div>
         </td>
       </ng-container>

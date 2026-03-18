@@ -276,9 +276,12 @@
         <ng-container *ngIf="!isScanLayout">
           <div class="total-row-sm"><span>Subtotal</span><span>{{ subtotal | currency:currencyCode }}</span></div>
         </ng-container>
-        <div class="total-row-sm"><span>Tax</span><span>{{ tax | currency:currencyCode }}</span></div>
         <div class="total-row-sm" *ngIf="discount > 0"><span>Discount</span><span>-{{ discount | currency:currencyCode }}</span></div>
         <div class="total-row-sm" *ngIf="redemptionDiscount > 0"><span>Reward redemption</span><span>-{{ redemptionDiscount | currency:currencyCode }}</span></div>
+        <div class="total-row-sm tax-row" *ngIf="taxEnabled">
+          <span>{{ taxLabel }} ({{ (taxRate * 100) | number:'1.0-2' }}%)</span>
+          <span>{{ tax | currency:currencyCode }}</span>
+        </div>
         <div class="total-row-lg"><span>TOTAL</span><span>{{ total | currency:currencyCode }}</span></div>
       </div>
 

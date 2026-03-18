@@ -9,8 +9,10 @@ import { ProductService, ProductStats, BulkUploadResult } from '../../core/servi
 import { CategoryService } from '../../core/services/category.service';
 import { CompanyService } from '../../core/services/company.service';
 import { AuthService } from '../../core/services/auth.service';
+import { TaxRuleService } from '../../core/services/tax-rule.service';
 import { ProductResponse } from '../../core/models/product.models';
 import { CategoryResponse } from '../../core/models/category.models';
+import { TaxRuleResponse } from '../../core/models/tax-rule.models';
 import { ProductDialogComponent } from './product-dialog.component';
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
 import { BulkUploadPreviewModalComponent, BulkUploadPreviewData } from './bulk-upload-preview-modal.component';
@@ -24,6 +26,7 @@ import { parseBulkFile } from './bulk-upload-parser.util';
 export class ProductsComponent implements OnInit {
   dataSource = new MatTableDataSource<ProductResponse>();
   categories: CategoryResponse[] = [];
+  taxRules: TaxRuleResponse[] = [];
   brokenImages = new Set<number>();
   stats: ProductStats | null = null;
 
@@ -59,6 +62,7 @@ export class ProductsComponent implements OnInit {
     private categoryService: CategoryService,
     private companyService: CompanyService,
     private authService: AuthService,
+    private taxRuleService: TaxRuleService,
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
     private cdr: ChangeDetectorRef
@@ -73,6 +77,7 @@ export class ProductsComponent implements OnInit {
     this.sortCol = 'updatedAt';
     this.sortDir = 'desc';
     this.loadCategories();
+    this.loadTaxRules();
     this.loadProducts();
     this.loadStats();
     // All filters drive server-side search across entire dataset
@@ -220,6 +225,10 @@ export class ProductsComponent implements OnInit {
     this.categoryService.getList().subscribe({ next: res => { this.categories = res.data || []; } });
   }
 
+  loadTaxRules(): void {
+    this.taxRuleService.getAll().subscribe({ next: res => { this.taxRules = res.data || []; } });
+  }
+
   onPage(e: PageEvent): void {
     this.pageSize = e.pageSize;
     this.loadProducts(e.pageIndex);
@@ -227,7 +236,7 @@ export class ProductsComponent implements OnInit {
 
   openDialog(product?: ProductResponse): void {
     const ref = this.dialog.open(ProductDialogComponent, {
-      data: { product, categories: this.categories }, width: '620px', disableClose: true
+      data: { product, categories: this.categories, taxRules: this.taxRules }, width: '620px', disableClose: true
     });
     ref.afterClosed().subscribe(result => {
       if (!result) return;

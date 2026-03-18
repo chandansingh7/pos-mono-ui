@@ -12,6 +12,8 @@ export interface CompanyResponse {
   smtpUsername?: string;
   smtpStartTls?: boolean;
   smtpPasswordSet?: boolean;
+  taxRate?: number | null;
+  taxEnabled?: boolean | null;
   emailVerifiedAt?: string | null;
   emailSendMethod?: string;
   msAccountEmail?: string;

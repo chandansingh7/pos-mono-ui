@@ -7,6 +7,7 @@ export interface ProductRequest {
   price: number;
   saleUnitType?: string;
   saleUnit?: string;
+  taxCategory?: string | null;
   categoryId?: number;
   imageUrl?: string;
   active: boolean;
@@ -24,6 +25,7 @@ export interface ProductResponse {
   price: number;
   saleUnitType?: string;
   saleUnit?: string;
+  taxCategory?: string | null;
   categoryId: number;
   categoryName: string;
   imageUrl: string;

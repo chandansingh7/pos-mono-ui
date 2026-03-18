@@ -143,6 +143,22 @@ tr.row-selected .mat-mdc-cell {
   vertical-align: middle;
 }
 
+// ── Refund detail panel ───────────────────────────────────────────────────────
+
+.refund-detail {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  background: #f3e5f5;
+  border: 1px solid #ce93d8;
+  border-radius: 6px;
+  padding: 8px 14px;
+  margin-top: 10px;
+  font-size: 13px;
+  color: #4a148c;
+}
+
 // ── Conflict resolution panel (Phase 4) ─────────────────────────────────────
 
 .conflict-error {

@@ -68,9 +68,32 @@
         <input matInput type="email" formControlName="email" placeholder="store@example.com">
       </mat-form-field>
       <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic" floatLabel="always">
-        <mat-label>Tax ID</mat-label>
-        <input matInput formControlName="taxId" placeholder="Optional">
+        <mat-label>Tax Label</mat-label>
+        <input matInput formControlName="taxId" placeholder="e.g. GST, VAT, Sales Tax">
+        <mat-hint>Shown on receipts next to the tax line</mat-hint>
       </mat-form-field>
+
+      <!-- ── Tax Rate Controls ──────────────────────────────────────────────── -->
+      <div class="tax-controls-row">
+        <mat-slide-toggle formControlName="taxEnabled" color="primary">
+          Enable tax on orders
+        </mat-slide-toggle>
+        <span class="tax-toggle-hint" *ngIf="!form.get('taxEnabled')?.value">
+          Tax is currently <strong>disabled</strong> — new orders will have $0 tax.
+        </span>
+      </div>
+      <mat-form-field appearance="outline" class="half-width" subscriptSizing="dynamic"
+                      floatLabel="always" *ngIf="form.get('taxEnabled')?.value">
+        <mat-label>Tax Rate (%)</mat-label>
+        <input matInput type="number" formControlName="taxRatePercent"
+               min="0" max="100" step="0.01" placeholder="10">
+        <span matSuffix>%</span>
+        <mat-hint>Enter as percentage, e.g. 8 for 8%</mat-hint>
+        <mat-error *ngIf="form.get('taxRatePercent')?.hasError('min')">Must be 0 or above</mat-error>
+        <mat-error *ngIf="form.get('taxRatePercent')?.hasError('max')">Cannot exceed 100%</mat-error>
+      </mat-form-field>
+      <!-- ──────────────────────────────────────────────────────────────────── -->
+
       <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic" floatLabel="always">
         <mat-label>Website</mat-label>
         <input matInput formControlName="website" placeholder="https://...">
@@ -517,5 +540,71 @@
         When enabled, cashiers cannot close shifts that rolled over to the next day; an admin must force-close them from the Shifts screen.
       </p>
     </form>
+  </mat-card-content>
+</mat-card>
+
+<!-- ── Tax Rules ──────────────────────────────────────────────────────────── -->
+<mat-card class="card" *ngIf="!loading">
+  <mat-card-header>
+    <mat-card-title>Tax Rules</mat-card-title>
+    <mat-card-subtitle>Define per-product tax categories (STANDARD, REDUCED, EXEMPT…). Assign to products to override the global rate.</mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
+
+    <!-- Existing rules table -->
+    <table class="tax-rules-table" *ngIf="taxRules.length">
+      <thead>
+        <tr>
+          <th>Category Key</th><th>Label</th><th>Rate</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let rule of taxRules">
+          <td><code>{{ rule.taxCategory }}</code></td>
+          <td>{{ rule.label }}</td>
+          <td>{{ (rule.rate * 100) | number:'1.0-2' }}%</td>
+          <td class="tax-rule-actions">
+            <button mat-icon-button matTooltip="Edit" (click)="startEditTaxRule(rule)">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button color="warn" matTooltip="Delete" (click)="deleteTaxRule(rule)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="helper-text" *ngIf="!taxRules.length">No tax rules defined yet. Add one below.</p>
+
+    <!-- Add / Edit form -->
+    <form [formGroup]="taxRuleForm" class="tax-rule-form" (ngSubmit)="saveTaxRule()">
+      <div class="tax-rule-form-row">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Category Key</mat-label>
+          <input matInput formControlName="taxCategory" placeholder="e.g. FOOD"
+                 [readonly]="editingTaxRuleId !== null"
+                 (input)="taxRuleForm.get('taxCategory')?.setValue($any($event.target).value.toUpperCase())">
+          <mat-hint>UPPERCASE, letters/digits/underscores only</mat-hint>
+          <mat-error *ngIf="taxRuleForm.get('taxCategory')?.hasError('pattern')">Must be UPPERCASE (A-Z, 0-9, _)</mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Label</mat-label>
+          <input matInput formControlName="label" placeholder="e.g. Food Rate">
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" style="max-width:120px">
+          <mat-label>Rate (%)</mat-label>
+          <input matInput type="number" formControlName="ratePercent" min="0" max="100" step="0.01">
+          <span matSuffix>%</span>
+        </mat-form-field>
+        <button mat-raised-button color="primary" type="submit"
+                [disabled]="taxRuleForm.invalid || savingTaxRule">
+          {{ editingTaxRuleId ? 'Update' : 'Add Rule' }}
+        </button>
+        <button mat-stroked-button type="button" *ngIf="editingTaxRuleId" (click)="cancelEditTaxRule()">
+          Cancel
+        </button>
+      </div>
+    </form>
+
   </mat-card-content>
 </mat-card>

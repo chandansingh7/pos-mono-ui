@@ -332,3 +332,65 @@ mat-card-header.email-card-header {
   color: #5d4037;
   line-height: 1.4;
 }
+
+// ── Tax controls ──────────────────────────────────────────────────────────────
+
+.tax-controls-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.tax-toggle-hint {
+  font-size: 12px;
+  color: #d32f2f;
+}
+
+.half-width {
+  width: 50%;
+  max-width: 200px;
+}
+
+// ── Tax Rules table ───────────────────────────────────────────────────────────
+
+.tax-rules-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin-bottom: 16px;
+
+  th, td {
+    padding: 8px 12px;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  th {
+    background: #fafafa;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    color: #666;
+  }
+  code {
+    font-family: monospace;
+    background: #f5f5f5;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 12px;
+  }
+  .tax-rule-actions {
+    white-space: nowrap;
+  }
+}
+
+.tax-rule-form {
+  padding-top: 8px;
+}
+
+.tax-rule-form-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}

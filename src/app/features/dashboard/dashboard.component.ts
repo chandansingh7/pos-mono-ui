@@ -43,13 +43,14 @@ export class DashboardComponent implements OnInit {
     'Unit-aware products (Sold by: Piece/Weight/Volume) with unit labels (each, kg, lb, L, etc.).',
     'One global UI control standard: inputs, dropdowns, and buttons are consistent across the app.',
     'Labels: print from products or standalone labels with barcodes; A4 (2×4/2×5/3×4), Thermal (58×40/80×50) and Custom layouts supported.',
-    'Access logs (Admin): per-user IP usage and IP allow list (whitelist) for secure access.'
+    'Access logs (Admin): per-user IP usage and IP allow list (whitelist) for secure access.',
+    'Refund / return flow: managers can issue full refunds with reason, inventory is restored and reward points are adjusted.',
+    'Configurable tax: global rate + per-product tax category override (STANDARD / REDUCED / EXEMPT); tax toggle; label shown on receipts.'
   ];
 
   readonly currentLimitations: string[] = [
     'Single-company per deployment; no multi-store or stock transfers yet.',
-    'Fixed tax rate (global); no per-product or configurable tax rules.',
-    'Refund / return flow is not yet implemented (Orders page shows "coming soon").'
+    'Partial refunds not supported — only full-order refunds.'
   ];
 
   ngOnInit(): void {

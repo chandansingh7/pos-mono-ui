@@ -3,11 +3,13 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { CategoryResponse } from '../../core/models/category.models';
 import { ProductResponse, SALE_UNIT_TYPES, SALE_UNITS, getUnitLabel } from '../../core/models/product.models';
+import { TaxRuleResponse } from '../../core/models/tax-rule.models';
 import { resolveProductImageUrl } from '../../core/utils/product-image.util';
 
 export interface ProductDialogData {
   product?: ProductResponse;
   categories: CategoryResponse[];
+  taxRules?: TaxRuleResponse[];
 }
 
 @Component({
@@ -112,6 +114,17 @@ export interface ProductDialogData {
             </mat-select>
           </mat-form-field>
         </div>
+
+        <mat-form-field appearance="outline" class="full-width" *ngIf="data.taxRules?.length">
+          <mat-label>Tax Category</mat-label>
+          <mat-select formControlName="taxCategory">
+            <mat-option [value]="null">— Use global rate —</mat-option>
+            <mat-option *ngFor="let t of data.taxRules" [value]="t.taxCategory">
+              {{ t.label }} ({{ (t.rate * 100) | number:'1.0-2' }}%)
+            </mat-option>
+          </mat-select>
+          <mat-hint>Override global tax rate for this product only</mat-hint>
+        </mat-form-field>
 
         <div class="row-2">
           <mat-form-field appearance="outline">
@@ -222,6 +235,7 @@ export class ProductDialogComponent implements OnInit, OnDestroy {
       price:             [p?.price || '', [Validators.required, Validators.min(0.01)]],
       saleUnitType:      [p?.saleUnitType || 'PIECE'],
       saleUnit:          [p?.saleUnit || 'each'],
+      taxCategory:       [p?.taxCategory || null],
       categoryId:        [p?.categoryId || null],
       imageUrl:          [p?.imageUrl || ''],
       active:            [p?.active !== undefined ? p.active : true],

@@ -15,6 +15,7 @@ import { OfflineSyncService } from '../../core/services/offline-sync.service';
 import { OfflineSettingsService } from '../../core/services/offline-settings.service';
 import { OrderResponse } from '../../core/models/order.models';
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
+import { RefundDialogComponent, RefundDialogResult } from './refund-dialog.component';
 import { formatCurrency } from '../../core/utils/currency.util';
 
 /** An offline order wrapped to match the OrderResponse shape for the table. */
@@ -317,10 +318,20 @@ export class OrdersComponent implements OnInit, AfterViewChecked {
 
   refundOrder(order: OrderResponse | OfflineOrderRow): void {
     if ('isOfflineRow' in order) return;
-    this.dialog.open(ConfirmDialogComponent, {
-      data: { title: 'Refund Order', message: `Issue refund for Order #${order.id}?`, confirmText: 'Refund' }
-    }).afterClosed().subscribe(() => {
-      this.snackBar.open('Refund issued — feature coming soon', 'Close', { duration: 3000 });
+    const c = this.companyService.getCached();
+    this.dialog.open(RefundDialogComponent, {
+      width: '440px',
+      data: { orderId: order.id, orderTotal: order.total, currencyCode: c?.displayCurrency || 'USD' }
+    }).afterClosed().subscribe((result: RefundDialogResult | undefined) => {
+      if (!result?.confirmed) return;
+      this.orderService.refund(order.id, result.reason || undefined).subscribe({
+        next: () => {
+          this.snackBar.open(`Order #${order.id} refunded successfully`, 'Close', { duration: 4000 });
+          this.load();
+          this.loadStats();
+        },
+        error: err => this.snackBar.open(err.error?.message || 'Refund failed', 'Close', { duration: 5000 })
+      });
     });
   }
 
@@ -395,8 +406,10 @@ export class OrdersComponent implements OnInit, AfterViewChecked {
 
   statusClass(status: string): string {
     const map: Record<string, string> = {
-      COMPLETED: 'chip-completed', PENDING: 'chip-pending',
-      CANCELLED: 'chip-cancelled', REFUNDED: 'chip-cancelled'
+      COMPLETED: 'chip-completed',
+      PENDING:   'chip-pending',
+      CANCELLED: 'chip-cancelled',
+      REFUNDED:  'chip-refunded'
     };
     return map[status] || '';
   }

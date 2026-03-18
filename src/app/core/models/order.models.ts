@@ -24,6 +24,17 @@ export interface OrderItemResponse {
   subtotal: number;
 }
 
+export interface RefundResponse {
+  id: number;
+  orderId: number;
+  refundedBy: string;
+  refundedAt: string;
+  amount: number;
+  refundMethod: PaymentMethod;
+  reason?: string | null;
+  rewardPointsDeducted?: number | null;
+}
+
 export interface OrderResponse {
   id: number;
   customerId: number;
@@ -38,4 +49,5 @@ export interface OrderResponse {
   status: OrderStatus;
   paymentMethod: PaymentMethod;
   createdAt: string;
+  refund?: RefundResponse | null;
 }
