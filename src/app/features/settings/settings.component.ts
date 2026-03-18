@@ -429,7 +429,10 @@ export class SettingsComponent implements OnInit {
       next: res => {
         this.verifyingEmail = false;
         this.company = res.data ?? this.company;
-        this.snackBar.open('Email setup verified. You can send receipts from the Orders page.', 'Close', { duration: 4000 });
+        this.snackBar.open(
+          'Email setup verified. You can send receipts from the Orders page. ' +
+          'First few emails may land in Junk/Spam — ask your customer to mark them as "Not Spam" to train their inbox.',
+          'Close', { duration: 8000 });
       },
       error: err => {
         this.verifyingEmail = false;
