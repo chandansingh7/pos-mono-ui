@@ -319,12 +319,22 @@ export class OrdersComponent implements OnInit, AfterViewChecked {
   refundOrder(order: OrderResponse | OfflineOrderRow): void {
     if ('isOfflineRow' in order) return;
     const c = this.companyService.getCached();
+    const items = (order as OrderResponse).items || [];
     this.dialog.open(RefundDialogComponent, {
-      width: '440px',
-      data: { orderId: order.id, orderTotal: order.total, currencyCode: c?.displayCurrency || 'USD' }
+      width: '560px',
+      data: {
+        orderId: order.id,
+        orderTotal: order.total,
+        currencyCode: c?.displayCurrency || 'USD',
+        items
+      }
     }).afterClosed().subscribe((result: RefundDialogResult | undefined) => {
       if (!result?.confirmed) return;
-      this.orderService.refund(order.id, result.reason || undefined).subscribe({
+      const req = {
+        reason: result.reason || undefined,
+        items: result.items?.length ? result.items : undefined
+      };
+      this.orderService.refund(order.id, req).subscribe({
         next: () => {
           this.snackBar.open(`Order #${order.id} refunded successfully`, 'Close', { duration: 4000 });
           this.load();
@@ -406,10 +416,11 @@ export class OrdersComponent implements OnInit, AfterViewChecked {
 
   statusClass(status: string): string {
     const map: Record<string, string> = {
-      COMPLETED: 'chip-completed',
-      PENDING:   'chip-pending',
-      CANCELLED: 'chip-cancelled',
-      REFUNDED:  'chip-refunded'
+      COMPLETED:         'chip-completed',
+      PENDING:           'chip-pending',
+      CANCELLED:         'chip-cancelled',
+      PARTIALLY_REFUNDED: 'chip-refunded',
+      REFUNDED:          'chip-refunded'
     };
     return map[status] || '';
   }

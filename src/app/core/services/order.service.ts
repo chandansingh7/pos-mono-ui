@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ApiResponse, PageResponse } from '../models/api.models';
-import { OrderRequest, OrderResponse } from '../models/order.models';
+import { OrderRequest, OrderResponse, RefundRequest } from '../models/order.models';
 import { SILENT_ERROR_HEADER } from '../interceptors/error.interceptor';
 
 export interface OrderStats {
@@ -52,8 +52,8 @@ export class OrderService {
     return this.http.put<ApiResponse<OrderResponse>>(`${this.url}/${id}/cancel`, {});
   }
 
-  refund(id: number, reason?: string): Observable<ApiResponse<OrderResponse>> {
-    return this.http.post<ApiResponse<OrderResponse>>(`${this.url}/${id}/refund`, { reason: reason ?? null });
+  refund(id: number, req?: RefundRequest): Observable<ApiResponse<OrderResponse>> {
+    return this.http.post<ApiResponse<OrderResponse>>(`${this.url}/${id}/refund`, req ?? {});
   }
 
   /** Send receipt email from company email (Settings) to customer. Requires SMTP configured and company email set. */

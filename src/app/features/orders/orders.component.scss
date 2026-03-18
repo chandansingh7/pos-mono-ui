@@ -147,9 +147,8 @@ tr.row-selected .mat-mdc-cell {
 
 .refund-detail {
   display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 4px;
+  flex-direction: column;
+  gap: 6px;
   background: #f3e5f5;
   border: 1px solid #ce93d8;
   border-radius: 6px;
@@ -157,6 +156,15 @@ tr.row-selected .mat-mdc-cell {
   margin-top: 10px;
   font-size: 13px;
   color: #4a148c;
+
+  .refund-entry {
+    font-size: 12px;
+    margin-left: 24px;
+  }
+  .refund-points {
+    color: #666;
+    font-size: 11px;
+  }
 }
 
 // ── Conflict resolution panel (Phase 4) ─────────────────────────────────────

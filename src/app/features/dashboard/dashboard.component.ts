@@ -49,8 +49,7 @@ export class DashboardComponent implements OnInit {
   ];
 
   readonly currentLimitations: string[] = [
-    'Single-company per deployment; no multi-store or stock transfers yet.',
-    'Partial refunds not supported — only full-order refunds.'
+    'Single-company per deployment; no multi-store or stock transfers yet.'
   ];
 
   ngOnInit(): void {
@@ -86,10 +85,11 @@ export class DashboardComponent implements OnInit {
 
   statusColor(status: string): string {
     const map: Record<string, string> = {
-      COMPLETED: 'success',
-      CANCELLED: 'danger',
-      REFUNDED:  'warn',
-      PENDING:   'info'
+      COMPLETED:          'success',
+      CANCELLED:          'danger',
+      PARTIALLY_REFUNDED: 'warn',
+      REFUNDED:           'warn',
+      PENDING:            'info'
     };
     return map[status] || 'info';
   }

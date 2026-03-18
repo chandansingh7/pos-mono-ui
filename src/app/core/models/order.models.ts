@@ -1,5 +1,5 @@
 export type PaymentMethod = 'CASH' | 'CREDIT_CARD' | 'DEBIT_CARD' | 'MOBILE_PAYMENT';
-export type OrderStatus = 'PENDING' | 'COMPLETED' | 'CANCELLED' | 'REFUNDED';
+export type OrderStatus = 'PENDING' | 'COMPLETED' | 'CANCELLED' | 'PARTIALLY_REFUNDED' | 'REFUNDED';
 
 export interface OrderItemRequest {
   productId: number;
@@ -22,6 +22,14 @@ export interface OrderItemResponse {
   quantity: number;
   unitPrice: number;
   subtotal: number;
+  refundedQuantity?: number;
+}
+
+export interface RefundItemResponse {
+  orderItemId: number;
+  productName: string;
+  quantity: number;
+  amount: number;
 }
 
 export interface RefundResponse {
@@ -33,6 +41,17 @@ export interface RefundResponse {
   refundMethod: PaymentMethod;
   reason?: string | null;
   rewardPointsDeducted?: number | null;
+  items?: RefundItemResponse[];
+}
+
+export interface RefundItemRequest {
+  orderItemId: number;
+  quantity: number;
+}
+
+export interface RefundRequest {
+  reason?: string;
+  items?: RefundItemRequest[];
 }
 
 export interface OrderResponse {
@@ -49,5 +68,7 @@ export interface OrderResponse {
   status: OrderStatus;
   paymentMethod: PaymentMethod;
   createdAt: string;
-  refund?: RefundResponse | null;
+  refundedAmount?: number;
+  refunds?: RefundResponse[];
+  refund?: RefundResponse | null;  // backward compat
 }

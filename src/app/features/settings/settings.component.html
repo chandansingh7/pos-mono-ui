@@ -417,14 +417,14 @@
   </mat-card-header>
   <mat-card-content>
     <form [formGroup]="form" class="settings-form">
-      <mat-form-field appearance="outline" class="full-width settings-narrow-field" subscriptSizing="dynamic">
+      <mat-form-field appearance="outline" class="full-width settings-narrow-field" subscriptSizing="dynamic" floatLabel="always">
         <mat-label>Display currency</mat-label>
         <mat-select formControlName="displayCurrency">
           <mat-option *ngFor="let opt of displayCurrencies" [value]="opt.value">{{ opt.label }}</mat-option>
         </mat-select>
         <mat-hint>Used for prices in POS, orders, reports and receipts</mat-hint>
       </mat-form-field>
-      <mat-form-field appearance="outline" class="full-width settings-narrow-field" subscriptSizing="dynamic">
+      <mat-form-field appearance="outline" class="full-width settings-narrow-field" subscriptSizing="dynamic" floatLabel="always">
         <mat-label>Locale</mat-label>
         <mat-select formControlName="locale">
           <mat-option *ngFor="let opt of displayLocales" [value]="opt.value">{{ opt.label }}</mat-option>
@@ -432,7 +432,7 @@
         <mat-hint>Affects number and date formatting across the app</mat-hint>
       </mat-form-field>
       <div class="localisation-row">
-        <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+        <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic" floatLabel="always">
           <mat-label>Country</mat-label>
           <mat-select formControlName="countryCode" (selectionChange)="onCountryChange($event.value)">
             <mat-option [value]="null">— None —</mat-option>
@@ -440,14 +440,14 @@
           </mat-select>
           <mat-hint>Used to pre-select weight unit for products and receipts</mat-hint>
         </mat-form-field>
-        <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+        <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic" floatLabel="always">
           <mat-label>Weight unit</mat-label>
           <mat-select formControlName="weightUnit">
             <mat-option *ngFor="let opt of weightUnits" [value]="opt.value">{{ opt.label }}</mat-option>
           </mat-select>
           <mat-hint>Pre-selected by country (e.g. US → lb, India → kg)</mat-hint>
         </mat-form-field>
-        <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+        <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic" floatLabel="always">
           <mat-label>Volume unit</mat-label>
           <mat-select formControlName="volumeUnit">
             <mat-option *ngFor="let opt of volumeUnits" [value]="opt.value">{{ opt.label }}</mat-option>
@@ -579,7 +579,7 @@
     <!-- Add / Edit form -->
     <form [formGroup]="taxRuleForm" class="tax-rule-form" (ngSubmit)="saveTaxRule()">
       <div class="tax-rule-form-row">
-        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" floatLabel="always">
           <mat-label>Category Key</mat-label>
           <input matInput formControlName="taxCategory" placeholder="e.g. FOOD"
                  [readonly]="editingTaxRuleId !== null"
@@ -587,11 +587,11 @@
           <mat-hint>UPPERCASE, letters/digits/underscores only</mat-hint>
           <mat-error *ngIf="taxRuleForm.get('taxCategory')?.hasError('pattern')">Must be UPPERCASE (A-Z, 0-9, _)</mat-error>
         </mat-form-field>
-        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" floatLabel="always">
           <mat-label>Label</mat-label>
           <input matInput formControlName="label" placeholder="e.g. Food Rate">
         </mat-form-field>
-        <mat-form-field appearance="outline" subscriptSizing="dynamic" style="max-width:120px">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" floatLabel="always" style="max-width:120px">
           <mat-label>Rate (%)</mat-label>
           <input matInput type="number" formControlName="ratePercent" min="0" max="100" step="0.01">
           <span matSuffix>%</span>

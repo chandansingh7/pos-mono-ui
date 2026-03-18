@@ -160,6 +160,7 @@
                 <mat-option value="PENDING">Pending</mat-option>
                 <mat-option value="COMPLETED">Completed</mat-option>
                 <mat-option value="CANCELLED">Cancelled</mat-option>
+                <mat-option value="PARTIALLY_REFUNDED">Partially Refunded</mat-option>
                 <mat-option value="REFUNDED">Refunded</mat-option>
               </mat-select>
             </mat-form-field>
@@ -214,12 +215,13 @@
               <button mat-icon-button (click)="emailReceipt(o)" matTooltip="Email receipt">
                 <mat-icon>email</mat-icon>
               </button>
-              <button mat-icon-button color="accent" *ngIf="isAdmin && o.status === 'COMPLETED'"
+              <button mat-icon-button color="accent"
+                *ngIf="isAdmin && (o.status === 'COMPLETED' || o.status === 'PARTIALLY_REFUNDED')"
                 (click)="refundOrder(o)" matTooltip="Refund">
                 <mat-icon>currency_exchange</mat-icon>
               </button>
               <button mat-icon-button color="warn"
-                *ngIf="isAdminOrManager && o.status !== 'CANCELLED' && o.status !== 'REFUNDED'"
+                *ngIf="isAdminOrManager && o.status !== 'CANCELLED' && o.status !== 'REFUNDED' && o.status !== 'PARTIALLY_REFUNDED'"
                 (click)="cancelOrder(o)" matTooltip="Cancel order">
                 <mat-icon>cancel</mat-icon>
               </button>
@@ -273,16 +275,19 @@
                 <tr class="total-row"><td colspan="4" class="text-right"><strong>TOTAL</strong></td><td><strong>{{ row.order.total | currency:currencyCode }}</strong></td></tr>
               </tfoot>
             </table>
-            <!-- Refund detail panel (shown when order is REFUNDED) -->
-            <div class="refund-detail" *ngIf="!isOfflineOrderRow(row.order) && $any(row.order).refund">
+            <!-- Refund detail panel (shown when order has refunds) -->
+            <div class="refund-detail" *ngIf="!isOfflineOrderRow(row.order) && ($any(row.order).refunds?.length || $any(row.order).refund)">
               <mat-icon style="color:#9c27b0;vertical-align:middle;margin-right:6px">currency_exchange</mat-icon>
-              <strong>Refunded</strong> on {{ $any(row.order).refund.refundedAt | date:'medium' }}
-              by <strong>{{ $any(row.order).refund.refundedBy }}</strong>
-              <span *ngIf="$any(row.order).refund.reason"> — {{ $any(row.order).refund.reason }}</span>
-              <span *ngIf="($any(row.order).refund.rewardPointsDeducted || 0) > 0"
-                    style="margin-left:8px;color:#666;font-size:0.85em">
-                ({{ $any(row.order).refund.rewardPointsDeducted }} reward points deducted)
+              <span *ngIf="($any(row.order).refundedAmount || 0) > 0">
+                <strong>Refunded: {{ $any(row.order).refundedAmount | currency:currencyCode }}</strong>
+                <span *ngIf="($any(row.order).refundedAmount || 0) < $any(row.order).total"> (partial)</span>
               </span>
+              <div *ngFor="let r of ($any(row.order).refunds || ($any(row.order).refund ? [$any(row.order).refund] : []))" class="refund-entry">
+                {{ r.refundedAt | date:'short' }} by <strong>{{ r.refundedBy }}</strong>
+                — {{ r.amount | currency:currencyCode }}
+                <span *ngIf="r.reason"> ({{ r.reason }})</span>
+                <span *ngIf="(r.rewardPointsDeducted || 0) > 0" class="refund-points"> {{ r.rewardPointsDeducted }} pts deducted</span>
+              </div>
             </div>
           </div>
         </td>
