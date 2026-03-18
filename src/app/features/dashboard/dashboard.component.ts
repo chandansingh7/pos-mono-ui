@@ -42,16 +42,14 @@ export class DashboardComponent implements OnInit {
     'Decimal quantities for weight/volume products (e.g. 0.3 kg) with correct totals and stock updates.',
     'Unit-aware products (Sold by: Piece/Weight/Volume) with unit labels (each, kg, lb, L, etc.).',
     'One global UI control standard: inputs, dropdowns, and buttons are consistent across the app.',
-    'Labels: print from products or standalone labels with barcodes; attach labels to products.',
+    'Labels: print from products or standalone labels with barcodes; A4 (2×4/2×5/3×4), Thermal (58×40/80×50) and Custom layouts supported.',
     'Access logs (Admin): per-user IP usage and IP allow list (whitelist) for secure access.'
   ];
 
   readonly currentLimitations: string[] = [
-    'Monolith backend (microservice split is planned in the roadmap).',
     'Single-company per deployment; no multi-store or stock transfers yet.',
-    'Fixed tax rate; no configurable or per-product tax rules.',
-    'No full label template designer (A4 templates and a basic custom layout are supported).',
-    'Refund flow is planned (Orders page shows "coming soon").'
+    'Fixed tax rate (global); no per-product or configurable tax rules.',
+    'Refund / return flow is not yet implemented (Orders page shows "coming soon").'
   ];
 
   ngOnInit(): void {
