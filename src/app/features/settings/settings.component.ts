@@ -421,8 +421,18 @@ export class SettingsComponent implements OnInit {
         const serverMsg: string = err.error?.message || '';
         const lower = serverMsg.toLowerCase();
 
+        // Microsoft has disabled basic auth for personal Outlook accounts (535 5.7.139)
+        if (lower.includes('5.7.139') || lower.includes('basic authentication is disabled') || lower.includes('em007')) {
+          this.snackBar.open(
+            'Microsoft has permanently disabled password-based SMTP for @outlook.com/@hotmail.com accounts. ' +
+            'Solution: Use Gmail — create a Gmail account, enable 2FA, go to myaccount.google.com/apppasswords, ' +
+            'generate an App Password, then select Gmail as provider in Settings → Email.',
+            'Close', { duration: 20000 });
+          return;
+        }
+
         // Personal Outlook account signed in via Microsoft — cannot use Graph API
-        if (lower.includes('personal outlook') || lower.includes('not supported') && lower.includes('smtp')) {
+        if (lower.includes('personal outlook') || (lower.includes('not supported') && lower.includes('smtp'))) {
           this.snackBar.open(
             'Microsoft sign-in does not work with personal Outlook accounts. ' +
             'Go to Email method → select "Outlook / Hotmail (personal)" → enter your Outlook password and click Save, then Verify.',
@@ -437,7 +447,6 @@ export class SettingsComponent implements OnInit {
 
         let hint = '';
         if ((lower.includes('authentication') || lower.includes('535') || lower.includes('username and password') || lower.includes('authentication failed')) && isPersonalAccount && isOffice365Host) {
-          // Personal Outlook account using Office 365 SMTP host — wrong host
           hint = ' → You have a personal Outlook account but selected "Microsoft 365 / Office 365 (work)" as provider. ' +
                  'Change the provider to "Outlook / Hotmail (personal)" (host: smtp-mail.outlook.com) and try again.';
         } else if (lower.includes('authentication') || lower.includes('535') || lower.includes('username and password') || lower.includes('authentication failed')) {
