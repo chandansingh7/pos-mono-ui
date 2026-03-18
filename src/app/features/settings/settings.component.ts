@@ -423,8 +423,17 @@ export class SettingsComponent implements OnInit {
         const smtpUsername: string = this.form.get('smtpUsername')?.value || '';
         const isPersonalOutlook = /@(outlook|hotmail|live)\./i.test(smtpUsername);
 
+        // Gmail App Password required (534 5.7.9)
+        if (lower.includes('5.7.9') || lower.includes('application-specific password') || lower.includes('em008')) {
+          this.snackBar.open(
+            'Gmail requires an App Password — your regular Gmail password will not work. ' +
+            'Go to myaccount.google.com/apppasswords → generate an App Password → ' +
+            'enter the 16-character code (no spaces) as the password here.',
+            'Close', { duration: 20000 });
+          return;
+        }
+
         // Personal Outlook/Hotmail/Live — Microsoft permanently disabled basic SMTP auth.
-        // Show Gmail guidance regardless of which error code came back.
         if (isPersonalOutlook ||
             lower.includes('5.7.139') ||
             lower.includes('basic authentication is disabled') ||
@@ -449,7 +458,7 @@ export class SettingsComponent implements OnInit {
 
         let hint = '';
         if (lower.includes('authentication') || lower.includes('535') || lower.includes('authentication failed')) {
-          hint = ' → Wrong password. If 2FA is ON, generate an App Password at account.microsoft.com/security.';
+          hint = ' → Wrong password. If 2FA is ON, use an App Password (Gmail: myaccount.google.com/apppasswords).';
         } else if (lower.includes('connection') || lower.includes('timeout') || lower.includes('connect')) {
           hint = ' → Cannot reach SMTP server. Check host and port settings.';
         } else if (lower.includes('ssl') || lower.includes('tls') || lower.includes('handshake')) {
