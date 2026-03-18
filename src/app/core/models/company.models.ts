@@ -11,6 +11,7 @@ export interface CompanyResponse {
   smtpPort?: number;
   smtpUsername?: string;
   smtpStartTls?: boolean;
+  smtpPasswordSet?: boolean;
   emailVerifiedAt?: string | null;
   emailSendMethod?: string;
   msAccountEmail?: string;

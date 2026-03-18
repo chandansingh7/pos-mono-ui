@@ -160,8 +160,15 @@
         </div>
         <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
           <mat-label>{{ form.get('smtpProvider')?.value === 'CUSTOM' ? 'Password' : 'App password' }}</mat-label>
-          <input matInput type="password" formControlName="smtpPassword" placeholder="Leave blank to keep existing">
-          <mat-hint *ngIf="form.get('smtpProvider')?.value !== 'CUSTOM'">Gmail / Outlook / Office 365: use App Password if you have 2FA</mat-hint>
+          <input matInput type="password" formControlName="smtpPassword"
+                 [placeholder]="smtpPasswordSet ? '••••••••••••••••  (saved — leave blank to keep)' : 'Enter app password'">
+          <mat-hint *ngIf="smtpPasswordSet && !form.get('smtpPassword')?.value">
+            <mat-icon style="font-size:14px;vertical-align:middle;color:#4caf50">check_circle</mat-icon>
+            Password saved — only enter a new one to change it
+          </mat-hint>
+          <mat-hint *ngIf="!smtpPasswordSet && form.get('smtpProvider')?.value !== 'CUSTOM'">
+            Gmail: use App Password from myaccount.google.com/apppasswords
+          </mat-hint>
         </mat-form-field>
 
         <div class="email-verify-actions">

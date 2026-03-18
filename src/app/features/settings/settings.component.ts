@@ -290,11 +290,22 @@ export class SettingsComponent implements OnInit {
       logoUrl: this.company?.logoUrl,
       faviconUrl: this.company?.faviconUrl
     };
+    const smtpPasswordEntered = !!(payload.smtpPassword?.trim());
     this.companyService.update(payload).subscribe({
-      next: () => {
+      next: res => {
         this.saving = false;
+        this.company = res.data ?? this.company;
+        // Clear password field after save — it is stored encrypted, no need to show it
+        this.form.patchValue({ smtpPassword: '' }, { emitEvent: false });
         this.form.markAsPristine();
-        this.snackBar.open('Settings saved', 'Close', { duration: 3000 });
+        // Auto-verify when SMTP password was just saved so user doesn't have to click Verify manually
+        const isSmtp = this.form.get('emailSendMethod')?.value === 'SMTP';
+        if (smtpPasswordEntered && isSmtp) {
+          this.snackBar.open('Settings saved — verifying email setup…', 'Close', { duration: 3000 });
+          this.verifyEmailSetup();
+        } else {
+          this.snackBar.open('Settings saved', 'Close', { duration: 3000 });
+        }
       },
       error: () => {
         this.saving = false;
@@ -379,6 +390,10 @@ export class SettingsComponent implements OnInit {
   /** Whether email setup has been verified (green tick). */
   get emailVerified(): boolean {
     return !!this.company?.emailVerifiedAt;
+  }
+
+  get smtpPasswordSet(): boolean {
+    return !!this.company?.smtpPasswordSet;
   }
 
   get microsoftConnected(): boolean {
